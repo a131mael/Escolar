@@ -1,0 +1,1040 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form style="width:100%; border:none" prependId="false">
+
+			<h:panelGrid columns="0" width="100%;" styleClass="alinharTopo"
+				style="margin: -10px;margin-top: -25px;">
+				<h:panelGrid columns="2">
+					<h:commandButton action="#{secretariaController.adicionar(custo)}"
+						value="Adicionar" />
+				</h:panelGrid>
+				
+				<h:panelGrid border="1" style="width:100%">
+					<center>Custo</center>
+					<h:panelGrid columns="4" title="Custos" border="0">
+
+						<h:outputLabel for="nome" value="Nome: " style="font-size: 13px; width:100px" />
+						<h:inputText id="nome" value="#{custo.nome}"
+							style="font-size: 15px; width:220px"
+							disabled="#{!authController.hasPermission(authController.administrador,authController.secretaria)}" />
+							
+							<h:outputLabel value="Data: "
+								style="font-size: 13px; width:100px" />
+							<p:calendar value="#{custo.data}" pattern="dd/MM/yyyy"
+								mask="true" style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Carro: "
+								style="font-size:12px; width:100px"/>
+							
+							<p:selectOneMenu value="#{custo.carro}"
+								converter="converterCarro"
+								style="font-size: 12px; width:200px" >
+								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
+									var="country" itemValue="#{country}" 
+									/>
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							<h:outputLabel value="Valor: "
+								style="font-size: 12px; width:100px" />
+							<p:inputText value="#{custo.valor}" 
+								style="font-size: 15px; width:200px">
+								<p:ajax event="change" />
+							</p:inputText>
+							
+							<h:outputLabel value="Tipo "
+								style="font-size: 12px; width:100px" />
+							<p:selectOneMenu id="serie" 
+								style="font-size: 12px; width:200px" 
+								value="#{custo.tipoCusto}">
+								<f:selectItems value="#{CombosEspeciaisMB.getTipoCusto()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+						
+					</h:panelGrid>
+
+				<h:panelGrid>
+					<p:tabView id="tabs">
+						<p:tab title="Jan">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable id="tbl" var="alunoTab"
+								value="#{secretariaController.getLazyDataModelJan()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Fev">
+							<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelFev()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+							
+
+						
+						</p:tab>
+						<p:tab title="Mar">
+						
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelMar()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						
+						</p:tab>
+						<p:tab title="Abr">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelAbr()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Maio">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelMai()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Jun">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelJun()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Jul">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelJul()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Ago">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelAgo()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Set">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelSet()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Out">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelOut()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Nov">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelNov()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Dez">
+						<h:panelGrid width="90%" style="border: none !important">
+							<p:dataTable var="alunoTab"
+								value="#{secretariaController.getLazyDataModelDez()}" 
+								paginator="true"
+								style="margin-bottom:20px; width:100%" 
+								paginatorPosition="bottom"
+								rowKey="#{professorTab.id}" 
+								filterEvent="enter" 
+								lazy="true"
+								liveResize="true"
+			                    styleClass="tabela"
+			                    pageLinks="5"
+			                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+			                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			                     resizableColumns="true"
+			                    rows="20"
+								>
+			
+								<f:facet name="{Exporters}">
+									<h:commandLink>
+										<p:graphicImage name="/gfx/excel.png" width="24" />
+										<p:dataExporter type="xls" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/pdf.png" width="24" />
+										<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/csv.png" width="24" />
+										<p:dataExporter type="csv" target="tbl" fileName="cars" />
+									</h:commandLink>
+			
+									<h:commandLink>
+										<p:graphicImage name="/gfx/xml.png" width="24" />
+										<p:dataExporter type="xml" target="tbl" fileName="cars" />
+									</h:commandLink>
+								</f:facet>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Id" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.id}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Tipo" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.tipoCusto.name}" />
+								</p:column>
+								
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Carro" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.carro}" />
+								</p:column>
+			
+								<p:column style="width:10%">
+									<f:facet name="header">
+										<h:outputText value="Valor" />
+									</f:facet>
+									<h:outputText value="#{alunoTab.valor}" />
+								</p:column>
+							</p:dataTable>
+
+						</h:panelGrid>
+						
+						</p:tab>
+						<p:tab title="Geral">
+						<h:panelGrid width="90%" style="border: none !important">
+				<p:dataTable  var="alunoTab"
+					value="#{secretariaController.getLazyDataModel()}" 
+					paginator="true"
+					style="margin-bottom:20px; width:100%" 
+					paginatorPosition="bottom"
+					rowKey="#{professorTab.id}" 
+					filterEvent="enter" 
+					lazy="true"
+					liveResize="true"
+                    styleClass="tabela"
+                    pageLinks="5"
+                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                     resizableColumns="true"
+                    rows="20"
+					>
+
+					<f:facet name="{Exporters}">
+						<h:commandLink>
+							<p:graphicImage name="/gfx/excel.png" width="24" />
+							<p:dataExporter type="xls" target="tbl" fileName="cars" />
+						</h:commandLink>
+
+						<h:commandLink>
+							<p:graphicImage name="/gfx/pdf.png" width="24" />
+							<p:dataExporter type="pdf" target="tbl" fileName="cars" />
+						</h:commandLink>
+
+						<h:commandLink>
+							<p:graphicImage name="/gfx/csv.png" width="24" />
+							<p:dataExporter type="csv" target="tbl" fileName="cars" />
+						</h:commandLink>
+
+						<h:commandLink>
+							<p:graphicImage name="/gfx/xml.png" width="24" />
+							<p:dataExporter type="xml" target="tbl" fileName="cars" />
+						</h:commandLink>
+					</f:facet>
+
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Id" />
+						</f:facet>
+						<h:outputText value="#{alunoTab.id}" />
+					</p:column>
+					
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Tipo" />
+						</f:facet>
+						<h:outputText value="#{alunoTab.tipoCusto.name}" />
+					</p:column>
+					
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Carro" />
+						</f:facet>
+						<h:outputText value="#{alunoTab.carro}" />
+					</p:column>
+
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Valor" />
+						</f:facet>
+						<h:outputText value="#{alunoTab.valor}" />
+					</p:column>
+
+
+				</p:dataTable>
+
+			</h:panelGrid>
+						
+						</p:tab>
+					</p:tabView>
+				</h:panelGrid>
+				
+					
+				</h:panelGrid>
+				
+				<table>
+					<tr>
+						<td><h:commandButton id="voltarButtom"
+								action="#{turmaController.voltar()}" value="Voltar" /></td>
+						
+					</tr>
+
+				</table>
+
+			</h:panelGrid>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

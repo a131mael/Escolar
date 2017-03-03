@@ -22,9 +22,9 @@ import javax.validation.ValidationException;
 import org.escola.enums.TipoMembro;
 import org.escola.model.Evento;
 import org.escola.model.Member;
-import org.escola.model.Professor;
-import org.escola.model.ProfessorTurma;
-import org.escola.model.Turma;
+import org.escola.model.Funcionario;
+import org.escola.model.FuncionarioCarro;
+import org.escola.model.Carro;
 import org.escola.util.Constant;
 import org.escola.util.Service;
 import org.escola.util.UtilFinalizarAnoLetivo;
@@ -36,7 +36,7 @@ public class UsuarioService extends Service {
 	@Inject
 	private Logger log;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 	
 	public Member findById(EntityManager em, Long id) {
@@ -47,8 +47,8 @@ public class UsuarioService extends Service {
 		return em.find(Member.class, id);
 	}
 	
-	public Professor findProfessorById(Long idProfessor) {
-		return em.find(Professor.class, idProfessor);
+	public Funcionario findProfessorById(Long idProfessor) {
+		return em.find(Funcionario.class, idProfessor);
 	}
 	
 	public String remover(Long idTurma){

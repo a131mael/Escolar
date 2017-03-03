@@ -101,7 +101,7 @@ public class MemberRegistration {
 		}
 		if(member.getLogin().equalsIgnoreCase("professor")){
 			if(member.getSenha().equalsIgnoreCase("12345")){
-				member.setTipoMembro(TipoMembro.PROFESSOR);
+				member.setTipoMembro(TipoMembro.MOTORISTA);
 				inter = true;
 			}
 		}

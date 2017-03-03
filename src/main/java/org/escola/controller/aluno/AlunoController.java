@@ -44,8 +44,8 @@ import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoAvaliacao;
-import org.escola.model.HistoricoAluno;
-import org.escola.model.Professor;
+import org.escola.model.Custo;
+import org.escola.model.Funcionario;
 import org.escola.service.AlunoService;
 import org.escola.service.AvaliacaoService;
 import org.escola.util.Constant;
@@ -69,10 +69,6 @@ public class AlunoController implements Serializable {
 	@Produces
 	@Named
 	private Aluno aluno;
-
-	@Produces
-	@Named
-	private HistoricoAluno historicoAluno;
 
 	@Produces
 	@Named
@@ -182,6 +178,14 @@ public class AlunoController implements Serializable {
 
 	}
 
+	public double valorTotal(Aluno aluno){
+		if(aluno != null && aluno.getNumeroParcelas() != null){
+			return aluno.getValorMensal()*aluno.getNumeroParcelas();
+		}else{
+			return 0;
+		}
+	}
+	
 	public LazyDataModel<Aluno> getLazyDataModelExAlunos() {
 		if (lazyListDataModelExAlunos == null) {
 
@@ -417,9 +421,6 @@ public class AlunoController implements Serializable {
 			}
 		}
 		
-		if (historicoAluno == null) {
-			historicoAluno = new HistoricoAluno();
-		}
 		officeDOCUtil = new OfficeDOCUtil();
 		cw = new CurrencyWriter();
 	}
@@ -455,7 +456,7 @@ public class AlunoController implements Serializable {
 		return alunoService.getNota(aluno.getId(), disciplina, bimestre, false);
 	}
 
-	public List<HistoricoAluno> getHistoricoAluno(Aluno aluno){
+	public List<Custo> getHistoricoAluno(Aluno aluno){
 		return alunoService.getHistoricoAluno(aluno);
 	}
 	
@@ -498,7 +499,7 @@ public class AlunoController implements Serializable {
 	}
 
 	private HashMap<String, String> montarBoletim(Aluno aluno) {
-		Professor prof = alunoService.getProfessor(aluno.getId());
+		Funcionario prof = alunoService.getProfessor(aluno.getId());
 		HashMap<String, String> trocas = new HashMap<>();
 		trocas.put("#nomeAluno", aluno.getNomeAluno());
 		trocas.put("#nomeProfessor", prof.getNome());
@@ -1144,11 +1145,6 @@ public class AlunoController implements Serializable {
 
 	public String adicionarNovo() {
 		return "cadastrar";
-	}
-	
-	public void adicionarHistorico(HistoricoAluno historico){
-		historico.setAluno(aluno);
-		alunoService.saveHistorico(historico);	
 	}
 	
 	public void removerHistorico(long idHistorico){

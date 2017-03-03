@@ -70,7 +70,7 @@
   </navigation-case>
   <navigation-case>
    <from-outcome>listagemProfessores</from-outcome>
-   <to-view-id>/page/professor/index.xhtml</to-view-id>
+   <to-view-id>/page/funcionario/index.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
   <navigation-case>
@@ -83,10 +83,10 @@
   </navigation-case>
  </navigation-rule>
  <navigation-rule>
-  <from-view-id>/page/professor/index.xhtml</from-view-id>
+  <from-view-id>/page/funcionario/index.xhtml</from-view-id>
   <navigation-case>
    <from-outcome>cadastrar</from-outcome>
-   <to-view-id>/page/professor/cadastrarProfessor.xhtml</to-view-id>
+   <to-view-id>/page/funcionario/cadastrarMotorista.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
  </navigation-rule>
@@ -107,10 +107,10 @@
   </navigation-case>
  </navigation-rule>
  <navigation-rule>
-  <from-view-id>/page/professor/visualizarAluno.xhtml</from-view-id>
+  <from-view-id>/page/funcionario/visualizarAluno.xhtml</from-view-id>
   <navigation-case>
    <from-outcome>index</from-outcome>
-   <to-view-id>/page/professor/index.xhtml</to-view-id>
+   <to-view-id>/page/funcionario/index.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
  </navigation-rule>
@@ -139,10 +139,10 @@
   </navigation-case>
  </navigation-rule>
  <navigation-rule>
-  <from-view-id>/page/professor/alunosProfessor.xhtml</from-view-id>
+  <from-view-id>/page/funcionario/alunosProfessor.xhtml</from-view-id>
   <navigation-case>
    <from-outcome>cadastrar</from-outcome>
-   <to-view-id>/page/professor/visualizarAluno.xhtml</to-view-id>
+   <to-view-id>/page/funcionario/visualizarAluno.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
  </navigation-rule>
@@ -151,6 +151,37 @@
   <navigation-case>
    <from-outcome>cadastrar</from-outcome>
    <to-view-id>/page/admin/cadastrarUsuario.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/page/secretaria/despesas.xhtml</from-view-id>
+  <navigation-case>
+   <from-outcome>cadastrar</from-outcome>
+   <to-view-id>/page/secretaria/cadastrarDespesa.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/page/secretaria/cadastrarDespesa.xhtml</from-view-id>
+  <navigation-case>
+   <from-outcome>index</from-outcome>
+   <to-view-id>/page/secretaria/despesas.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/page/public/rotas.xhtml</from-view-id>
+  <navigation-case>
+   <from-outcome>cadastrar</from-outcome>
+   <to-view-id>/page/public/cadastrarRota.xhtml</to-view-id>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/page/public/cadastrarRota.xhtml</from-view-id>
+  <navigation-case>
+   <from-outcome>index</from-outcome>
+   <to-view-id>/page/public/rotas.xhtml</to-view-id>
   </navigation-case>
  </navigation-rule>
  <application/>

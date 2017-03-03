@@ -17,37 +17,46 @@
 package org.escola.model;
 
 import java.io.Serializable;
+import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
-public class AlunoTurma implements Serializable {
+public class Carro implements Serializable {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @NotNull
-    @ManyToOne
-    private Aluno aluno;
+    @Size(min = 1, max = 250)
+    private String nome;
     
-    @NotNull
-    @ManyToOne
-    private Turma turma;
+    @OneToMany
+    private List<AlunoCarro> alunosTurmas;
     
-    @Column
-    private int anoLetivo;
+    @OneToMany
+    private List<FuncionarioCarro> professoresTurma;
+    
+    
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 
 	public Long getId() {
 		return id;
@@ -57,30 +66,49 @@ public class AlunoTurma implements Serializable {
 		this.id = id;
 	}
 
-	public Aluno getAluno() {
-		return aluno;
+	public List<AlunoCarro> getAlunosTurmas() {
+		return alunosTurmas;
 	}
 
-	public void setAluno(Aluno aluno) {
-		this.aluno = aluno;
+	public void setAlunosTurmas(List<AlunoCarro> alunosTurmas) {
+		this.alunosTurmas = alunosTurmas;
 	}
 
-	public Turma getTurma() {
-		return turma;
+	public List<FuncionarioCarro> getProfessoresTurma() {
+		return professoresTurma;
 	}
 
-	public void setTurma(Turma turma) {
-		this.turma = turma;
+	public void setProfessoresTurma(List<FuncionarioCarro> professoresTurma) {
+		this.professoresTurma = professoresTurma;
 	}
 
-	public int getAnoLetivo() {
-		return anoLetivo;
-	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		Carro other = (Carro) obj;
+		if (nome == null) {
+			if (other.nome != null)
+				return false;
+		} 
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		
+		return true;
 
-	public void setAnoLetivo(int anoLetivo) {
-		this.anoLetivo = anoLetivo;
 	}
-
-    
+	
+	@Override
+	public String toString() {
+		return nome;
+	}
 		
 }

@@ -29,7 +29,7 @@ public class EventoService extends Service {
 	@Inject
 	private Logger log;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 
 	public Evento findById(EntityManager em, Long id) {

@@ -133,13 +133,13 @@
 						<h:outputText value="#{professorTab.periodo.name}" />
 					</p:column>
 					
-					<p:column filterBy="#{professorTab.serie}"
+					<p:column filterBy="#{professorTab.valorMensal}"
                               sortBy="#{professorTab.serie}" 
                               style="text-align: center;width:10%;"
                               styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
-                              headerText="Série "
-                              filterOptions="#{CombosEspeciaisMB.seriesSelectIItem}">
-						<h:outputText value="#{professorTab.serie.name}" />
+                              headerText="Valor mensal "
+                              >
+						<h:outputText value="#{professorTab.valorMensal}" />
 					</p:column>	
 
 					<p:column style="text-align: center; width:8%" 

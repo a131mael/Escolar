@@ -19,8 +19,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
-import org.escola.model.ProfessorTurma;
-import org.escola.model.Turma;
+import org.escola.model.FuncionarioCarro;
+import org.escola.model.Carro;
 import org.escola.util.Service;
 
 
@@ -30,22 +30,22 @@ public class TurmaService extends Service {
 	@Inject
 	private Logger log;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 
-	public Turma findById(EntityManager em, Long id) {
-		return em.find(Turma.class, id);
+	public Carro findById(EntityManager em, Long id) {
+		return em.find(Carro.class, id);
 	}
 
-	public Turma findById(Long id) {
-		return em.find(Turma.class, id);
+	public Carro findById(Long id) {
+		return em.find(Carro.class, id);
 	}
 
-	public List<Turma> findAll() {
+	public List<Carro> findAll() {
 		try{
 			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Turma> criteria = cb.createQuery(Turma.class);
-			Root<Turma> member = criteria.from(Turma.class);
+			CriteriaQuery<Carro> criteria = cb.createQuery(Carro.class);
+			Root<Carro> member = criteria.from(Carro.class);
 			// Swap criteria statements if you would like to try out type-safe
 			// criteria queries, a new
 			// feature in JPA 2.0
@@ -61,8 +61,8 @@ public class TurmaService extends Service {
 		}
 	}
 
-	public Turma save(Turma professor) {
-		Turma user = null;
+	public Carro save(Carro professor) {
+		Carro user = null;
 		try {
 
 			log.info("Registering " + professor.getNome());
@@ -70,12 +70,10 @@ public class TurmaService extends Service {
 			if (professor.getId() != null && professor.getId() != 0L) {
 				user = findById(professor.getId());
 			} else {
-				user = new Turma();
+				user = new Carro();
 			}
 			
 			user.setNome(professor.getNome());
-			user.setSerie(professor.getSerie());
-			user.setPeriodo(professor.getPeriodo());
 			em.persist(user);
 
 			
@@ -101,7 +99,7 @@ public class TurmaService extends Service {
 	public String remove(Long idTurma) {
 		/**CASCADE*/
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  ProfessorTurma pt ");
+		sql.append("SELECT pt from  FuncionarioCarro pt ");
 		sql.append("where pt.turma.id =   ");
 		sql.append(idTurma);
 
@@ -109,8 +107,8 @@ public class TurmaService extends Service {
 		
 		 
 		try{
-			List<ProfessorTurma> professorTurmas = query.getResultList();
-			for(ProfessorTurma profT : professorTurmas){
+			List<FuncionarioCarro> professorTurmas = query.getResultList();
+			for(FuncionarioCarro profT : professorTurmas){
 				em.remove(profT);
 			}
 		
@@ -127,19 +125,19 @@ public class TurmaService extends Service {
 		return "ok";
 	}
 
-	public List<Turma> findAll(Long idProfessor) {
-		List<Turma> turmasDoProfessor = new ArrayList<>();
+	public List<Carro> findAll(Long idProfessor) {
+		List<Carro> turmasDoProfessor = new ArrayList<>();
 		
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  ProfessorTurma pt ");
+		sql.append("SELECT pt from  FuncionarioCarro pt ");
 		sql.append("where pt.professor.id =   ");
 		sql.append(idProfessor);
 		Query query = em.createQuery(sql.toString());
 		
 		 
 		try{
-			List<ProfessorTurma> professorTurmas = query.getResultList();
-			for(ProfessorTurma profT : professorTurmas){
+			List<FuncionarioCarro> professorTurmas = query.getResultList();
+			for(FuncionarioCarro profT : professorTurmas){
 				turmasDoProfessor.add(profT.getTurma());
 			}
 		

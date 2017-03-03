@@ -18,6 +18,7 @@ package org.escola.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -31,7 +32,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @XmlRootElement
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
-public class ProfessorTurma implements Serializable {
+public class AlunoCarro implements Serializable {
 
     @Id
     @GeneratedValue
@@ -39,13 +40,14 @@ public class ProfessorTurma implements Serializable {
 
     @NotNull
     @ManyToOne
-    private Professor professor;
-    
-    private Boolean principal;
+    private Aluno aluno;
     
     @NotNull
     @ManyToOne
-    private Turma turma;
+    private Carro carro;
+    
+    @Column
+    private int anoLetivo;
 
 	public Long getId() {
 		return id;
@@ -55,28 +57,28 @@ public class ProfessorTurma implements Serializable {
 		this.id = id;
 	}
 
-	public Boolean getPrincipal() {
-		return principal;
+	public Aluno getAluno() {
+		return aluno;
 	}
 
-	public void setPrincipal(Boolean principal) {
-		this.principal = principal;
+	public void setAluno(Aluno aluno) {
+		this.aluno = aluno;
 	}
 
-	public Professor getProfessor() {
-		return professor;
+	public int getAnoLetivo() {
+		return anoLetivo;
 	}
 
-	public void setProfessor(Professor professor) {
-		this.professor = professor;
+	public void setAnoLetivo(int anoLetivo) {
+		this.anoLetivo = anoLetivo;
 	}
 
-	public Turma getTurma() {
-		return turma;
+	public Carro getCarro() {
+		return carro;
 	}
 
-	public void setTurma(Turma turma) {
-		this.turma = turma;
+	public void setCarro(Carro carro) {
+		this.carro = carro;
 	}
 
     

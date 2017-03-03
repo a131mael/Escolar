@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -33,6 +34,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.escola.enums.EscolaEnum;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 
@@ -59,7 +61,7 @@ public class Aluno implements Serializable {
     private String nomeAluno;
     
     @OneToMany
-    private List<AlunoTurma> alunosTurmas;
+    private List<AlunoCarro> alunosCarros;
     
     @OneToMany
     private List<AlunoAvaliacao> avaliacoes;
@@ -119,10 +121,34 @@ public class Aluno implements Serializable {
     private Date dataNascimento;
     
     @Column
-    private String nacionalidade;
+    private EscolaEnum escola;
     
     @Column
-    private boolean administrarParacetamol;
+    private boolean trocaIDA;
+    @Column
+    private boolean trocaVolta;
+    
+    @ManyToOne
+    private Carro carroLevaParaEscola;
+    
+    @ManyToOne
+    private Carro carroLevaParaEscolaTroca;
+    
+    @ManyToOne
+    private Carro carroPegaEscola;
+    
+    @ManyToOne
+    private Carro carroPegaEscolaTroca;
+    
+    @Column
+    private int idaVolta;
+    
+    @Column
+    private String horaPegar;
+    
+    @Column
+    private String horaEntregar;
+    
     
     /**DADOS DO PAI*/
     @Pattern(regexp = "[^0-9]*", message = "Must not contain numbers")
@@ -194,26 +220,6 @@ public class Aluno implements Serializable {
     
     /*DADOS DE CONTATOS PARA SAIDAS*/
 
-    @Pattern(regexp = "[^0-9]*", message = "Must not contain numbers")
-    private String nomecontatoSaidaEstabelecimento1;
-    @Column
-    private String telefonecontatoSaidaEstabelecimento1;
-    @Column
-    private String telefone2contatoSaidaEstabelecimento1;
-    
-    @Pattern(regexp = "[^0-9]*", message = "Must not contain numbers")
-    private String nomecontatoSaidaEstabelecimento2;
-    @Column
-    private String telefonecontatoSaidaEstabelecimento2;
-    @Column
-    private String telefone2contatoSaidaEstabelecimento2;
-    
-    @Pattern(regexp = "[^0-9]*", message = "Must not contain numbers")
-    private String nomecontatoSaidaEstabelecimento3;
-    @Column
-    private String telefonecontatoSaidaEstabelecimento3;
-    @Column
-    private String telefone2contatoSaidaEstabelecimento3;
     
     @Column
     private boolean ativo;
@@ -222,7 +228,7 @@ public class Aluno implements Serializable {
     private String observacaoSecretaria;
 
     @Column
-    private String observacaoProfessores;
+    private String observacaoMotorista;
     
 	public Long getId() {
 		return id;
@@ -248,78 +254,8 @@ public class Aluno implements Serializable {
 		this.ativo = ativo;
 	}
 
-	public String getTelefone2contatoSaidaEstabelecimento3() {
-		return telefone2contatoSaidaEstabelecimento3;
-	}
-
-	public void setTelefone2contatoSaidaEstabelecimento3(String telefone2contatoSaidaEstabelecimento3) {
-		this.telefone2contatoSaidaEstabelecimento3 = telefone2contatoSaidaEstabelecimento3;
-	}
-
-	public String getTelefonecontatoSaidaEstabelecimento3() {
-		return telefonecontatoSaidaEstabelecimento3;
-	}
-
-	public void setTelefonecontatoSaidaEstabelecimento3(String telefonecontatoSaidaEstabelecimento3) {
-		this.telefonecontatoSaidaEstabelecimento3 = telefonecontatoSaidaEstabelecimento3;
-	}
-
-	public String getNomecontatoSaidaEstabelecimento3() {
-		return nomecontatoSaidaEstabelecimento3;
-	}
-
-	public void setNomecontatoSaidaEstabelecimento3(String nomecontatoSaidaEstabelecimento3) {
-		this.nomecontatoSaidaEstabelecimento3 = nomecontatoSaidaEstabelecimento3;
-	}
-
-	public String getTelefone2contatoSaidaEstabelecimento2() {
-		return telefone2contatoSaidaEstabelecimento2;
-	}
-
-	public void setTelefone2contatoSaidaEstabelecimento2(String telefone2contatoSaidaEstabelecimento2) {
-		this.telefone2contatoSaidaEstabelecimento2 = telefone2contatoSaidaEstabelecimento2;
-	}
-
-	public String getTelefonecontatoSaidaEstabelecimento2() {
-		return telefonecontatoSaidaEstabelecimento2;
-	}
-
-	public void setTelefonecontatoSaidaEstabelecimento2(String telefonecontatoSaidaEstabelecimento2) {
-		this.telefonecontatoSaidaEstabelecimento2 = telefonecontatoSaidaEstabelecimento2;
-	}
-
-	public String getNomecontatoSaidaEstabelecimento2() {
-		return nomecontatoSaidaEstabelecimento2;
-	}
-
-	public void setNomecontatoSaidaEstabelecimento2(String nomecontatoSaidaEstabelecimento2) {
-		this.nomecontatoSaidaEstabelecimento2 = nomecontatoSaidaEstabelecimento2;
-	}
-
-	public String getTelefone2contatoSaidaEstabelecimento1() {
-		return telefone2contatoSaidaEstabelecimento1;
-	}
-
-	public void setTelefone2contatoSaidaEstabelecimento1(String telefone2contatoSaidaEstabelecimento1) {
-		this.telefone2contatoSaidaEstabelecimento1 = telefone2contatoSaidaEstabelecimento1;
-	}
-
-	public String getTelefonecontatoSaidaEstabelecimento1() {
-		return telefonecontatoSaidaEstabelecimento1;
-	}
-
-	public void setTelefonecontatoSaidaEstabelecimento1(String telefonecontatoSaidaEstabelecimento1) {
-		this.telefonecontatoSaidaEstabelecimento1 = telefonecontatoSaidaEstabelecimento1;
-	}
-
-	public String getNomecontatoSaidaEstabelecimento1() {
-		return nomecontatoSaidaEstabelecimento1;
-	}
-
-	public void setNomecontatoSaidaEstabelecimento1(String nomecontatoSaidaEstabelecimento1) {
-		this.nomecontatoSaidaEstabelecimento1 = nomecontatoSaidaEstabelecimento1;
-	}
-
+	
+	
 	public String getTelefoneEmpresaTrabalhaMae() {
 		return telefoneEmpresaTrabalhaMae;
 	}
@@ -496,23 +432,6 @@ public class Aluno implements Serializable {
 		this.nomePaiAluno = nomePaiAluno;
 	}
 
-	public boolean isAdministrarParacetamol() {
-		return administrarParacetamol;
-	}
-
-	public void setAdministrarParacetamol(boolean administrarParacetamol) {
-		this.administrarParacetamol = administrarParacetamol;
-	}
-
-	public String getNacionalidade() {
-		return nacionalidade;
-	}
-
-	public void setNacionalidade(String nacionalidade) {
-		this.nacionalidade = nacionalidade;
-	}
-
-
 	public String getTelefone() {
 		return telefone;
 	}
@@ -591,14 +510,6 @@ public class Aluno implements Serializable {
 
 	public void setValorMensal(double valorMensal) {
 		this.valorMensal = valorMensal;
-	}
-
-	public List<AlunoTurma> getAlunosTurmas() {
-		return alunosTurmas;
-	}
-
-	public void setAlunosTurmas(List<AlunoTurma> alunosTurmas) {
-		this.alunosTurmas = alunosTurmas;
 	}
 
 	public Date getDataMatricula() {
@@ -686,14 +597,6 @@ public class Aluno implements Serializable {
 		this.cpfResponsavel = cpfResponsavel;
 	}
 
-	public String getObservacaoProfessores() {
-		return observacaoProfessores;
-	}
-
-	public void setObservacaoProfessores(String observacaoProfessores) {
-		this.observacaoProfessores = observacaoProfessores;
-	}
-
 	public String getObservacaoSecretaria() {
 		return observacaoSecretaria;
 	}
@@ -724,5 +627,85 @@ public class Aluno implements Serializable {
 
 	public void setRemovido(Boolean removido) {
 		this.removido = removido;
+	}
+
+	public boolean isTrocaIDA() {
+		return trocaIDA;
+	}
+
+	public void setTrocaIDA(boolean trocaIDA) {
+		this.trocaIDA = trocaIDA;
+	}
+
+	public boolean isTrocaVolta() {
+		return trocaVolta;
+	}
+
+	public void setTrocaVolta(boolean trocaVolta) {
+		this.trocaVolta = trocaVolta;
+	}
+
+	public Carro getCarroLevaParaEscola() {
+		return carroLevaParaEscola;
+	}
+
+	public void setCarroLevaParaEscola(Carro carroLevaParaEscola) {
+		this.carroLevaParaEscola = carroLevaParaEscola;
+	}
+
+	public Carro getCarroLevaParaEscolaTroca() {
+		return carroLevaParaEscolaTroca;
+	}
+
+	public void setCarroLevaParaEscolaTroca(Carro carroLevaParaEscolaTroca) {
+		this.carroLevaParaEscolaTroca = carroLevaParaEscolaTroca;
+	}
+
+	public Carro getCarroPegaEscola() {
+		return carroPegaEscola;
+	}
+
+	public void setCarroPegaEscola(Carro carroPegaEscola) {
+		this.carroPegaEscola = carroPegaEscola;
+	}
+
+	public Carro getCarroPegaEscolaTroca() {
+		return carroPegaEscolaTroca;
+	}
+
+	public void setCarroPegaEscolaTroca(Carro carroPegaEscolaTroca) {
+		this.carroPegaEscolaTroca = carroPegaEscolaTroca;
+	}
+
+	public int getIdaVolta() {
+		return idaVolta;
+	}
+
+	public void setIdaVolta(int idaVolta) {
+		this.idaVolta = idaVolta;
+	}
+
+	public String getHoraPegar() {
+		return horaPegar;
+	}
+
+	public void setHoraPegar(String horaPegar) {
+		this.horaPegar = horaPegar;
+	}
+
+	public String getHoraEntregar() {
+		return horaEntregar;
+	}
+
+	public void setHoraEntregar(String horaEntregar) {
+		this.horaEntregar = horaEntregar;
+	}
+
+	public EscolaEnum getEscola() {
+		return escola;
+	}
+
+	public void setEscola(EscolaEnum escola) {
+		this.escola = escola;
 	}
 }

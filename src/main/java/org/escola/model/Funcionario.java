@@ -37,7 +37,7 @@ import org.escola.enums.TipoMembro;
 
 
 @Entity
-public class Professor implements Serializable {
+public class Funcionario implements Serializable {
 
 	/**
 	 * 
@@ -106,13 +106,13 @@ public class Professor implements Serializable {
     private String rg ;
 
     @OneToMany
-    private List<ProfessorTurma> turmas;
+    private List<FuncionarioCarro> turmas;
     
-	public List<ProfessorTurma> getTurmas() {
+	public List<FuncionarioCarro> getTurmas() {
 		return turmas;
 	}
 
-	public void setTurmas(List<ProfessorTurma> turmas) {
+	public void setTurmas(List<FuncionarioCarro> turmas) {
 		this.turmas = turmas;
 	}
 
@@ -236,7 +236,7 @@ public class Professor implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		
-		Professor other = (Professor) obj;
+		Funcionario other = (Funcionario) obj;
 		if (nome == null) {
 			if (other.nome != null)
 				return false;

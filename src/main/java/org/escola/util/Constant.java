@@ -14,7 +14,7 @@ import org.escola.enums.TipoMembro;
 public class Constant {
     
     private String ContextoGlobalEJB = "java:global";
-    private String Projeto = "Escola";
+    private String Projeto = "Escolar";
     private String ProjetoEJB = "";
     private String barra = "/";
     
@@ -22,15 +22,23 @@ public class Constant {
     
     private static TipoMembro SECRETARIA = TipoMembro.SECRETARIA; 
     
-    private static TipoMembro PROFESSOR = TipoMembro.PROFESSOR;
+    private static TipoMembro PROFESSOR = TipoMembro.MOTORISTA;
     
     private static TipoMembro ALUNO = TipoMembro.ALUNO;
     
     private static TipoMembro ADMINISTRADOR = TipoMembro.ADMIM;
     
+    
+    public static long idCarro1 = 21;
+    public static long idCarro2 = 23;
+    public static long idCarro3 = 24;
+    public static long idCarro4 = 27;
+    public static long idCarro5 = 32;
+    
+    
     static{
     	 SECRETARIA = TipoMembro.SECRETARIA; 
-    	 PROFESSOR = TipoMembro.PROFESSOR;
+    	 PROFESSOR = TipoMembro.MONITOR;
     	 ALUNO = TipoMembro.ALUNO;
     	 ADMINISTRADOR = TipoMembro.ADMIM;
     }

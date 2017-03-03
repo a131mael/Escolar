@@ -4,11 +4,13 @@ public enum TipoMembro {
 
 	SECRETARIA("Secretaria"),
 	
-	PROFESSOR("Professor"),
+	MOTORISTA("Motorista"),
 	
 	ADMIM("Administrador"),
 	
-	ALUNO("Aluno");
+	ALUNO("Aluno"),
+	
+	MONITOR("Monitor");
 	
 	private String tipo;
 	

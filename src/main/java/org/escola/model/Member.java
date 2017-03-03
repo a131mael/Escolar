@@ -63,7 +63,7 @@ public class Member implements Serializable {
 	private String senha;
 
 	@OneToOne(mappedBy = "member")
-	private Professor professor;
+	private Funcionario professor;
 	
 	@OneToOne(mappedBy = "member")
 	private Aluno aluno;
@@ -127,11 +127,11 @@ public class Member implements Serializable {
 		this.senha = senha;
 	}
 
-	public Professor getProfessor() {
+	public Funcionario getProfessor() {
 		return professor;
 	}
 
-	public void setProfessor(Professor professor) {
+	public void setProfessor(Funcionario professor) {
 		this.professor = professor;
 	}
 }

@@ -11,11 +11,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
-import org.escola.model.Funcionario;
+import org.escola.model.Carro;
 
 
-@FacesConverter(value = "converterProfessor")
-public class ConverterProfessor implements Converter {
+@FacesConverter(value = "converterCarro")
+public class ConverterCarro implements Converter {
 
 	@Override
     public Object getAsObject(FacesContext context, UIComponent component, String value) {                
@@ -34,7 +34,7 @@ public class ConverterProfessor implements Converter {
     		if(value instanceof String){
     			return null;
     		}
-            Funcionario entity = (Funcionario) value;
+            Carro entity = (Carro) value;
 
             // adiciona item como atributo do componente
             if (entity.getId() != null) {
@@ -56,7 +56,7 @@ public class ConverterProfessor implements Converter {
 
     }
     
-    protected void addAttribute(UIComponent component, Funcionario o) {
+    protected void addAttribute(UIComponent component, Carro o) {
         String key = o.getId().toString(); // codigo da empresa como chave neste caso
         this.getAttributesFrom(component).put(key, o);
     }

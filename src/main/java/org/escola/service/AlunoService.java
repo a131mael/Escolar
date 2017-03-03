@@ -25,11 +25,11 @@ import org.escola.enums.DisciplinaEnum;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Aluno;
-import org.escola.model.AlunoTurma;
+import org.escola.model.AlunoCarro;
 import org.escola.model.Evento;
-import org.escola.model.HistoricoAluno;
-import org.escola.model.Professor;
-import org.escola.model.Turma;
+import org.escola.model.Custo;
+import org.escola.model.Funcionario;
+import org.escola.model.Carro;
 import org.escola.util.Constant;
 import org.escola.util.Service;
 import org.escola.util.UtilFinalizarAnoLetivo;
@@ -46,7 +46,7 @@ public class AlunoService extends Service {
 	@Inject
 	private UtilFinalizarAnoLetivo finalizarAnoLetivo;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 
 	public Aluno findById(EntityManager em, Long id) {
@@ -57,8 +57,8 @@ public class AlunoService extends Service {
 		return em.find(Aluno.class, id);
 	}
 
-	public HistoricoAluno findHistoricoById(Long id) {
-		return em.find(HistoricoAluno.class, id);
+	public Custo findHistoricoById(Long id) {
+		return em.find(Custo.class, id);
 	}
 
 	public List<Aluno> findAll() {
@@ -146,15 +146,15 @@ public class AlunoService extends Service {
 		List<Aluno> alunos = new ArrayList<>();
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  AlunoTurma pt ");
-		sql.append("where pt.turma.id =   ");
+		sql.append("SELECT pt from  AlunoCarro pt ");
+		sql.append("where pt.carro.id =   ");
 		sql.append(idTurma);
 
 		Query query = em.createQuery(sql.toString());
 
 		try {
-			List<AlunoTurma> alunosTurmas = query.getResultList();
-			for (AlunoTurma profT : alunosTurmas) {
+			List<AlunoCarro> alunosTurmas = query.getResultList();
+			for (AlunoCarro profT : alunosTurmas) {
 				Aluno pro = profT.getAluno();
 				alunos.add(pro);
 			}
@@ -170,10 +170,10 @@ public class AlunoService extends Service {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Aluno> findAlunoTurmaBytTurma(List<Turma> turmas) {
+	public List<Aluno> findAlunoTurmaBytTurma(List<Carro> turmas) {
 		List<Aluno> alunos = new ArrayList<>();
 
-		for (Turma turma : turmas) {
+		for (Carro turma : turmas) {
 			alunos.addAll(findAlunoTurmaBytTurma(turma.getId()));
 		}
 		return alunos;
@@ -193,7 +193,7 @@ public class AlunoService extends Service {
 				user.setAnoLetivo(Constant.anoLetivoAtual);
 			}
 
-			user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+			//user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
 			user.setNomeAluno(aluno.getNomeAluno());
 			user.setPeriodo(aluno.getPeriodo());
 			user.setSerie(aluno.getSerie());
@@ -201,12 +201,59 @@ public class AlunoService extends Service {
 			user.setBairro(aluno.getBairro());
 			user.setCep(aluno.getCep());
 			user.setCidade(aluno.getCidade());
-			user.setNacionalidade(aluno.getNacionalidade());
+			//user.setNacionalidade(aluno.getNacionalidade());
 			user.setValorMensal(aluno.getValorMensal());
 			user.setDataNascimento(aluno.getDataNascimento());
 			user.setDataMatricula(aluno.getDataMatricula());
-			user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+	//		user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
 			user.setCodigo(aluno.getCodigo());
+
+			user.setCodigo(aluno.getCodigo());
+			user.setNomeAvoHPaternoMae(aluno.getNomeAvoHPaternoMae());
+			user.setAnuidade(aluno.getAnuidade() != null ? aluno.getAnuidade():0);
+			user.setBairro(aluno.getBairro());
+			user.setCep(aluno.getCep());
+			user.setCidade(aluno.getCidade());
+			user.setCpfMae(aluno.getCpfMae());
+			user.setCpfPai(aluno.getCpfPai());
+			user.setCpfResponsavel(aluno.getCpfResponsavel());
+			user.setDataMatricula(aluno.getDataMatricula());
+			user.setEmailMae(aluno.getEmailMae());
+			user.setEmailPai(aluno.getEmailPai());
+			user.setEmpresaTrabalhaMae(aluno.getEmpresaTrabalhaMae());
+			user.setEmpresaTrabalhaPai(aluno.getEmpresaTrabalhaPai());
+			user.setLogin(aluno.getLogin());
+			user.setNaturalidadeMae(aluno.getNaturalidadeMae());
+			user.setNaturalidadePai(aluno.getNaturalidadePai());
+			user.setNomeAvoHPaternoMae(aluno.getNomeAvoHPaternoMae());
+			user.setNomeAvoHPaternoPai(aluno.getNomeAvoHPaternoPai());
+			user.setNomeAvoPaternoMae(aluno.getNomeAvoPaternoMae());
+			user.setNomeAvoPaternoPai(aluno.getNomeAvoPaternoPai());
+			user.setNomeMaeAluno(aluno.getNomeMaeAluno());
+			user.setNomePaiAluno(aluno.getNomePaiAluno());
+			user.setNomeResponsavel(aluno.getNomeResponsavel());
+			user.setNumeroParcelas(aluno.getNumeroParcelas());
+			user.setObservacaoSecretaria(aluno.getObservacaoSecretaria());
+			user.setValorMensal(aluno.getValorMensal());
+			user.setTelefoneResidencialPai(aluno.getTelefoneResidencialPai());
+			user.setRgMae(aluno.getRgMae());
+			user.setRgPai(aluno.getRgPai());
+			user.setSenha(aluno.getSenha());
+			user.setTelefone(aluno.getTelefone());
+			user.setEscola(aluno.getEscola());
+			if(aluno.getRemovido() == null){
+				user.setRemovido(false);
+			}else{
+				user.setRemovido(aluno.getRemovido());
+			}
+			
+			user.setTrocaIDA(aluno.isTrocaIDA());
+			user.setTrocaVolta(aluno.isTrocaVolta());
+			user.setCarroLevaParaEscola(aluno.getCarroLevaParaEscola());
+			user.setCarroLevaParaEscolaTroca(aluno.getCarroLevaParaEscolaTroca());
+			user.setCarroPegaEscola(aluno.getCarroPegaEscola());
+			user.setCarroPegaEscolaTroca(aluno.getCarroPegaEscolaTroca());
+			
 			em.persist(user);
 
 			if (user.getDataNascimento() != null) {
@@ -260,26 +307,26 @@ public class AlunoService extends Service {
 		return "ok";
 	}
 
-	public void saveAlunoTurma(List<Aluno> target, Turma turma) {
+	public void saveAlunoTurma(List<Aluno> target, Carro turma) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT at from  AlunoTurma at ");
+		sql.append("SELECT at from  AlunoCarro at ");
 		sql.append("where at.turma.id =   ");
 		sql.append(turma.getId());
 
 		Query query = em.createQuery(sql.toString());
 
 		try {
-			List<AlunoTurma> alunosTurmas = query.getResultList();
-			for (AlunoTurma profT : alunosTurmas) {
+			List<AlunoCarro> alunosTurmas = query.getResultList();
+			for (AlunoCarro profT : alunosTurmas) {
 				em.remove(profT);
 				em.flush();
 			}
 
 			for (Aluno prof : target) {
-				AlunoTurma pt = new AlunoTurma();
+				AlunoCarro pt = new AlunoCarro();
 				pt.setAnoLetivo(Constant.anoLetivoAtual);
 				pt.setAluno(prof);
-				pt.setTurma(em.find(Turma.class, turma.getId()));
+				pt.setCarro(em.find(Carro.class, turma.getId()));
 				em.persist(pt);
 			}
 
@@ -291,23 +338,23 @@ public class AlunoService extends Service {
 
 	}
 
-	public Professor getProfessor(Long idAluno) {
+	public Funcionario getProfessor(Long idAluno) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT at.turma from  AlunoTurma at ");
+		sql.append("SELECT at.turma from  AlunoCarro at ");
 		sql.append("where 1 = 1");
 		sql.append("and  at.aluno.id = ");
 		sql.append(idAluno);
 		Query query = em.createQuery(sql.toString());
-		Turma t = (Turma) query.getResultList().get(0);
+		Carro t = (Carro) query.getResultList().get(0);
 
 		StringBuilder sql2 = new StringBuilder();
-		sql2.append("SELECT pt.professor from  ProfessorTurma pt ");
+		sql2.append("SELECT pt.professor from  FuncionarioCarro pt ");
 		sql2.append("where 1 = 1");
 		sql2.append("and  pt.turma.id = ");
 		sql2.append(t.getId());
 		sql2.append("and  pt.professor.especialidade = 0");
 		Query query2 = em.createQuery(sql2.toString());
-		return (Professor) query2.getResultList().get(0);
+		return (Funcionario) query2.getResultList().get(0);
 
 	}
 
@@ -430,11 +477,11 @@ public class AlunoService extends Service {
 		}
 	}
 
-	public List<HistoricoAluno> getHistoricoAluno(Aluno aluno) {
+	public List<Custo> getHistoricoAluno(Aluno aluno) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<HistoricoAluno> criteria = cb.createQuery(HistoricoAluno.class);
-			Root<HistoricoAluno> member = criteria.from(HistoricoAluno.class);
+			CriteriaQuery<Custo> criteria = cb.createQuery(Custo.class);
+			Root<Custo> member = criteria.from(Custo.class);
 			CriteriaQuery cq = criteria.select(member);
 
 			Predicate pred = cb.and();
@@ -443,7 +490,7 @@ public class AlunoService extends Service {
 
 			cq.orderBy(cb.desc(member.get("ano")));
 			Query q = em.createQuery(criteria);
-			return (List<HistoricoAluno>) q.getResultList();
+			return (List<Custo>) q.getResultList();
 
 		} catch (NoResultException nre) {
 			return new ArrayList<>();
@@ -453,31 +500,6 @@ public class AlunoService extends Service {
 		}
 	}
 
-	public void saveHistorico(HistoricoAluno historico) {
-		log.info("Registering historico do aluno " + historico.getAluno().getNomeAluno());
-		HistoricoAluno ha = null;
-		if (historico.getId() != null && historico.getId() != 0L) {
-			ha = findHistoricoById(historico.getId());
-		} else {
-			ha = new HistoricoAluno();
-		}
-		ha.setNomeAluno(historico.getAluno().getNomeAluno());
-		ha.setAluno(findById(historico.getAluno().getId()));
-		ha.setAno(historico.getAno());
-		ha.setEscola(historico.getEscola());
-		ha.setNotaArtes(historico.getNotaArtes());
-		ha.setNotaCiencias(historico.getNotaCiencias());
-		ha.setNotaEdFisica(historico.getNotaEdFisica());
-		ha.setNotaformacaoCrista(historico.getNotaformacaoCrista());
-		ha.setNotaGeografia(historico.getNotaGeografia());
-		ha.setNotaHistoria(historico.getNotaHistoria());
-		ha.setNotaIngles(historico.getNotaIngles());
-		ha.setNotaMatematica(historico.getNotaMatematica());
-		ha.setNotaPortugues(historico.getNotaPortugues());
-		ha.setSerie(historico.getSerie());
-
-		em.persist(ha);
-	}
 
 	public void removerHistorico(long idHistorico) {
 		em.remove(findHistoricoById(idHistorico));
@@ -487,7 +509,7 @@ public class AlunoService extends Service {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();
 			CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-			Root<AlunoTurma> member = countQuery.from(AlunoTurma.class);
+			Root<AlunoCarro> member = countQuery.from(AlunoCarro.class);
 			countQuery.select(cb.count(member));
 
 			Predicate pred = cb.and();

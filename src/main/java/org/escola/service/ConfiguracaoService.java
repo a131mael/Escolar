@@ -28,7 +28,7 @@ public class ConfiguracaoService extends Service {
 	@Inject
 	private Logger log;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 
 	public Configuracao findById(EntityManager em, Long id) {

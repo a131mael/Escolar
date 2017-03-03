@@ -17,64 +17,35 @@
 package org.escola.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.escola.enums.PerioddoEnum;
-import org.escola.enums.Serie;
 
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
-public class Turma implements Serializable {
+public class FuncionarioCarro implements Serializable {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 250)
-    private String nome;
+    @ManyToOne
+    private Funcionario professor;
+    
+    private Boolean principal;
     
     @NotNull
-    private Serie serie;
-    
-    @NotNull
-    private PerioddoEnum periodo;
-    
-    
-    @OneToMany
-    private List<AlunoTurma> alunosTurmas;
-    
-    @OneToMany
-    private List<ProfessorTurma> professoresTurma;
-    
-    
-	public Serie getSerie() {
-		return serie;
-	}
-
-	public void setSerie(Serie serie) {
-		this.serie = serie;
-	}
-
-	public String getNome() {
-		return nome;
-	}
-
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    @ManyToOne
+    private Carro turma;
 
 	public Long getId() {
 		return id;
@@ -84,28 +55,28 @@ public class Turma implements Serializable {
 		this.id = id;
 	}
 
-	public List<AlunoTurma> getAlunosTurmas() {
-		return alunosTurmas;
+	public Boolean getPrincipal() {
+		return principal;
 	}
 
-	public void setAlunosTurmas(List<AlunoTurma> alunosTurmas) {
-		this.alunosTurmas = alunosTurmas;
+	public void setPrincipal(Boolean principal) {
+		this.principal = principal;
 	}
 
-	public PerioddoEnum getPeriodo() {
-		return periodo;
+	public Funcionario getProfessor() {
+		return professor;
 	}
 
-	public void setPeriodo(PerioddoEnum periodo) {
-		this.periodo = periodo;
+	public void setProfessor(Funcionario professor) {
+		this.professor = professor;
 	}
 
-	public List<ProfessorTurma> getProfessoresTurma() {
-		return professoresTurma;
+	public Carro getTurma() {
+		return turma;
 	}
 
-	public void setProfessoresTurma(List<ProfessorTurma> professoresTurma) {
-		this.professoresTurma = professoresTurma;
+	public void setTurma(Carro turma) {
+		this.turma = turma;
 	}
 
     

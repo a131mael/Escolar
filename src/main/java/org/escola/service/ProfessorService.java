@@ -22,9 +22,9 @@ import javax.validation.ValidationException;
 import org.escola.enums.TipoMembro;
 import org.escola.model.Evento;
 import org.escola.model.Member;
-import org.escola.model.Professor;
-import org.escola.model.ProfessorTurma;
-import org.escola.model.Turma;
+import org.escola.model.Funcionario;
+import org.escola.model.FuncionarioCarro;
+import org.escola.model.Carro;
 import org.escola.util.Constant;
 import org.escola.util.Service;
 import org.escola.util.UtilFinalizarAnoLetivo;
@@ -35,7 +35,7 @@ public class ProfessorService extends Service {
 	@Inject
 	private Logger log;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 	
 	@Inject
@@ -47,12 +47,12 @@ public class ProfessorService extends Service {
 	@Inject
 	private UtilFinalizarAnoLetivo finalizarAnoLetivo;
 
-	public Professor findById(EntityManager em, Long id) {
-		return em.find(Professor.class, id);
+	public Funcionario findById(EntityManager em, Long id) {
+		return em.find(Funcionario.class, id);
 	}
 
-	public Professor findById(Long id) {
-		return em.find(Professor.class, id);
+	public Funcionario findById(Long id) {
+		return em.find(Funcionario.class, id);
 	}
 	
 	public String remover(Long idTurma){
@@ -60,11 +60,11 @@ public class ProfessorService extends Service {
 		return "index";
 	}
 
-	public List<Professor> findAll() {
+	public List<Funcionario> findAll() {
 		try{
 			CriteriaBuilder cb = em.getCriteriaBuilder();
-			CriteriaQuery<Professor> criteria = cb.createQuery(Professor.class);
-			Root<Professor> member = criteria.from(Professor.class);
+			CriteriaQuery<Funcionario> criteria = cb.createQuery(Funcionario.class);
+			Root<Funcionario> member = criteria.from(Funcionario.class);
 			// Swap criteria statements if you would like to try out type-safe
 			// criteria queries, a new
 			// feature in JPA 2.0
@@ -80,8 +80,8 @@ public class ProfessorService extends Service {
 		}
 	}
 
-	public Professor save(Professor professor) {
-		Professor user = null;
+	public Funcionario save(Funcionario professor) {
+		Funcionario user = null;
 		try {
 
 			log.info("Registering " + professor.getNome());
@@ -89,7 +89,7 @@ public class ProfessorService extends Service {
 			if (professor.getId() != null && professor.getId() != 0L) {
 				user = findById(professor.getId());
 			} else {
-				user = new Professor();
+				user = new Funcionario();
 			}
 			
 			user.setCodigo(professor.getCodigo());
@@ -120,7 +120,7 @@ public class ProfessorService extends Service {
 			m.setLogin(professor.getLogin());
 			m.setSenha(professor.getSenha());
 			m.setName(professor.getNome());
-			m.setTipoMembro(TipoMembro.PROFESSOR);
+			m.setTipoMembro(TipoMembro.MOTORISTA);
 			em.persist(m);
 			
 			user.setMember(m);
@@ -161,11 +161,11 @@ public class ProfessorService extends Service {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Professor> findProfessorTurmaBytTurma(long idTurma) {
-		List<Professor> professors = new ArrayList<>();
+	public List<Funcionario> findFuncionarioCarroBytTurma(long idTurma) {
+		List<Funcionario> professors = new ArrayList<>();
 		
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  ProfessorTurma pt ");
+		sql.append("SELECT pt from  FuncionarioCarro pt ");
 		sql.append("where pt.turma.id =   ");
 		sql.append(idTurma);
 
@@ -173,9 +173,9 @@ public class ProfessorService extends Service {
 		
 		 
 		try{
-			List<ProfessorTurma> professorTurmas = query.getResultList();
-			for(ProfessorTurma profT : professorTurmas){
-				Professor pro = profT.getProfessor();
+			List<FuncionarioCarro> professorTurmas = query.getResultList();
+			for(FuncionarioCarro profT : professorTurmas){
+				Funcionario pro = profT.getProfessor();
 				professors.add(pro);
 			}
 			
@@ -188,11 +188,11 @@ public class ProfessorService extends Service {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Turma> findTurmaByProfessor(long idProfessor) {
-		List<Turma> turmas = new ArrayList<>();
+	public List<Carro> findTurmaByProfessor(long idProfessor) {
+		List<Carro> turmas = new ArrayList<>();
 		
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  ProfessorTurma pt ");
+		sql.append("SELECT pt from  FuncionarioCarro pt ");
 		sql.append("where pt.professor.id =   ");
 		sql.append(idProfessor);
 
@@ -200,9 +200,9 @@ public class ProfessorService extends Service {
 		
 		 
 		try{
-			List<ProfessorTurma> professorTurmas = query.getResultList();
-			for(ProfessorTurma profT : professorTurmas){
-				Turma pro = profT.getTurma();
+			List<FuncionarioCarro> professorTurmas = query.getResultList();
+			for(FuncionarioCarro profT : professorTurmas){
+				Carro pro = profT.getTurma();
 				turmas.add(pro);
 			}
 			
@@ -218,9 +218,9 @@ public class ProfessorService extends Service {
 	}
 
 	
-	public void saveProfessorTurma(List<Professor> target, Turma turma) {
+	public void saveProfessorTurma(List<Funcionario> target, Carro turma) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT pt from  ProfessorTurma pt ");
+		sql.append("SELECT pt from  FuncionarioCarro pt ");
 		sql.append("where pt.turma.id =   ");
 		sql.append(turma.getId());
 
@@ -228,16 +228,16 @@ public class ProfessorService extends Service {
 		
 		 
 		try{
-			List<ProfessorTurma> professorTurmas = query.getResultList();
-			for(ProfessorTurma profT :professorTurmas){
+			List<FuncionarioCarro> professorTurmas = query.getResultList();
+			for(FuncionarioCarro profT :professorTurmas){
 				em.remove(profT);
 				em.flush();
 			}
 
-			for(Professor prof : target){
-				ProfessorTurma pt = new ProfessorTurma();
+			for(Funcionario prof : target){
+				FuncionarioCarro pt = new FuncionarioCarro();
 				pt.setProfessor(prof);
-				pt.setTurma(em.find(Turma.class, turma.getId()));
+				pt.setTurma(em.find(Carro.class, turma.getId()));
 				em.persist(pt);
 			}
 			

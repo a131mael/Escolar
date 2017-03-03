@@ -1,4 +1,5 @@
 /*
+
  * JBoss, Home of Professional Open Source
  * Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
  * contributors by the @authors tag. See the copyright.txt in the
@@ -34,6 +35,7 @@ import javax.inject.Named;
 
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
+import org.escola.model.Carro;
 import org.escola.model.Evento;
 import org.escola.service.AlunoService;
 import org.escola.service.EventoService;
@@ -105,10 +107,23 @@ public class RelatorioController implements Serializable{
 		return relatorioService.count(filtros);
 	}
 	
-	public long getTotalAlunos(Serie serie){
+	public long getTotalAlunos(Carro carro){
 		Map<String, Object> filtros = new HashMap<>();
-		filtros.put("serie", getSerie(serie));
-		return relatorioService.count(filtros);
+		filtros.put("carroLevaParaEscola", carro);
+		filtros.put("carroLevaParaEscolaTroca", carro);
+		filtros.put("carroPegaEscola", carro);
+		filtros.put("carroPegaEscolaTroca", carro);
+		
+		return relatorioService.countCriancasCarro(filtros);
+	}
+	
+	public long getValorTotal(Carro carro){
+		Map<String, Object> filtros = new HashMap<>();
+		filtros.put("carroLevaParaEscola", carro);
+		filtros.put("carroLevaParaEscolaTroca", carro);
+		filtros.put("carroPegaEscola", carro);
+		filtros.put("carroPegaEscolaTroca", carro);
+		return relatorioService.getValorTotal(filtros);
 	}
 	
 	//TODO nao pergunte =) converter para o server funcionar

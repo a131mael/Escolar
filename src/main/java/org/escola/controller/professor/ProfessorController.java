@@ -26,8 +26,8 @@ import javax.inject.Inject;
 import org.escola.auth.AuthController;
 import org.escola.model.Aluno;
 import org.escola.model.Member;
-import org.escola.model.Professor;
-import org.escola.model.Turma;
+import org.escola.model.Funcionario;
+import org.escola.model.Carro;
 import org.escola.service.AlunoService;
 import org.escola.service.ProfessorService;
 import org.escola.util.Util;
@@ -46,11 +46,11 @@ public class ProfessorController extends AuthController implements Serializable{
 
 	@Produces
 	@Named
-	private Professor professor;
+	private Funcionario professor;
 	
 	@Produces
 	@Named
-	private List<Professor> professores;
+	private List<Funcionario> professores;
 	
 	@Inject
     private ProfessorService professorService;
@@ -63,23 +63,23 @@ public class ProfessorController extends AuthController implements Serializable{
 		if(professor == null){
 			Object objectSessao = Util.getAtributoSessao("professor");
 			if(objectSessao != null){
-				professor = (Professor) objectSessao;
+				professor = (Funcionario) objectSessao;
 				Util.removeAtributoSessao("professor");
 			}else{
 				Member m = new Member();
-				professor = new Professor();
+				professor = new Funcionario();
 				professor.setMember(m);
 			}
 		}
 	}
 
-	public List<Professor> getProfessores(){
+	public List<Funcionario> getProfessores(){
 		
 		return professorService.findAll();
 	}
 	
 	public List<Aluno> getAlunosDoProfessor(){
-		List<Turma> turmasDosProfessor = professorService.findTurmaByProfessor(getLoggedUser().getId());
+		List<Carro> turmasDosProfessor = professorService.findTurmaByProfessor(getLoggedUser().getId());
 		return alunoService.findAlunoTurmaBytTurma(turmasDosProfessor);
 	}
 	

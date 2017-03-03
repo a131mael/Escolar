@@ -59,7 +59,7 @@ public class Avaliacao implements Serializable {
     private List<AlunoAvaliacao> avaliacoes;
 	
 	@ManyToOne
-	private Professor professor;
+	private Funcionario professor;
 	
 	@Column
 	private int peso = 1;
@@ -179,11 +179,11 @@ public class Avaliacao implements Serializable {
 		this.avaliacoes = avaliacoes;
 	}
 
-	public Professor getProfessor() {
+	public Funcionario getProfessor() {
 		return professor;
 	}
 
-	public void setProfessor(Professor professor) {
+	public void setProfessor(Funcionario professor) {
 		this.professor = professor;
 	}
 

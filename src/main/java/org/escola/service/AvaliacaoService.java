@@ -32,9 +32,9 @@ import org.escola.model.Aluno;
 import org.escola.model.AlunoAvaliacao;
 import org.escola.model.Avaliacao;
 import org.escola.model.Member;
-import org.escola.model.Professor;
-import org.escola.model.ProfessorTurma;
-import org.escola.model.Turma;
+import org.escola.model.Funcionario;
+import org.escola.model.FuncionarioCarro;
+import org.escola.model.Carro;
 import org.escola.util.Service;
 
 @Stateless
@@ -49,7 +49,7 @@ public class AvaliacaoService extends Service {
 	@Inject
 	private AlunoService alunoService;
 	
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 
 	public Avaliacao findById(EntityManager em, Long id) {
@@ -161,7 +161,7 @@ public class AvaliacaoService extends Service {
 			user.setTrabalho(aluno.isTrabalho());
 			user.setSerie(aluno.getSerie());
 			if (idProf != null) {
-				user.setProfessor(em.find(Professor.class, idProf));
+				user.setProfessor(em.find(Funcionario.class, idProf));
 			}
 
 			em.persist(user);
@@ -192,7 +192,7 @@ public class AvaliacaoService extends Service {
 		Set<Aluno> alunos = new HashSet<>();
 		
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT at from  ProfessorTurma at ");
+		sql.append("SELECT at from  FuncionarioCarro at ");
 		sql.append("where at.professor.id = ");
 		sql.append(avaliacao.getProfessor().getId());
 		sql.append(" and at.turma.serie = ");
@@ -201,8 +201,8 @@ public class AvaliacaoService extends Service {
 		Query query = em.createQuery(sql.toString());
 
 		try {
-			List<ProfessorTurma> turmas = query.getResultList();
-			for (ProfessorTurma t : turmas) {
+			List<FuncionarioCarro> turmas = query.getResultList();
+			for (FuncionarioCarro t : turmas) {
 				alunos.addAll(alunoService.findAlunoTurmaBytTurma(t.getTurma().getId()));
 			}
 
@@ -401,9 +401,8 @@ public class AvaliacaoService extends Service {
 
 	public Set<Avaliacao> findAll(Member loggedUser) {
 		Set<Avaliacao> avaliacoes = new LinkedHashSet<>();
-		List<Turma> turmasProf = turmaService.findAll(loggedUser.getId());
-		for(Turma turma :turmasProf){
-			avaliacoes.addAll(find(turma.getSerie(),null));
+		List<Carro> turmasProf = turmaService.findAll(loggedUser.getId());
+		for(Carro turma :turmasProf){
 		}
 		return avaliacoes;
 	}

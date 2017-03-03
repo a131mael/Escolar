@@ -2,12 +2,9 @@ package org.escola.enums;
 
 public enum EspecialidadeEnum {
 
-	PRINCIPAL("Principal"),
+	MOTORISTA("Motorista"),
 	
-	ED_FISICA("Educação Fisica"),
-	
-	INGLES("Inglês");
-	
+	MONITOR("Monitor");
 	
 	private String tipo;
 	

@@ -24,7 +24,7 @@ public class UtilFinalizarAnoLetivo {
 	@Inject
 	private EventoService eventoService;
 
-	@PersistenceContext(unitName = "EscolaDS")
+	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 	
 	public static void main(String[] args) {

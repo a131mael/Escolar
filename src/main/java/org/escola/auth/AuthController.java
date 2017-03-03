@@ -31,8 +31,12 @@ import javax.servlet.http.HttpSession;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.escola.enums.TipoMembro;
+import org.escola.model.Carro;
 import org.escola.model.Member;
+import org.escola.service.TurmaService;
+import org.escola.util.Constant;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;
 
@@ -47,6 +51,9 @@ public class AuthController implements Serializable {
 	@Produces
 	@Named
 	private Member authUser;
+	
+	@Inject
+	private TurmaService carroService;
 
 	@PostConstruct
 	public void initNewMember() {
@@ -143,8 +150,8 @@ public class AuthController implements Serializable {
 		return getLoggedUser().getTipoMembro();
 	}
 	
-	public boolean isTeacher(){
-		return getLoggedUser().getTipoMembro().equals(TipoMembro.PROFESSOR);
+	public boolean isMotorista(){
+		return getLoggedUser().getTipoMembro().equals(TipoMembro.MOTORISTA);
 	}
 	
 	public String logout() {
@@ -264,8 +271,8 @@ public class AuthController implements Serializable {
 		return TipoMembro.SECRETARIA;
 	}
 
-	public TipoMembro getProfessor() {
-		return TipoMembro.PROFESSOR;
+	public TipoMembro getMotorista() {
+		return TipoMembro.MOTORISTA;
 	}
 
 	public TipoMembro getAluno() {
@@ -273,7 +280,31 @@ public class AuthController implements Serializable {
 	}
 
 	public TipoMembro getAdministrador() {
-		return TipoMembro.SECRETARIA;
+		return TipoMembro.ADMIM;
+	}
+	
+	public TipoMembro getMonitor() {
+		return TipoMembro.MONITOR;
+	}
+	
+	public Carro getCarro1(){
+		return carroService.findById(Constant.idCarro1);
+	}
+	
+	public Carro getCarro2(){
+		return carroService.findById(Constant.idCarro2);
+	}
+	
+	public Carro getCarro3(){
+		return carroService.findById(Constant.idCarro3);
+	}
+	
+	public Carro getCarro4(){
+		return carroService.findById(Constant.idCarro4);
+	}
+	
+	public Carro getCarro5(){
+		return carroService.findById(Constant.idCarro5);
 	}
 	
 }

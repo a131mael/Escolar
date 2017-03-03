@@ -37,8 +37,8 @@ import org.escola.enums.TipoMembro;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoAvaliacao;
 import org.escola.model.Avaliacao;
-import org.escola.model.Professor;
-import org.escola.model.Turma;
+import org.escola.model.Funcionario;
+import org.escola.model.Carro;
 import org.escola.service.AlunoService;
 import org.escola.service.AvaliacaoService;
 import org.escola.service.ProfessorService;
@@ -60,7 +60,7 @@ public class TurmaController extends AuthController implements Serializable {
 
 	@Produces
 	@Named
-	private Turma turma;
+	private Carro turma;
 
 	@Inject
 	private AvaliacaoService avaliacaoService;
@@ -95,7 +95,7 @@ public class TurmaController extends AuthController implements Serializable {
 	private Map<Aluno,List<AlunoAvaliacao>> alunoAvaliacaoFormacaoCrista;
 	private Map<Aluno,List<AlunoAvaliacao>> alunoAvaliacaoArtes;
 
-	private DualListModel<Professor> professores;
+	private DualListModel<Funcionario> professores;
 
 	private DualListModel<Aluno> alunos;
 	/* private DualListModel<Professor> professores; */
@@ -108,16 +108,14 @@ public class TurmaController extends AuthController implements Serializable {
 		if (turma == null) {
 			Object objectSessao = Util.getAtributoSessao("turma");
 			if (objectSessao != null) {
-				turma = (Turma) objectSessao;
+				turma = (Carro) objectSessao;
 				Util.removeAtributoSessao("turma");
 			} else {
-				turma = new Turma();
+				turma = new Carro();
 			}
 		}
 
 		montarPickListProfessor();
-		montarPickListAluno(turma.getSerie(), turma.getPeriodo());
-		popularAlunoAvaliacao();
 	}
 
 	private void montarPickListAluno(Serie serie, PerioddoEnum periodo) {
@@ -141,20 +139,16 @@ public class TurmaController extends AuthController implements Serializable {
 		totalAlunos = alunosSelecionados.size();
 	}
 
-	public void montarPickListAluno() {
-		montarPickListAluno(turma.getSerie(), turma.getPeriodo());
-	}
-
 	private void montarPickListProfessor() {
 		/** MONTANDO O PICKLIST */
-		List<Professor> todosProfessores = professorService.findAll();
-		List<Professor> professoresDisponiveis = new ArrayList<>();
-		List<Professor> professoresSelecionados = getProfessoresSelecionados();
+		List<Funcionario> todosProfessores = professorService.findAll();
+		List<Funcionario> professoresDisponiveis = new ArrayList<>();
+		List<Funcionario> professoresSelecionados = getProfessoresSelecionados();
 
 		professoresDisponiveis.addAll(todosProfessores);
 		professoresDisponiveis.removeAll(professoresSelecionados);
 
-		professores = new DualListModel<Professor>(professoresDisponiveis, professoresSelecionados);
+		professores = new DualListModel<Funcionario>(professoresDisponiveis, professoresSelecionados);
 	}
 
 	public int getTotalAlunos(){
@@ -177,10 +171,10 @@ public class TurmaController extends AuthController implements Serializable {
 		
 	}
 	
-	private List<Professor> getProfessoresSelecionados() {
+	private List<Funcionario> getProfessoresSelecionados() {
 
-		return turma.getId() != null ? professorService.findProfessorTurmaBytTurma(turma.getId())
-				: new ArrayList<Professor>();
+		return turma.getId() != null ? professorService.findFuncionarioCarroBytTurma(turma.getId())
+				: new ArrayList<Funcionario>();
 	}
 
 	private List<Aluno> getAlunosSelecionados() {
@@ -192,7 +186,7 @@ public class TurmaController extends AuthController implements Serializable {
 		return alunoService.getNota(aluno.getId(), disciplina, bimestre, false);
 	}
 
-	public List<Turma> getTurmas() {
+	public List<Carro> getTurmas() {
 		if (getLoggedUser().getProfessor() != null) {
 			return turmaService.findAll(getLoggedUser().getProfessor().getId());
 
@@ -204,7 +198,6 @@ public class TurmaController extends AuthController implements Serializable {
 	public String salvar() {
 		turma = turmaService.save(turma);
 		saveProfessorTurma();
-		saveAlunoTurma();
 		verificarTodosAlunosTemAvaliacao(turma.getId());
 
 		return "index";
@@ -216,6 +209,26 @@ public class TurmaController extends AuthController implements Serializable {
 		return "cadastrar";
 	}
 
+	
+	public String editarRotaManha(Long idTurma) {
+		turma = turmaService.findById(idTurma);
+		Util.addAtributoSessao("turma", turma);
+		return "cadastrar";
+	}
+	
+	public String editarRotaMeioDia(Long idTurma) {
+		turma = turmaService.findById(idTurma);
+		Util.addAtributoSessao("turma", turma);
+		return "cadastrar";
+	}
+	
+	public String editarRotaTarde(Long idTurma) {
+		turma = turmaService.findById(idTurma);
+		Util.addAtributoSessao("turma", turma);
+		return "cadastrar";
+	}
+	
+	
 	public String voltar() {
 		return "index";
 	}
@@ -229,10 +242,6 @@ public class TurmaController extends AuthController implements Serializable {
 		professorService.saveProfessorTurma(professores.getTarget(), turma);
 	}
 
-	private void saveAlunoTurma() {
-		alunoService.saveAlunoTurma(alunos.getTarget(), turma);
-	}
-
 	public String adicionarNovo() {
 		return "cadastrar";
 	}
@@ -242,11 +251,11 @@ public class TurmaController extends AuthController implements Serializable {
 		return "exibir";
 	}
 
-	public DualListModel<Professor> getProfessores() {
+	public DualListModel<Funcionario> getProfessores() {
 		return professores;
 	}
 
-	public void setProfessores(DualListModel<Professor> professores) {
+	public void setProfessores(DualListModel<Funcionario> professores) {
 		this.professores = professores;
 	}
 
@@ -311,7 +320,7 @@ public class TurmaController extends AuthController implements Serializable {
 	}
 
 	public boolean renderDisciplina(int ordinal){
-		if(getLoggedUser() != null && !getLoggedUser().getTipoMembro().equals(TipoMembro.PROFESSOR) ){
+		if(getLoggedUser() != null && !getLoggedUser().getTipoMembro().equals(TipoMembro.MOTORISTA) ){
 			return false;
 		}
 		
@@ -320,19 +329,6 @@ public class TurmaController extends AuthController implements Serializable {
 		}		
 		return ordinal== disciplinaSelecionada.ordinal();
 	}
-	public void popularAlunoAvaliacao(){
-			alunoAvaliacaoPortugues = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.PORTUGUES, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoIngles = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.INGLES, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoEDFisica = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.EDUCACAO_FISICA, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoGeografia = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.GEOGRAFIA, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoHistoria = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.HISTORIA, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoMatematica = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.MATEMATICA, this.bimestreSelecionado,this.turma.getSerie());
-			
-			alunoAvaliacaoCiencias = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.CIENCIAS, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoFormacaoCrista = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.FORMACAO_CRISTA, this.bimestreSelecionado,this.turma.getSerie());
-			alunoAvaliacaoArtes = avaliacaoService.findAlunoAvaliacaoMap(null, null, DisciplinaEnum.ARTES, this.bimestreSelecionado,this.turma.getSerie());
-	}
-	
 	public Map<Aluno,List<AlunoAvaliacao>> getAlunoAvaliacaoPortugues() {
 		return alunoAvaliacaoPortugues;
 	}

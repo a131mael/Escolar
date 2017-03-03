@@ -6,18 +6,31 @@
 	template="/WEB-INF/templates/templateADM.xhtml">
 
 	<ui:define name="content">
-		<h:form style="width:100%; border:none" >
+		<h:form style="width:100%; border:none">
 
 			<h:panelGrid columns="8" style="margin-top: -30px;">
-				<h:commandButton action="#{turmaController.adicionarNovo()}" value="Adicionar" 
-				rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+				<h:commandButton action="#{secretariaController.adicionarNovo()}"
+					value="Adicionar"
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}" />
 			</h:panelGrid>
 
 			<h:panelGrid width="90%" style="border: none !important">
 				<p:dataTable id="tbl" var="alunoTab"
-					value="#{turmaController.turmas}"
-					paginator="true" style="margin-bottom:20px; width:100%"
-					paginatorPosition="bottom">
+					value="#{secretariaController.getLazyDataModel()}" 
+					paginator="true"
+					style="margin-bottom:20px; width:100%" 
+					paginatorPosition="bottom"
+					rowKey="#{professorTab.id}" 
+					filterEvent="enter" 
+					lazy="true"
+					liveResize="true"
+                    styleClass="tabela"
+                    pageLinks="5"
+                    paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+                    {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                     resizableColumns="true"
+                    rows="20"
+					>
 
 					<f:facet name="{Exporters}">
 						<h:commandLink>
@@ -40,47 +53,35 @@
 							<p:dataExporter type="xml" target="tbl" fileName="cars" />
 						</h:commandLink>
 					</f:facet>
-					
-					<p:column style="width:8%">
-						<f:facet name="header">
-							<h:outputText value="Ações" />
-						</f:facet>
-						<p:commandButton icon="ui-icon-search"  action="#{turmaController.editar(alunoTab.id)}" rendered="#{!authController.motorista}"/>
-						<p:commandButton icon="ui-icon-search"  action="#{turmaController.editar(alunoTab.id)}" actionListener="#{turmaController.verificarTodosAlunosTemAvaliacao(alunoTab.id)}" rendered="#{authController.motorista}"/>
-						
-					</p:column>
-					
+
 					<p:column style="width:10%">
 						<f:facet name="header">
 							<h:outputText value="Id" />
 						</f:facet>
 						<h:outputText value="#{alunoTab.id}" />
 					</p:column>
-
-					<p:column>
+					
+					<p:column style="width:10%">
 						<f:facet name="header">
-							<h:outputText value="Nome" />
+							<h:outputText value="Tipo" />
 						</f:facet>
-						<h:outputText value="#{alunoTab.nome}" />
-					</p:column>
-
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Qtade Alunos" />
-						</f:facet>
-						<h:outputText value="#{turmaController.totalAlunos}" />
+						<h:outputText value="#{alunoTab.tipoCusto.name}" />
 					</p:column>
 					
-					<p:column style="width:10%" 
-							  rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+					<p:column style="width:10%">
 						<f:facet name="header">
-							<h:outputText value="Remover" />
+							<h:outputText value="Carro" />
 						</f:facet>
-						
-							<p:commandButton update="tbl" icon="ui-icon-trash" action="#{turmaController.remover(alunoTab.id)}" >
-								
-							</p:commandButton>
+						<h:outputText value="#{alunoTab.carro}" />
 					</p:column>
+
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Valor" />
+						</f:facet>
+						<h:outputText value="#{alunoTab.valor}" />
+					</p:column>
+
 
 				</p:dataTable>
 

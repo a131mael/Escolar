@@ -7,13 +7,13 @@
 
 	<ui:define name="content"
 		rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
-		<h:form style="width:100%; border:none">
+		<h:form id="form" style="width:100%; border:none">
 
 			<h:panelGrid columns="0" width="100%;" styleClass="alinharTopo"
 				style="margin-top: -30px;width:92%">
 
-				<p:tabView>
-					<p:tab title="Dados do aluno">
+				<p:tabView id="tabs">
+					<p:tab id="dadosALunoTab" title="Dados do aluno">
 						<h:panelGrid columns="2" border="0">
 
 							<h:outputLabel for="name" value="Nome(*): "
@@ -62,29 +62,127 @@
 							<p:inputMask id="cpf" value="#{aluno.cep}" mask="99 999-999"
 								style="font-size: 15px; width:275px" />
 
-							<h:outputLabel value="Cidade: "
+							<h:outputLabel value="Escola: "
 								style="font-size: 13px; width:180px" />
-							<p:inputText value="#{aluno.bairro}"
-								style="font-size: 15px; width:275px">
-							</p:inputText>
-
-							<h:outputLabel value="Nacionalidade: "
+								
+							<p:selectOneMenu style="width: 256px;"
+								value="#{aluno.escola}">
+								<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+								
+							<h:outputLabel value="Tipo: "
 								style="font-size: 13px; width:180px" />
-							<p:inputText value="#{aluno.nacionalidade}"
-								style="font-size: 15px; width:280px" />
+							<h:selectOneRadio value="#{aluno.idaVolta}" style="width:100%">
+								<f:selectItem itemValue="0" itemLabel="Ida e Volta" />
+								<f:selectItem itemValue="1" itemLabel="Somente IDA" />
+								<f:selectItem itemValue="2" itemLabel="Somente Volta" />
+								
+								<p:ajax process="form:tabs" update="form:tabs:panelCars,form:tabs" />
+							</h:selectOneRadio> 
+							
+							<h:outputLabel id="trocaIdaLab" value="Troca na ida: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}"/>
+							<h:selectBooleanCheckbox id="trocaIdaSel" value="#{aluno.trocaIDA}" 
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}">
+								<p:ajax process="@this" update="form:tabs:panelCars" />	
+							</h:selectBooleanCheckbox>
+							
+							<h:outputLabel id="trocaVoltaLab" value="Troca na volta: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}"/>
+							<h:selectBooleanCheckbox id="trocaVoltaSel" value="#{aluno.trocaVolta}" 
+							rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}">
+								<p:ajax process="@this" update="form:tabs:panelCars" />
+							</h:selectBooleanCheckbox>
+							
 
 							<h:outputLabel value="Nascimento: "
 								style="font-size: 13px; width:180px" />
 							<p:calendar value="#{aluno.dataNascimento}" pattern="dd/MM/yyyy"
 								mask="true" style="font-size: 15px; width:280px" />
 
-							<h:outputLabel value="Administrar Paracetamol?: "
-								style="font-size: 13px; width:180px" />
-							<h:selectBooleanCheckbox value="#{aluno.administrarParacetamol}" />
-
 						</h:panelGrid>
 
 					</p:tab>
+					
+					<p:tab id="carro" title="Carro">
+						<h:panelGrid id="panelCars" columns="2" border="0">
+							<h:outputLabel value="Motorista ida: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}"/>
+							
+							<p:selectOneMenu id="selectOneMenuMotoristaIda" style="width: 256px;"
+								value="#{aluno.carroLevaParaEscola}"
+								converter="converterCarro"
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}">
+								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
+									var="country" itemValue="#{country}" 
+									/>
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							
+							<h:outputLabel value="Motorista ida troca: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 1) and aluno.trocaIDA}"/>
+							<p:selectOneMenu style="width: 256px;"
+								value="#{aluno.carroLevaParaEscolaTroca}"
+								converter="converterCarro"
+								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 1) and aluno.trocaIDA}">
+								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							
+							<h:outputLabel value="Motorista volta: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}"/>
+
+							<p:selectOneMenu style="width: 256px;"
+								value="#{aluno.carroPegaEscola}"
+								converter="converterCarro"
+								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}">
+							<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							<h:outputLabel value="Motorista volta troca: "
+								style="font-size: 13px; width:180px" 
+								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 2) and aluno.trocaVolta}" />
+							<p:selectOneMenu style="width: 256px;"
+								value="#{aluno.carroPegaEscolaTroca}"
+								converter="converterCarro"
+								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 2) and aluno.trocaVolta}">
+								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							
+							<h:outputLabel value="Hora pegar ida: "
+								style="font-size: 13px; width:180px" />
+							
+							<p:inputText value="#{aluno.horaPegar}" />
+							
+							<h:outputLabel value="Hora entregar volta: "
+								style="font-size: 13px; width:180px" />
+							
+							<p:inputText value="#{aluno.horaEntregar}" />
+							
+						</h:panelGrid>
+
+					</p:tab>
+					
+					
 					<p:tab title="Dados Pai do Aluno">
 						<h:panelGrid columns="2" border="0">
 
@@ -236,19 +334,19 @@
 								style="font-size: 13px; width:180px" />
 							<p:inputText value="#{aluno.numeroParcelas}"
 								style="font-size: 15px; width:275px">
+								<p:ajax event="change" update="valorTotal"/>
 							</p:inputText>
 
 							<h:outputLabel value="Mensalidade: "
 								style="font-size: 13px; width:180px" />
 							<p:inputText value="#{aluno.valorMensal}"
 								style="font-size: 15px; width:275px">
+								<p:ajax event="change" update="valorTotal"/>
 							</p:inputText>
 
 							<h:outputLabel value="Valor Total :"
 								style="font-size: 13px; width:180px" />
-							<p:inputText style="font-size: 15px; width:275px">
-							</p:inputText>
-
+							<h:outputText id="valorTotal" style="font-size: 12px; width:275px" value="#{alunoController.valorTotal(aluno)}" />
 
 							<h:outputLabel value="Data Matricula: "
 								style="font-size: 13px; width:180px" />
@@ -258,114 +356,6 @@
 
 					</p:tab>
 
-					<p:tab title="Histórico">
-						<h:panelGrid columns="2">
-							<h:commandButton action="#{alunoController.adicionarHistorico(historicoAluno)}"
-								value="Adicionar" />
-						</h:panelGrid>
-
-						<h:panelGrid columns="4" border="0">
-							<h:outputLabel value="Escola: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.escola}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Ano: " style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.ano}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-						</h:panelGrid>
-						<h:panelGrid columns="4" width="50%">
-						<h:outputLabel value="Serie: " style="font-size: 13px; width:120px" />
-							<p:selectOneMenu  style="width: 160px;"
-								value="#{historicoAluno.serie}">
-								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
-									var="serie" itemLabel="#{serie.name}"
-									itemValue="#{serie}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-							<h:outputLabel value="Portugues: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaPortugues}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Matematica: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaMatematica}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="História: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaHistoria}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Geografia: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaGeografia}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Artes: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaArtes}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Ciências: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaCiencias}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Ed. Fisica: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaEdFisica}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="Inglês: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaIngles}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-
-							<h:outputLabel value="For. Cristã: "
-								style="font-size: 13px; width:120px" />
-							<p:inputText value="#{historicoAluno.notaformacaoCrista}"
-								style="font-size: 15px; width:175px">
-							</p:inputText>
-						</h:panelGrid>
-						<h:panelGrid>
-							<p:dataTable id="tbl" var="historicoTab"
-									 value="#{alunoController.getHistoricoAluno(aluno)}"
-									 style="margin-bottom:20px; width:100%"
-									 emptyMessage="Nenhum histórico adicionado"
-									 >
-						
-									<p:column style="text-align: center;width:10%;" headerText="Escola ">
-											<h:outputText value="#{historicoTab.escola}" />
-									</p:column>	
-									
-									<p:column style="text-align: center;width:10%;" headerText="Ano">
-										<h:outputText value="#{historicoTab.ano}" />
-									</p:column>	
-									
-									<p:column style="text-align: center;width:10%;" headerText="Serie">
-										<h:outputText value="#{historicoTab.serie.name}" />
-									</p:column>	
-									
-									<p:column style="text-align: center;width:10%;" headerText="remover ">
-										<p:commandButton update="tbl" icon="ui-icon-trash" action="#{alunoController.removerHistorico(historicoTab.id)}" />
-									</p:column>	
-						
-							</p:dataTable>
-						</h:panelGrid>
-					</p:tab>
 					<p:tab title="Observações">
 						<h:panelGrid columns="2" border="0">
 							<h:outputLabel value="Observações Secretaria: "
@@ -374,17 +364,9 @@
 
 							</p:inputTextarea>
 
-							<h:outputLabel value="Observações Professores "
-								style="font-size: 13px; width:180px" />
-							<p:inputTextarea value="#{aluno.observacaoProfessores}">
-
-							</p:inputTextarea>
-
-
 						</h:panelGrid>
 
 					</p:tab>
-
 
 				</p:tabView>
 

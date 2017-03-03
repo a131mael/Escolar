@@ -15,13 +15,17 @@ import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
 import org.escola.enums.BimestreEnum;
+import org.escola.enums.CustoEnum;
 import org.escola.enums.DisciplinaEnum;
+import org.escola.enums.EscolaEnum;
 import org.escola.enums.EspecialidadeEnum;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.enums.TipoMembro;
-import org.escola.model.Professor;
+import org.escola.model.Carro;
+import org.escola.model.Funcionario;
 import org.escola.service.ProfessorService;
+import org.escola.service.TurmaService;
 
 /**
  *
@@ -39,14 +43,35 @@ public class CombosEspeciaisMB implements Serializable {
 
 	@Inject
 	private ProfessorService professorService;
+	
+	@Inject
+	private TurmaService carroServeice;
 
-	public ArrayList<SelectItem> getProfessores() {
+	public ArrayList<SelectItem> getFuncionarios() {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
 		try {
 			// items.add(new SelectItem(null, "Selecione um País"));
 
-			List<Professor> professores = professorService.findAll();
-			for (Professor m : professores) {
+			List<Funcionario> professores = professorService.findAll();
+			for (Funcionario m : professores) {
+				items.add(new SelectItem(m, m.getNome()));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return items;
+	}
+	
+	public ArrayList<SelectItem> getCarros() {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
+		try {
+			 items.add(new SelectItem(null, "Selecione um Carro"));
+
+			List<Carro> professores = carroServeice.findAll();
+			for (Carro m : professores) {
 				items.add(new SelectItem(m, m.getNome()));
 			}
 
@@ -98,6 +123,11 @@ public class CombosEspeciaisMB implements Serializable {
 
 		return PerioddoEnum.values();
 	}
+	
+	public static EscolaEnum[] getEscolas() {
+
+		return EscolaEnum.values();
+	}
 
 	public static EspecialidadeEnum[] getEspecialidades() {
 
@@ -119,4 +149,10 @@ public class CombosEspeciaisMB implements Serializable {
 		return TipoMembro.values();
 	}
 
+	public static CustoEnum[] getTipoCusto() {
+
+		return CustoEnum.values();
+	}
+
+	
 }
