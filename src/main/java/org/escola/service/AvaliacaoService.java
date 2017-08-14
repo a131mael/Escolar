@@ -398,8 +398,8 @@ public class AvaliacaoService extends Service {
 		}
 		return avaliacoesAluno;
 	}
-
-	public Set<Avaliacao> findAll(Member loggedUser) {
+	public Set<Avaliacao> findAllAvaliacao(Member loggedUser) {
+		
 		Set<Avaliacao> avaliacoes = new LinkedHashSet<>();
 		List<Carro> turmasProf = turmaService.findAll(loggedUser.getId());
 		for(Carro turma :turmasProf){

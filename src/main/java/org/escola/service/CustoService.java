@@ -141,6 +141,9 @@ public class CustoService extends Service {
 			return null;
 		}
 	}
+	
+	
+	
 	public long count(Map<String, Object> filtros) {
 		try {
 			CriteriaBuilder cb = em.getCriteriaBuilder();

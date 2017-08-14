@@ -36,13 +36,27 @@
 						</h:commandLink>
 					</f:facet>
 					
-					<p:column style="width:8%">
+					<p:column style="width:20%">
 						<f:facet name="header">
-							<h:outputText value="Ações" />
+							<h:outputText value="Manha" />
 						</f:facet>
 						<p:commandButton value="Manha" icon="ui-icon-search"  action="#{turmaController.editarRotaManha(alunoTab.id)}" />
+					</p:column>
+					
+						
+					<p:column style="width:20%">
+						<f:facet name="header">
+							<h:outputText value="Meio dia" />
+						</f:facet>
 						<p:commandButton value="Meio dia" icon="ui-icon-search"  action="#{turmaController.editarRotaMeioDia(alunoTab.id)}" />
-						<p:commandButton value="Tarde" icon="ui-icon-search"  action="#{turmaController.editarRotaNoite(alunoTab.id)}" />
+					</p:column>
+					
+						
+					<p:column style="width:20%">
+						<f:facet name="header">
+							<h:outputText value="Tarde" />
+						</f:facet>
+						<p:commandButton value="Tarde" icon="ui-icon-search"  action="#{turmaController.editarRotaTarde(alunoTab.id)}" />
 					</p:column>
 
 					<p:column>
@@ -52,12 +66,6 @@
 						<h:outputText value="#{alunoTab.nome}" />
 					</p:column>
 
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Qtade Alunos" />
-						</f:facet>
-						<h:outputText value="#{turmaController.totalAlunos}" />
-					</p:column>
 					
 				</p:dataTable>
 

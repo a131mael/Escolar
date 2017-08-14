@@ -18,4 +18,14 @@ public enum PerioddoEnum {
 		return tipo;
 	}
 
+	public static PerioddoEnum getPeriodo(int ordinal){
+		PerioddoEnum per = null;
+		for(PerioddoEnum p : PerioddoEnum.values()){
+			if(p.ordinal() == ordinal){
+				per = p;
+			}
+		}
+		
+		return per;
+	}
 }

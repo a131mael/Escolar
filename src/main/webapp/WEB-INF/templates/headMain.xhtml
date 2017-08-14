@@ -45,8 +45,11 @@
 		
 				<p:menuitem value="Configuração" url="../secretaria/configuracoes.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+					
+				<p:menuitem value="Devedores" url="../devedores/index.jsf" icon="ui-icon-close" 
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 				
-				<p:menuitem value="Manutencao" url="../secretaria/despesas.jsf" icon="ui-icon-close" 
+				<p:menuitem value="Custos" url="../secretaria/despesas.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 				
 				<p:menuitem value="Ex-Alunos" url="../secretaria/exAlunos.jsf" icon="ui-icon-close" 

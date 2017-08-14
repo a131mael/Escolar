@@ -18,7 +18,15 @@ public enum Serie {
 	
 	QUARTO_ANO("4º ano"),
 	
-	QUINTO_ANO("5º ano");
+	QUINTO_ANO("5º ano"),
+	
+	SEXTO_ANO("6º ano"),
+	
+	SETIMO_ANO("7º ano"),
+	
+	OITAVO_ANO("8º ano"),
+	
+	NONO_ANO("9º ano");
 	
 	private String name;
 	

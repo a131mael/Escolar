@@ -82,6 +82,36 @@ public class CombosEspeciaisMB implements Serializable {
 
 		return items;
 	}
+
+	public ArrayList<SelectItem> getSimNao() {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
+		try {
+			 items.add(new SelectItem(false, "Não"));
+			 items.add(new SelectItem(true, "Sim"));
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return items;
+	}
+
+	public ArrayList<SelectItem> getSimNaoNull() {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
+		try {
+			items.add(new SelectItem(null, ""));
+			 items.add(new SelectItem(Boolean.FALSE, "Não"));
+			 items.add(new SelectItem(Boolean.TRUE, "Sim"));
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return items;
+	}
+
 	
 	public ArrayList<SelectItem> getPeriodosSelectIItem() {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
@@ -98,6 +128,22 @@ public class CombosEspeciaisMB implements Serializable {
 		return items;
 	}
 
+	public ArrayList<SelectItem> getEsolasSelectIItem() {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
+		try {
+			 items.add(new SelectItem(null, " "));
+			for (EscolaEnum m : EscolaEnum.values()) {
+				items.add(new SelectItem(m, m.getName()));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return items;
+	}
+
+	
 	public ArrayList<SelectItem> getSeriesSelectIItem() {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
 		try {

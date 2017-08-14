@@ -1110,6 +1110,8 @@ public class AlunoController implements Serializable {
 		Util.addAtributoSessao("aluno", aluno);
 		return "cadastrar";
 	}
+
+	
 	
 	public String visualizar(Aluno aluno) {
 		popularAlunoAvaliacao(aluno);

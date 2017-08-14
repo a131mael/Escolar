@@ -26,16 +26,6 @@
 							<p:inputText title="" value="#{aluno.codigo}"
 								style="font-size: 15px; width:280px" />
 
-							<h:outputLabel value="Série "
-								style="font-size: 13px; width:180px" />
-							<p:selectOneMenu id="serie" style="width: 256px;"
-								value="#{aluno.serie}">
-								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-
 							<h:outputLabel value="Periodo: "
 								style="font-size: 13px; width:180px" />
 							<p:selectOneMenu id="periodo" style="width: 256px;"
@@ -68,6 +58,16 @@
 							<p:selectOneMenu style="width: 256px;"
 								value="#{aluno.escola}">
 								<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
+									var="country" itemLabel="#{country.name}"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							
+							<h:outputLabel value="Série "
+								style="font-size: 13px; width:180px" />
+							<p:selectOneMenu id="serie" style="width: 256px;"
+								value="#{aluno.serie}">
+								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
 									var="country" itemLabel="#{country.name}"
 									itemValue="#{country}" />
 								<p:ajax event="change" process="@this" />

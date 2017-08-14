@@ -26,7 +26,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Model;
 import javax.enterprise.inject.Produces;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -34,6 +36,13 @@ import org.escola.model.Custo;
 import org.escola.service.CustoService;
 import org.escola.util.Constant;
 import org.escola.util.Util;
+import org.primefaces.event.CloseEvent;
+import org.primefaces.event.DashboardReorderEvent;
+import org.primefaces.event.ToggleEvent;
+import org.primefaces.model.DashboardColumn;
+import org.primefaces.model.DashboardModel;
+import org.primefaces.model.DefaultDashboardColumn;
+import org.primefaces.model.DefaultDashboardModel;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
@@ -44,7 +53,7 @@ public class SecretariaController {
 	@Produces
 	@Named
 	private Custo custo;
-	
+
 	@Inject
 	private CustoService custoService;
 
@@ -61,23 +70,72 @@ public class SecretariaController {
 	private LazyDataModel<Custo> lazyListDataModelOut;
 	private LazyDataModel<Custo> lazyListDataModelNov;
 	private LazyDataModel<Custo> lazyListDataModelDez;
-	
+
+	private DashboardModel dashboardModelManha;
+	private DashboardModel dashboardModelMeioDia;
+	private DashboardModel dashboardModelTarde;
+
 	@PostConstruct
-	private void init(){
-		if(custo == null){
+	private void init() {
+		if (custo == null) {
 			custo = new Custo();
 		}
+
+		setDashboardModelManha(new DefaultDashboardModel());
+		setDashboardModelMeioDia(new DefaultDashboardModel());
+		setDashboardModelTarde(new DefaultDashboardModel());
+
+		DashboardColumn column1 = new DefaultDashboardColumn();
+		DashboardColumn column2 = new DefaultDashboardColumn();
+		DashboardColumn column3 = new DefaultDashboardColumn();
+
+		column1.addWidget("avaliable");
+		column1.addWidget("used");
+
+
+		dashboardModelManha.addColumn(column1);
+		dashboardModelManha.addColumn(column2);
+		dashboardModelManha.addColumn(column3);
+
 	}
-	
-	public String adicionar(Custo custo){
+
+	public void handleReorder(DashboardReorderEvent event) {
+		FacesMessage message = new FacesMessage();
+		message.setSeverity(FacesMessage.SEVERITY_INFO);
+		message.setSummary("Reordered: " + event.getWidgetId());
+		message.setDetail("Item index: " + event.getItemIndex() + ", Column index: " + event.getColumnIndex()
+				+ ", Sender index: " + event.getSenderColumnIndex());
+
+		addMessage(message);
+	}
+
+	public void handleClose(CloseEvent event) {
+		FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Panel Closed",
+				"Closed panel id:'" + event.getComponent().getId() + "'");
+
+		addMessage(message);
+	}
+
+	public void handleToggle(ToggleEvent event) {
+		FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, event.getComponent().getId() + " toggled",
+				"Status:" + event.getVisibility().name());
+
+		addMessage(message);
+	}
+
+	private void addMessage(FacesMessage message) {
+		FacesContext.getCurrentInstance().addMessage(null, message);
+	}
+
+	public String adicionar(Custo custo) {
 		custoService.save(custo);
 		return "index";
 	}
-	
+
 	public String adicionarNovo() {
 		return "cadastrar";
 	}
-	
+
 	public String editar(Long idprof) {
 		custo = custoService.findById(idprof);
 		Util.addAtributoSessao("custo", custo);
@@ -113,24 +171,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.JANUARY);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.JANUARY);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.JANUARY);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.JANUARY);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -153,10 +210,9 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelJan;
-		
+
 	}
 
-	
 	public LazyDataModel<Custo> getLazyDataModelFev() {
 		if (lazyListDataModelFev == null) {
 
@@ -186,24 +242,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.FEBRUARY);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.FEBRUARY);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.FEBRUARY);
-					c2.set(Calendar.DAY_OF_MONTH,29);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.FEBRUARY);
+					c2.set(Calendar.DAY_OF_MONTH, 29);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -226,7 +281,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelFev;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelMar() {
@@ -258,24 +313,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.MARCH);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.MARCH);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.MARCH);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.MARCH);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -298,9 +352,8 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelMar;
-		
-	}
 
+	}
 
 	public LazyDataModel<Custo> getLazyDataModelJun() {
 		if (lazyListDataModelJun == null) {
@@ -331,24 +384,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.JUNE);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.JUNE);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.JUNE);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.JUNE);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -371,7 +423,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelJun;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelJul() {
@@ -403,24 +455,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.JULY);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.JULY);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.JULY);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.JULY);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -443,7 +494,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelJul;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelAgo() {
@@ -475,24 +526,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.AUGUST);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.AUGUST);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.AUGUST);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.AUGUST);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -515,7 +565,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelAgo;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelSet() {
@@ -547,24 +597,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.SEPTEMBER);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.SEPTEMBER);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.SEPTEMBER);
-					c2.set(Calendar.DAY_OF_MONTH,30);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.SEPTEMBER);
+					c2.set(Calendar.DAY_OF_MONTH, 30);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -587,7 +636,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelSet;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelOut() {
@@ -619,24 +668,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.OCTOBER);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.OCTOBER);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.OCTOBER);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.OCTOBER);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -659,7 +707,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelOut;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelNov() {
@@ -691,24 +739,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.NOVEMBER);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.NOVEMBER);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.NOVEMBER);
-					c2.set(Calendar.DAY_OF_MONTH,30);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.NOVEMBER);
+					c2.set(Calendar.DAY_OF_MONTH, 30);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -731,7 +778,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelNov;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelDez() {
@@ -763,24 +810,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.DECEMBER);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.DECEMBER);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.DECEMBER);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.DECEMBER);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -803,7 +849,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelDez;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelMai() {
@@ -835,24 +881,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.MAY);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.MAY);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.MAY);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.MAY);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -875,7 +920,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelMai;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModelAbr() {
@@ -907,24 +952,23 @@ public class SecretariaController {
 					c.set(Calendar.MINUTE, 0);
 					c.set(Calendar.SECOND, 0);
 					c.set(Calendar.MILLISECOND, 0);
-					c.set(Calendar.MONTH,Calendar.APRIL);
-					c.set(Calendar.DAY_OF_MONTH,1);
-					c.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c.set(Calendar.MONTH, Calendar.APRIL);
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c.getTime());
-					
+
 					Calendar c2 = Calendar.getInstance();
 					c2.set(Calendar.HOUR_OF_DAY, 23);
 					c2.set(Calendar.MINUTE, 59);
 					c2.set(Calendar.SECOND, 59);
 					c2.set(Calendar.MILLISECOND, 999);
-					c2.set(Calendar.MONTH,Calendar.APRIL);
-					c2.set(Calendar.DAY_OF_MONTH,31);
-					c2.set(Calendar.YEAR,Constant.anoLetivoAtual);
+					c2.set(Calendar.MONTH, Calendar.APRIL);
+					c2.set(Calendar.DAY_OF_MONTH, 31);
+					c2.set(Calendar.YEAR, Constant.anoLetivoAtual);
 					datasEntre.add(c2.getTime());
-					
-					
+
 					filtros.put("dateBetween", datasEntre);
-						
+
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -947,7 +991,7 @@ public class SecretariaController {
 		}
 
 		return lazyListDataModelAbr;
-		
+
 	}
 
 	public LazyDataModel<Custo> getLazyDataModel() {
@@ -998,22 +1042,44 @@ public class SecretariaController {
 
 	}
 
-	
-	public String linkAlunos(){
+	public String linkAlunos() {
 		return "listagemAlunos";
 	}
 
-	public String linkProfessores(){
+	public String linkProfessores() {
 		return "listagemProfessores";
 	}
 
-	public String linkCalendario(){
+	public String linkCalendario() {
 		return "listagemCalendario";
 	}
 
-	public String linkTurmas(){
+	public String linkTurmas() {
 		return "listagemTurmas";
 	}
 
-	
+	public DashboardModel getDashboardModelManha() {
+		return dashboardModelManha;
+	}
+
+	public void setDashboardModelManha(DashboardModel dashboardModelManha) {
+		this.dashboardModelManha = dashboardModelManha;
+	}
+
+	public DashboardModel getDashboardModelMeioDia() {
+		return dashboardModelMeioDia;
+	}
+
+	public void setDashboardModelMeioDia(DashboardModel dashboardModelMeioDia) {
+		this.dashboardModelMeioDia = dashboardModelMeioDia;
+	}
+
+	public DashboardModel getDashboardModelTarde() {
+		return dashboardModelTarde;
+	}
+
+	public void setDashboardModelTarde(DashboardModel dashboardModelTarde) {
+		this.dashboardModelTarde = dashboardModelTarde;
+	}
+
 }

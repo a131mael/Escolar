@@ -18,15 +18,14 @@ package org.escola.controller.turma;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
-
 import javax.enterprise.inject.Produces;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.escola.auth.AuthController;
 import org.escola.enums.BimestreEnum;
@@ -37,17 +36,15 @@ import org.escola.enums.TipoMembro;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoAvaliacao;
 import org.escola.model.Avaliacao;
-import org.escola.model.Funcionario;
 import org.escola.model.Carro;
+import org.escola.model.Funcionario;
 import org.escola.service.AlunoService;
 import org.escola.service.AvaliacaoService;
 import org.escola.service.ProfessorService;
 import org.escola.service.TurmaService;
 import org.escola.util.Util;
+import org.primefaces.event.DragDropEvent;
 import org.primefaces.model.DualListModel;
-
-import javax.inject.Named;
-import javax.faces.view.ViewScoped;
 
 @Named
 @ViewScoped
@@ -117,29 +114,27 @@ public class TurmaController extends AuthController implements Serializable {
 
 		montarPickListProfessor();
 	}
+	
+	public List<Carro> getAlunosDisponiveis() {
+		
+		//Carro
+		//Periodo
+		if (getLoggedUser().getProfessor() != null) {
+			return turmaService.findAll(getLoggedUser().getProfessor().getId());
 
-	private void montarPickListAluno(Serie serie, PerioddoEnum periodo) {
-
-		/** MONTANDO O PICKLIST */
-		List<Aluno> todosAlunosDisponiveis = alunoService.findAll(serie, periodo);
-		List<Aluno> alunosDisponiveis = new ArrayList<>();
-		List<Aluno> alunosSelecionados = getAlunosSelecionados();
-
-		alunosDisponiveis.addAll(todosAlunosDisponiveis);
-		alunosDisponiveis.removeAll(alunosSelecionados);
-		
-		
-		Set<Aluno> alunosDisponiveisSet = new HashSet<>();
-		alunosDisponiveisSet.addAll(alunosDisponiveis);
-		alunosDisponiveis.clear();
-		alunosDisponiveis.addAll(alunosDisponiveisSet);
-		
-		alunos = new DualListModel<Aluno>(alunosDisponiveis, alunosSelecionados);
-		
-		totalAlunos = alunosSelecionados.size();
+		} else {
+			return turmaService.findAll();
+		}
 	}
 
-	private void montarPickListProfessor() {
+	 public void onCarDrop(DragDropEvent ddEvent) {
+	        Carro car = ((Carro) ddEvent.getData());
+	  
+	   //     droppedCars.add(car);
+	    //    cars.remove(car);
+	    }
+	
+		private void montarPickListProfessor() {
 		/** MONTANDO O PICKLIST */
 		List<Funcionario> todosProfessores = professorService.findAll();
 		List<Funcionario> professoresDisponiveis = new ArrayList<>();
@@ -212,19 +207,22 @@ public class TurmaController extends AuthController implements Serializable {
 	
 	public String editarRotaManha(Long idTurma) {
 		turma = turmaService.findById(idTurma);
-		Util.addAtributoSessao("turma", turma);
+		Util.addAtributoSessao("carro", turma);
+		Util.addAtributoSessao("periodo", PerioddoEnum.MANHA);
 		return "cadastrar";
 	}
 	
 	public String editarRotaMeioDia(Long idTurma) {
 		turma = turmaService.findById(idTurma);
-		Util.addAtributoSessao("turma", turma);
+		Util.addAtributoSessao("carro", turma);
+		Util.addAtributoSessao("periodo", PerioddoEnum.INTEGRAL);
 		return "cadastrar";
 	}
 	
 	public String editarRotaTarde(Long idTurma) {
 		turma = turmaService.findById(idTurma);
-		Util.addAtributoSessao("turma", turma);
+		Util.addAtributoSessao("carro", turma);
+		Util.addAtributoSessao("periodo", PerioddoEnum.TARDE);
 		return "cadastrar";
 	}
 	

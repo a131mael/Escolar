@@ -22,14 +22,17 @@ import javax.validation.ValidationException;
 
 import org.escola.enums.BimestreEnum;
 import org.escola.enums.DisciplinaEnum;
+import org.escola.enums.EscolaEnum;
+import org.escola.enums.PegarEntregarEnun;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoCarro;
-import org.escola.model.Evento;
-import org.escola.model.Custo;
-import org.escola.model.Funcionario;
 import org.escola.model.Carro;
+import org.escola.model.Custo;
+import org.escola.model.Evento;
+import org.escola.model.Funcionario;
+import org.escola.model.ObjetoRota;
 import org.escola.util.Constant;
 import org.escola.util.Service;
 import org.escola.util.UtilFinalizarAnoLetivo;
@@ -142,6 +145,79 @@ public class AlunoService extends Service {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Aluno> findAlunoByCarro(long idCarro) {
+		List<Aluno> alunos = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT al from  Aluno al ");
+		sql.append("where 1=1 ");
+		sql.append(" and al.carroLevaParaEscola.id =   ");
+		sql.append(idCarro);
+		sql.append(" or al.carroLevaParaEscolaTroca.id =   ");
+		sql.append(idCarro);
+		sql.append(" or al.carroPegaEscola.id =   ");
+		sql.append(idCarro);
+		sql.append(" or al.carroPegaEscolaTroca.id =   ");
+		sql.append(idCarro);
+		sql.append(" and al.removido = false ");
+
+		Query query = em.createQuery(sql.toString());
+		alunos = query.getResultList();
+		return alunos;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Aluno> findAlunoByCarroIDA(long idCarro, PerioddoEnum periodo) {
+		List<Aluno> alunos = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT al from  Aluno al ");
+		sql.append("where 1=1 ");
+		if (periodo != null) {
+			sql.append(" and al.periodo =  ");
+			sql.append(periodo.ordinal());
+		}
+		sql.append(" and (");
+		sql.append(" al.carroLevaParaEscola.id =   ");
+		sql.append(idCarro);
+		sql.append(" ) ");
+		sql.append(" and al.removido = false ");
+		Query query = em.createQuery(sql.toString());
+
+		alunos = query.getResultList();
+
+		return alunos;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Aluno> findAlunoByCarroVolta(long idCarro, PerioddoEnum periodo) {
+		List<Aluno> alunos = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT al from  Aluno al ");
+		sql.append("where 1=1 ");
+		if (periodo != null) {
+			sql.append(" and al.periodo =  ");
+			sql.append(periodo.ordinal());
+		}
+		sql.append(" and (");
+		sql.append(" al.carroPegaEscola.id =   ");
+		sql.append(idCarro);
+		sql.append(" or al.carroPegaEscolaTroca.id =   ");
+		sql.append(idCarro);
+		sql.append(" ) ");
+		sql.append(" and al.removido = false ");
+		
+		sql.append(" and (al.idaVolta = 0 or al.idaVolta = 2 )");
+		Query query = em.createQuery(sql.toString());
+		alunos = query.getResultList();
+		return alunos;
+
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<Aluno> findAlunoTurmaBytTurma(long idTurma) {
 		List<Aluno> alunos = new ArrayList<>();
 
@@ -192,8 +268,8 @@ public class AlunoService extends Service {
 				user = new Aluno();
 				user.setAnoLetivo(Constant.anoLetivoAtual);
 			}
-
-			//user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+			user.setIdaVolta(aluno.getIdaVolta());
+			// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
 			user.setNomeAluno(aluno.getNomeAluno());
 			user.setPeriodo(aluno.getPeriodo());
 			user.setSerie(aluno.getSerie());
@@ -201,16 +277,16 @@ public class AlunoService extends Service {
 			user.setBairro(aluno.getBairro());
 			user.setCep(aluno.getCep());
 			user.setCidade(aluno.getCidade());
-			//user.setNacionalidade(aluno.getNacionalidade());
+			// user.setNacionalidade(aluno.getNacionalidade());
 			user.setValorMensal(aluno.getValorMensal());
 			user.setDataNascimento(aluno.getDataNascimento());
 			user.setDataMatricula(aluno.getDataMatricula());
-	//		user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+			// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
 			user.setCodigo(aluno.getCodigo());
 
 			user.setCodigo(aluno.getCodigo());
 			user.setNomeAvoHPaternoMae(aluno.getNomeAvoHPaternoMae());
-			user.setAnuidade(aluno.getAnuidade() != null ? aluno.getAnuidade():0);
+			user.setAnuidade(aluno.getAnuidade() != null ? aluno.getAnuidade() : 0);
 			user.setBairro(aluno.getBairro());
 			user.setCep(aluno.getCep());
 			user.setCidade(aluno.getCidade());
@@ -241,19 +317,19 @@ public class AlunoService extends Service {
 			user.setSenha(aluno.getSenha());
 			user.setTelefone(aluno.getTelefone());
 			user.setEscola(aluno.getEscola());
-			if(aluno.getRemovido() == null){
+			if (aluno.getRemovido() == null) {
 				user.setRemovido(false);
-			}else{
+			} else {
 				user.setRemovido(aluno.getRemovido());
 			}
-			
+
 			user.setTrocaIDA(aluno.isTrocaIDA());
 			user.setTrocaVolta(aluno.isTrocaVolta());
 			user.setCarroLevaParaEscola(aluno.getCarroLevaParaEscola());
 			user.setCarroLevaParaEscolaTroca(aluno.getCarroLevaParaEscolaTroca());
 			user.setCarroPegaEscola(aluno.getCarroPegaEscola());
 			user.setCarroPegaEscolaTroca(aluno.getCarroPegaEscolaTroca());
-			
+
 			em.persist(user);
 
 			if (user.getDataNascimento() != null) {
@@ -294,14 +370,14 @@ public class AlunoService extends Service {
 	}
 
 	public String remover(Long idAluno) {
-		Aluno al = findById(idAluno); 
+		Aluno al = findById(idAluno);
 		al.setRemovido(true);
 		em.persist(al);
 		return "ok";
 	}
-	
+
 	public String restaurar(Long idAluno) {
-		Aluno al = findById(idAluno); 
+		Aluno al = findById(idAluno);
 		al.setRemovido(false);
 		em.persist(al);
 		return "ok";
@@ -366,9 +442,9 @@ public class AlunoService extends Service {
 		sql.append(idAluno);
 		sql.append(" and  av.avaliacao.disciplina = ");
 		sql.append(disciplina.ordinal());
-		if(bimestre != null){
+		if (bimestre != null) {
 			sql.append(" and  av.avaliacao.bimestre = ");
-			sql.append(bimestre.ordinal());	
+			sql.append(bimestre.ordinal());
 		}
 		sql.append(" and  av.avaliacao.recuperacao = ");
 		sql.append(recupecacao);
@@ -408,6 +484,75 @@ public class AlunoService extends Service {
 		return Float.parseFloat(String.valueOf(valor));
 	}
 
+	public void saveAlunoRota(ObjetoRota objetoRota) {
+		log.info("Registering " + objetoRota.getNome());
+		ObjetoRota obj;
+
+		if (objetoRota.getId() != null && objetoRota.getId() != 0L) {
+			obj = em.find(ObjetoRota.class, objetoRota.getId());
+		} else {
+			obj = new ObjetoRota();
+		}
+		if (objetoRota.getAluno() != null) {
+			obj.setAluno(findById(objetoRota.getAluno().getId()));
+		}
+		obj.setNome(objetoRota.getNome());
+		obj.setEscola(objetoRota.getEscola());
+		obj.setPosicao(objetoRota.getPosicao());
+		obj.setQuantidadeAlunos(objetoRota.getQuantidadeAlunos());
+		obj.setPegarEntregar(objetoRota.getPegarEntregar());
+
+		obj.setIdCarro(objetoRota.getIdCarro());
+		obj.setPeriodo(objetoRota.getPeriodo());
+		obj.setEscola(objetoRota.getEscola());
+		obj.setDescricao(objetoRota.getDescricao());
+		obj.setIdCarroAlvo(objetoRota.getIdCarroAlvo());
+		atualizarIndices(obj);
+		if(obj.getId() == null){
+			em.persist(obj);
+		}
+
+	}
+
+	private void atualizarIndices(ObjetoRota obj) {
+		List<ObjetoRota> objs = getObjetosRotasSeguintes(obj);
+		if(objs != null && !objs.isEmpty() && objs.get(0) != null && objs.get(0).getPosicao()==obj.getPosicao()){
+			int indice = 0;
+			for(ObjetoRota ob :objs){
+				ob.setPosicao(obj.getPosicao()+indice);
+			
+				em.merge(ob);
+		}
+		}
+	}
+
+	private List<ObjetoRota> getObjetosRotasSeguintes(ObjetoRota obj) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT obj from ObjetoRota obj ");
+		sql.append("where 1 = 1 ");
+		sql.append("and obj.posicao>=");
+		sql.append(obj.getPosicao());
+		sql.append(" and ");
+		sql.append(" obj.periodo = ");
+		sql.append(obj.getPeriodo().ordinal());
+		sql.append(" and ");
+		sql.append(" obj.idCarro = ");
+		sql.append(obj.getIdCarro());
+		sql.append(" order by obj.posicao ");
+		Query query = em.createQuery(sql.toString());
+		List<ObjetoRota> t = new ArrayList<>();
+		try{
+			 t = (List<ObjetoRota>) query.getResultList();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return t;
+		}
+
+		return t;
+
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Aluno> find(int first, int size, String orderBy, String order, Map<String, Object> filtros) {
 		try {
@@ -425,8 +570,8 @@ public class AlunoService extends Service {
 				} else {
 					pred = cb.equal(member.get(entry.getKey()), entry.getValue());
 				}
-				 predicates.add(pred);
-				//cq.where(pred);
+				predicates.add(pred);
+				// cq.where(pred);
 			}
 
 			cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
@@ -500,7 +645,6 @@ public class AlunoService extends Service {
 		}
 	}
 
-
 	public void removerHistorico(long idHistorico) {
 		em.remove(findHistoricoById(idHistorico));
 	}
@@ -517,7 +661,7 @@ public class AlunoService extends Service {
 			countQuery.where(pred);
 
 			Query q = em.createQuery(countQuery);
-			return ((long) q.getSingleResult())>0?true:false;
+			return ((long) q.getSingleResult()) > 0 ? true : false;
 
 		} catch (NoResultException nre) {
 			return false;
@@ -526,6 +670,478 @@ public class AlunoService extends Service {
 			return false;
 		}
 
+	}
+
+	public List<ObjetoRota> findObjetosRota(List<Aluno> alunos) {
+		// TODO aqui ta loco
+		List<ObjetoRota> ors = new ArrayList<>();
+		try {
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			final List<Predicate> predicates = new ArrayList<Predicate>();
+
+			for (Aluno al : alunos) {
+				Predicate pred = cb.or();
+
+				pred = cb.equal(member.get("aluno").get("id"), al.getId());
+				predicates.add(pred);
+
+			}
+
+			try {
+				cq.where(cb.or(predicates.toArray(new Predicate[predicates.size()])));
+				cq.orderBy(cb.asc(member.get("posicao")));
+				Query q = em.createQuery(criteria);
+				ors.addAll((List<ObjetoRota>) q.getResultList());
+			} catch (Exception e) {
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ors;
+	}
+
+	public List<ObjetoRota> findObjetosRota(Long idCarro, PerioddoEnum periodo) {
+		List<ObjetoRota> ors = new ArrayList<>();
+		try {
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			final List<Predicate> predicates = new ArrayList<Predicate>();
+
+			Predicate pred = cb.equal(member.get("idCarro"), idCarro);
+			predicates.add(pred);
+
+			Predicate pred2 = cb.equal(member.get("periodo"), periodo.ordinal());
+			predicates.add(pred2);
+
+			try {
+				cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+				cq.orderBy(cb.asc(member.get("posicao")));
+				Query q = em.createQuery(criteria);
+				ors.addAll((List<ObjetoRota>) q.getResultList());
+			} catch (Exception e) {
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ors;
+	}
+	
+	public ObjetoRota findObjetosRota(Long idCarro, PerioddoEnum periodo,Long idCarroAlvo,PegarEntregarEnun pegarEntregarEnun) {
+		try {
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			final List<Predicate> predicates = new ArrayList<Predicate>();
+
+			Predicate pred = cb.equal(member.get("idCarro"), idCarro);
+			predicates.add(pred);
+
+			Predicate pred2 = cb.equal(member.get("periodo"), periodo.ordinal());
+			predicates.add(pred2);
+
+			Predicate pred3 = cb.equal(member.get("idCarroAlvo"), idCarroAlvo);
+			predicates.add(pred3);
+
+			Predicate pred4 = cb.equal(member.get("pegarEntregar"), pegarEntregarEnun.ordinal());
+			predicates.add(pred4);
+
+			
+			try {
+				cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+				cq.orderBy(cb.asc(member.get("posicao")));
+				Query q = em.createQuery(criteria);
+				return (ObjetoRota) q.getSingleResult();
+			} catch (Exception e) {
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public List<Aluno> findAlunos(List<ObjetoRota> objRts) {
+		List<Aluno> ors = new ArrayList<>();
+		try {
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			Predicate pred = cb.and();
+
+			Query q = em.createQuery(criteria);
+			for (ObjetoRota al : objRts) {
+				pred = cb.equal(member.get("aluno").get("id"), al.getAluno().getId());
+				cq.where(pred);
+			}
+			try {
+				List<ObjetoRota> objR = (List<ObjetoRota>) q.getResultList();
+				for (ObjetoRota ob : objR) {
+					ors.add(ob.getAluno());
+				}
+			} catch (Exception e) {
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ors;
+	}
+
+	public List<Aluno> findAlunos(Long idCarro, PerioddoEnum periodo, EscolaEnum escola,
+			PegarEntregarEnun pegarEntregar) {
+		List<Aluno> ors = new ArrayList<>();
+		try {
+			final List<Predicate> predicates = new ArrayList<Predicate>();
+
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			Predicate pred = cb.equal(member.get("idCarro"), idCarro);
+			predicates.add(pred);
+
+			Predicate pred2 = cb.equal(member.get("periodo"), periodo.ordinal());
+			predicates.add(pred2);
+
+			Predicate pred3 = cb.equal(member.get("aluno").get("escola"), escola.ordinal());
+			predicates.add(pred3);
+
+			Predicate pred4 = cb.equal(member.get("pegarEntregar"), pegarEntregar);
+			predicates.add(pred4);
+
+			cq.where(pred);
+			try {
+				cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
+				Query q = em.createQuery(criteria);
+
+				List<ObjetoRota> objR = (List<ObjetoRota>) q.getResultList();
+				for (ObjetoRota ob : objR) {
+					ors.add(ob.getAluno());
+				}
+			} catch (Exception e) {
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ors;
+	}
+
+	public void removerAlunoRota(Long idAluno) {
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			Predicate pred = cb.and();
+			pred = cb.equal(member.get("aluno").get("id"), idAluno);
+			cq.where(pred);
+
+			Query q = em.createQuery(criteria);
+			List<ObjetoRota> objRotas = (List<ObjetoRota>) q.getResultList();
+
+			for (ObjetoRota obj : objRotas) {
+				em.remove(obj);
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void removerObjetoRota(Long idAluno) {
+		try {
+			CriteriaBuilder cb = em.getCriteriaBuilder();
+			CriteriaQuery<ObjetoRota> criteria = cb.createQuery(ObjetoRota.class);
+			Root<ObjetoRota> member = criteria.from(ObjetoRota.class);
+			CriteriaQuery cq = criteria.select(member);
+
+			Predicate pred = cb.and();
+			pred = cb.equal(member.get("id"), idAluno);
+			cq.where(pred);
+
+			Query q = em.createQuery(criteria);
+			List<ObjetoRota> objRotas = (List<ObjetoRota>) q.getResultList();
+
+			for (ObjetoRota obj : objRotas) {
+				em.remove(obj);
+			}
+
+		} catch (NoResultException nre) {
+			nre.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	
+	public List<Carro> findCarrosTroca(Carro carro, PerioddoEnum periodo, Boolean pego) {
+		String sql = "";
+		if(periodo.equals(PerioddoEnum.MANHA)){
+			if(pego){
+				sql = SQLs.getSQLCarrosTrocaManhaPego();
+			}else{
+				sql = SQLs.getSQLCarrosTrocaManha();
+			}
+		}else{
+			if(pego){
+				sql = SQLs.getSQLCarrosTrocaTardePego();
+			}else{
+				sql = SQLs.getSQLCarrosTrocaTarde();
+			}
+		}
+		
+		sql = sql.replace("?1", carro.getId().toString());
+		sql = sql.replace("?2", String.valueOf(periodo.ordinal()));
+		
+		Query query = em.createQuery(sql);
+		List<Carro> t = new ArrayList<>();
+		try{
+			 t = (List<Carro>) query.getResultList();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return t;
+		}
+
+		return t;
+	}
+	
+	public List<Carro> findCarrosTrocaMeioDia(Carro carro, PerioddoEnum periodo, Boolean pego) {
+		String sql = SQLs.getSQLTrocaMeioDia();
+		sql = sql.replace("?1", carro.getId().toString());
+		sql = sql.replace("?2", String.valueOf(periodo.TARDE.ordinal()));
+		Query query = em.createQuery(sql.toString());
+		List<Carro> t = new ArrayList<>();
+		try{
+			 t = (List<Carro>) query.getResultList();
+			
+		}catch(Exception e){
+			e.printStackTrace();
+			return t;
+		}
+		return t;
+	}
+
+	public List<Aluno> findAlunosVoltam(Carro carro, Carro carroTroca,PerioddoEnum periodo) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.carroPegaEscola.id= ");
+		sql.append(carro.getId());
+		sql.append(" and al.carroPegaEscolaTroca.id= ");
+		sql.append(carroTroca.getId());
+		sql.append(" and");
+		sql.append(" ( al.periodo = ");
+		sql.append(periodo.ordinal());
+		sql.append(" or al.periodo = ");
+		sql.append(PerioddoEnum.INTEGRAL.ordinal());
+		sql.append(" )");
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+	
+	public List<Aluno> findAlunosVao(Carro carro, Carro carroTroca,PerioddoEnum periodo, Boolean pego) {
+		String sql="";
+		if(pego){
+			sql = SQLs.getSQLAlunosVaoPego();
+		}else{
+			sql = SQLs.getSQLAlunosVao();
+		}
+		
+		sql = sql.replace("?1", carro.getId().toString());
+		sql = sql.replace("?2", carroTroca.getId().toString());
+		sql = sql.replace("?3", String.valueOf(periodo.ordinal()));
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+	
+	public List<Aluno> findAlunosTrocaMeioDia(Carro carro, Carro carroTroca,PerioddoEnum periodo) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.carroPegaEscola.id= ");
+		sql.append(carro.getId());
+		sql.append(" and al.carroPegaEscolaTroca.id= ");
+		sql.append(carroTroca.getId());
+		sql.append(" and");
+		sql.append("  al.periodo = ");
+		sql.append(PerioddoEnum.MANHA.ordinal());
+		sql.append(" or (");
+		
+		sql.append(" al.carroLevaParaEscola.id= ");
+		sql.append(carroTroca.getId());
+		sql.append(" and al.carroLevaParaEscolaTroca.id= ");
+		sql.append(carro.getId());
+		sql.append(" and");
+		sql.append("  al.periodo = ");
+		sql.append(PerioddoEnum.TARDE.ordinal());
+		
+		sql.append(" )");
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+
+	public List<Aluno> findAlunoPegoOutroCarroTarde(PerioddoEnum periodo, Carro carro) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.trocaVolta= ");
+		sql.append(true);
+		sql.append(" and al.carroPegaEscolaTroca.id= ");
+		sql.append(carro.getId());
+		sql.append(" and");
+		sql.append(" ( al.periodo = ");
+		sql.append(periodo.ordinal());
+		sql.append(" or al.periodo = ");
+		sql.append(PerioddoEnum.INTEGRAL.ordinal());
+		sql.append(" )");
+		sql.append(" and ( al.idaVolta = 0 or al.idaVolta = 2)");
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+	
+	public List<Aluno> findAlunoPegaEscolaTarde(EscolaEnum escola, Carro carro) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.escola= ");
+		sql.append(escola.ordinal());
+		sql.append(" and al.carroPegaEscola.id= ");
+		sql.append(carro.getId());
+		sql.append(" and ( al.idaVolta = 0 or al.idaVolta = 2)");
+		sql.append(" and");
+		sql.append(" ( al.periodo = ");
+		sql.append(PerioddoEnum.TARDE.ordinal());
+		sql.append(" or al.periodo = ");
+		sql.append(PerioddoEnum.INTEGRAL.ordinal());
+		sql.append(" )");
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+	
+	public List<Aluno> findAlunoPegaEscolaManha(EscolaEnum escola, Carro carro) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.escola= ");
+		sql.append(escola.ordinal());
+		sql.append(" and ( (al.carroLevaParaEscola.id= ");
+		sql.append(carro.getId());
+		sql.append(" and al.trocaIDA = false)");
+		sql.append(" or al.carroLevaParaEscolaTroca.id= ");
+		sql.append(carro.getId());
+		sql.append("  ) and ( al.idaVolta = 0 or al.idaVolta = 2)");
+		sql.append(" and");
+		sql.append(" ( al.periodo = ");
+		sql.append(PerioddoEnum.MANHA.ordinal());
+		sql.append(" or al.periodo = ");
+		sql.append(PerioddoEnum.INTEGRAL.ordinal());
+		sql.append(" )");
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+
+	public List<Aluno> findAlunoPegaEscolaMeioDia(EscolaEnum escola, Carro carro) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.escola= ");
+		sql.append(escola.ordinal());
+		sql.append(" and al.carroPegaEscola.id= ");
+		sql.append(carro.getId());
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
+	}
+	public List<Aluno> findAlunoLevaEscolaMeioDia(EscolaEnum escola, Carro carro) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.escola= ");
+		sql.append(escola.ordinal());
+		sql.append(" and ( (al.carroLevaParaEscola.id= ");
+		sql.append(carro.getId());
+		sql.append(" and al.trocaIDA = false)");
+		sql.append(" or al.carroLevaParaEscolaTroca.id= ");
+		sql.append(carro.getId());
+		sql.append("  ) and ( al.idaVolta = 0 or al.idaVolta = 1)");
+		sql.append(" and");
+		sql.append("  al.periodo = ");
+		sql.append(PerioddoEnum.TARDE.ordinal());
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		return t;
+	}
+	
+	
+	public List<Aluno> findAlunoTrocaNoite(Long idCarro, Long idCarroTroca) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al)  from Aluno al ");
+		sql.append(" where 1 = 1");
+		sql.append(" and al.carroPegaEscola.id= ");
+		sql.append(idCarro);
+		sql.append(" and al.trocaVolta = true)");
+		sql.append("  and al.carroPegaEscolaTroca.id");
+		sql.append(idCarroTroca);
+		
+		Query query = em.createQuery(sql.toString());
+		List<Aluno> t = (List<Aluno>) query.getResultList();
+		
+		return t;
 	}
 
 }

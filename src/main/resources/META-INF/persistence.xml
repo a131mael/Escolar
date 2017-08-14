@@ -17,6 +17,7 @@
     <class>org.escola.model.AlunoAvaliacao</class>
     <class>org.escola.model.Evento</class>
     <class>org.escola.model.Custo</class>
+    <class>org.escola.model.ObjetoRota</class>
 	<properties>
        <!-- <property name="hibernate.hbm2ddl.auto" value="create-drop"/>   -->
        <property name="hibernate.hbm2ddl.auto" value="update"/>  

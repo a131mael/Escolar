@@ -82,7 +82,7 @@ public class AvaliacaoController extends AuthController implements Serializable{
 	public Set<Avaliacao> getAvaliacoes(){
 		
 		/*return avaliacaoService.findAll();*/
-		return avaliacaoService.findAll(getLoggedUser());
+		return avaliacaoService.findAllAvaliacao(getLoggedUser());
 	}
 	
 	public List<Avaliacao> getAvaliacoes(DisciplinaEnum disciplina, Serie serie,  BimestreEnum bimestre){

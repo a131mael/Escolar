@@ -18,17 +18,10 @@
 package org.escola.controller;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Produces;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -36,17 +29,7 @@ import javax.inject.Named;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Carro;
-import org.escola.model.Evento;
-import org.escola.service.AlunoService;
-import org.escola.service.EventoService;
 import org.escola.service.RelatorioService;
-import org.primefaces.event.ScheduleEntryMoveEvent;
-import org.primefaces.event.ScheduleEntryResizeEvent;
-import org.primefaces.event.SelectEvent;
-import org.primefaces.model.DefaultScheduleEvent;
-import org.primefaces.model.DefaultScheduleModel;
-import org.primefaces.model.ScheduleEvent;
-import org.primefaces.model.ScheduleModel;
 
 @Named
 @ViewScoped
@@ -124,6 +107,20 @@ public class RelatorioController implements Serializable{
 		filtros.put("carroPegaEscola", carro);
 		filtros.put("carroPegaEscolaTroca", carro);
 		return relatorioService.getValorTotal(filtros);
+	}
+	
+	public long getValorTotalMensalidade(Carro carro){
+		Map<String, Object> filtros = new HashMap<>();
+		filtros.put("carroLevaParaEscola", carro);
+		filtros.put("carroLevaParaEscolaTroca", carro);
+		filtros.put("carroPegaEscola", carro);
+		filtros.put("carroPegaEscolaTroca", carro);
+		return relatorioService.getValorTotalMensalidade(filtros);
+	}
+	
+	public long getValorTotalMensalidade(){
+		Map<String, Object> filtros = new HashMap<>();
+		return relatorioService.getValorTotalMensalidade(filtros);
 	}
 	
 	//TODO nao pergunte =) converter para o server funcionar

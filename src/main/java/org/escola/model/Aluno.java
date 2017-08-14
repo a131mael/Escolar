@@ -708,4 +708,11 @@ public class Aluno implements Serializable {
 	public void setEscola(EscolaEnum escola) {
 		this.escola = escola;
 	}
+	
+	@Override
+	public String toString() {
+		
+		return nomeAluno + " - " + escola.getName();
+	}
+	
 }

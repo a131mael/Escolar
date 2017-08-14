@@ -3,6 +3,11 @@
 .fc-day-grid-container fc-scroller{
 	height: 800px !important;
 }
+/*
+ui-inputtextarea{
+	height: 100px;
+}
+*/
 
 /* ATEH AQUI */
 
@@ -686,4 +691,10 @@ font-size: 14px!important;}
 
 .ui-dialog .ui-dialog-buttonpane{padding: 0 0 0 10px;background-color: rgb(235, 234, 234);}
 
- 
+ .panelRotas{
+	font-size: 10px !important;
+}
+
+.ui-panel-title{
+	font-size: 10px;
+}

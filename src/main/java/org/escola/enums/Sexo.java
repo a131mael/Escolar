@@ -6,8 +6,6 @@ public enum Sexo {
 	
 	FEMININO("Feminino");
 	
-	
-	
 	private String tipo;
 	
 	Sexo(String tipo){
