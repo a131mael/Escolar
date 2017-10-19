@@ -16,15 +16,17 @@
  */
 package org.escola.controller.aluno;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -37,7 +39,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.aaf.financeiro.util.CNAB240_SICOOB;
 import org.escola.controller.OfficeDOCUtil;
+import org.escola.controller.OfficePDFUtil;
 import org.escola.enums.BimestreEnum;
 import org.escola.enums.DisciplinaEnum;
 import org.escola.enums.PerioddoEnum;
@@ -45,7 +49,6 @@ import org.escola.enums.Serie;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoAvaliacao;
 import org.escola.model.Custo;
-import org.escola.model.Funcionario;
 import org.escola.service.AlunoService;
 import org.escola.service.AvaliacaoService;
 import org.escola.util.Constant;
@@ -70,6 +73,14 @@ public class AlunoController implements Serializable {
 	@Named
 	private Aluno aluno;
 
+	private boolean irmao1;
+
+	private boolean irmao2;
+
+	private boolean irmao3;
+
+	private boolean irmao4;
+
 	@Produces
 	@Named
 	private List<Aluno> alunos;
@@ -83,25 +94,15 @@ public class AlunoController implements Serializable {
 	private OfficeDOCUtil officeDOCUtil;
 	CurrencyWriter cw;
 
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoPortugues;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoIngles;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoMatematica;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoHistoria;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoEDFisica;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoGeografia;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoCiencias;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoFormacaoCrista;
-	private Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoArtes;
-
 	@Named
 	private BimestreEnum bimestreSel;
 	@Named
 	private DisciplinaEnum disciplinaSel;
 
 	private LazyDataModel<Aluno> lazyListDataModel;
-	
+
 	private LazyDataModel<Aluno> lazyListDataModelExAlunos;
-	
+
 	private LazyDataModel<Aluno> lazyListDataModelUltimoAnoLetivo;
 
 	public LazyDataModel<Aluno> getLazyDataModel() {
@@ -124,6 +125,8 @@ public class AlunoController implements Serializable {
 						Map<String, Object> where) {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.put("anoLetivo", Constant.anoLetivoAtual);
 
 					filtros.putAll(where);
 					filtros.put("removido", false);
@@ -178,14 +181,14 @@ public class AlunoController implements Serializable {
 
 	}
 
-	public double valorTotal(Aluno aluno){
-		if(aluno != null && aluno.getNumeroParcelas() != null){
-			return aluno.getValorMensal()*aluno.getNumeroParcelas();
-		}else{
+	public double valorTotal(Aluno aluno) {
+		if (aluno != null && aluno.getNumeroParcelas() != null) {
+			return aluno.getValorMensal() * aluno.getNumeroParcelas();
+		} else {
 			return 0;
 		}
 	}
-	
+
 	public LazyDataModel<Aluno> getLazyDataModelExAlunos() {
 		if (lazyListDataModelExAlunos == null) {
 
@@ -208,7 +211,7 @@ public class AlunoController implements Serializable {
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
 					filtros.putAll(where);
-					filtros.put("removido" , true);
+					filtros.put("removido", true);
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -282,9 +285,9 @@ public class AlunoController implements Serializable {
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
 					filtros.putAll(where);
-					
-					filtros.put("anoLetivo" , Constant.anoLetivoAtual -1);
-					
+
+					filtros.put("anoLetivo", Constant.anoLetivoAtual - 1);
+
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -335,98 +338,36 @@ public class AlunoController implements Serializable {
 		return lazyListDataModelUltimoAnoLetivo;
 
 	}
-	
+
 	@PostConstruct
 	private void init() {
 		if (aluno == null) {
 			Object obj = Util.getAtributoSessao("aluno");
 			if (obj != null) {
 				aluno = (Aluno) obj;
+				if (aluno.getIrmao1() != null) {
+					irmao1 = true;
+				}
+				if (aluno.getIrmao2() != null) {
+					irmao2 = true;
+				}
+				if (aluno.getIrmao3() != null) {
+					irmao3 = true;
+				}
+				if (aluno.getIrmao4() != null) {
+					irmao4 = true;
+				}
 			} else {
 				aluno = new Aluno();
 			}
 		}
-		if(alunoAvaliacaoIngles == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoIngles");
-			if (obj != null) {
-				alunoAvaliacaoIngles =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoIngles = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoArtes == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoArtes");
-			if (obj != null) {
-				alunoAvaliacaoArtes =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoArtes = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoCiencias == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoCiencias");
-			if (obj != null) {
-				alunoAvaliacaoCiencias =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoCiencias = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoEDFisica == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoEDFisica");
-			if (obj != null) {
-				alunoAvaliacaoEDFisica =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoEDFisica = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoFormacaoCrista == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoFormacaoCrista");
-			if (obj != null) {
-				alunoAvaliacaoFormacaoCrista =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoFormacaoCrista = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoGeografia == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoGeografia");
-			if (obj != null) {
-				alunoAvaliacaoGeografia =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoGeografia = new LinkedHashMap<>();;
-			}
-		}
-		if(alunoAvaliacaoHistoria == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoHistoria");
-			if (obj != null) {
-				alunoAvaliacaoHistoria =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoHistoria = new LinkedHashMap<>();;
-			}
-		}
-		
-		if(alunoAvaliacaoMatematica == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoMatematica");
-			if (obj != null) {
-				alunoAvaliacaoMatematica =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoMatematica = new LinkedHashMap<>();;
-			}
-		}
-		
-		if(alunoAvaliacaoPortugues == null){
-			Object obj = Util.getAtributoSessao("alunoAvaliacaoPortugues");
-			if (obj != null) {
-				alunoAvaliacaoPortugues =  (Map<Aluno, List<AlunoAvaliacao>>) obj;
-			} else {
-				alunoAvaliacaoPortugues = new LinkedHashMap<>();;
-			}
-		}
-		
+
 		officeDOCUtil = new OfficeDOCUtil();
 		cw = new CurrencyWriter();
 	}
-	
-	public boolean estaEmUmaTurma(long idAluno){
-		boolean estaNaTurma =alunoService.estaEmUmaTUrma(idAluno);
+
+	public boolean estaEmUmaTurma(long idAluno) {
+		boolean estaNaTurma = alunoService.estaEmUmaTUrma(idAluno);
 		return estaNaTurma;
 	}
 
@@ -451,35 +392,13 @@ public class AlunoController implements Serializable {
 		}
 		return qtade > 0 ? sum / qtade : 0;
 	}
-	
-	public float getNota(DisciplinaEnum disciplina, BimestreEnum  bimestre){
+
+	public float getNota(DisciplinaEnum disciplina, BimestreEnum bimestre) {
 		return alunoService.getNota(aluno.getId(), disciplina, bimestre, false);
 	}
 
-	public List<Custo> getHistoricoAluno(Aluno aluno){
+	public List<Custo> getHistoricoAluno(Aluno aluno) {
 		return alunoService.getHistoricoAluno(aluno);
-	}
-	
-	public void popularAlunoAvaliacao(Aluno aluno) {
-		setAlunoAvaliacaoPortugues(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.PORTUGUES,
-				this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoIngles(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.INGLES,
-				this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoEDFisica(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null,
-				DisciplinaEnum.EDUCACAO_FISICA, this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoGeografia(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.GEOGRAFIA,
-				this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoHistoria(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.HISTORIA,
-				this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoMatematica(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null,
-				DisciplinaEnum.MATEMATICA, this.getBimestreSel(), aluno.getSerie()));
-
-		setAlunoAvaliacaoCiencias(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.CIENCIAS,
-				this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoFormacaoCrista(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null,
-				DisciplinaEnum.FORMACAO_CRISTA, this.getBimestreSel(), aluno.getSerie()));
-		setAlunoAvaliacaoArtes(avaliacaoService.findAlunoAvaliacaoMap(aluno.getId(), null, DisciplinaEnum.ARTES,
-				this.getBimestreSel(), aluno.getSerie()));
 	}
 
 	public boolean renderDisciplina(int ordinal) {
@@ -489,420 +408,13 @@ public class AlunoController implements Serializable {
 
 		return ordinal == getDisciplinaSel().ordinal();
 	}
-	
+
 	public void saveAvaliacaoAluno(AlunoAvaliacao alav) {
 		avaliacaoService.saveAlunoAvaliacao(alav);
-	} 
+	}
 
 	public void saveAvaliacaoAluno(Long idAluAv, Float nota) {
 		avaliacaoService.saveAlunoAvaliacao(idAluAv, nota);
-	}
-
-	private HashMap<String, String> montarBoletim(Aluno aluno) {
-		Funcionario prof = alunoService.getProfessor(aluno.getId());
-		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("#nomeAluno", aluno.getNomeAluno());
-		trocas.put("#nomeProfessor", prof.getNome());
-		trocas.put("#turma", aluno.getSerie().getName());
-
-		float notaPortuguesPrimeiroBimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float notaPortuguesSegundoBimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float notaPortuguesTerceiroBimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float notaPortuguesQuartoBimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float notaPortuguesPrimeiroRec = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float notaPortuguesSegundoRec = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float notaPortuguesTerceiroRec = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float notaPortuguesQuartoRec = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaPortuguesRecFinal = alunoService.getNota(aluno.getId(), DisciplinaEnum.PORTUGUES, true, true);
-
-		// PORTUGUES
-		trocas.put("#np1", mostraNotas(notaPortuguesPrimeiroBimestre));
-		trocas.put("#np2", mostraNotas(notaPortuguesSegundoBimestre));
-		trocas.put("#np3", mostraNotas(notaPortuguesTerceiroBimestre));
-		trocas.put("#np4", mostraNotas(notaPortuguesQuartoBimestre));
-
-		// rec
-		trocas.put("#npr1", mostraNotas(notaPortuguesPrimeiroRec));
-		trocas.put("#npr2", mostraNotas(notaPortuguesSegundoRec));
-		trocas.put("#npr3", mostraNotas(notaPortuguesTerceiroRec));
-		trocas.put("#npr4", mostraNotas(notaPortuguesQuartoRec));
-		// mediaFinal
-		trocas.put("#mp1", mostraNotas(maior(notaPortuguesPrimeiroBimestre, notaPortuguesPrimeiroRec)));
-		trocas.put("#mp2", mostraNotas(maior(notaPortuguesSegundoRec, notaPortuguesSegundoBimestre)));
-		trocas.put("#mp3", mostraNotas(maior(notaPortuguesTerceiroRec, notaPortuguesTerceiroBimestre)));
-		trocas.put("#mp4", mostraNotas(maior(notaPortuguesQuartoRec, notaPortuguesQuartoBimestre)));
-		// Final do ano
-		trocas.put("#npF",
-				mostraNotas(media(maior(notaPortuguesPrimeiroBimestre, notaPortuguesPrimeiroRec),
-						maior(notaPortuguesSegundoRec, notaPortuguesSegundoBimestre),
-						maior(notaPortuguesTerceiroRec, notaPortuguesTerceiroBimestre),
-						maior(notaPortuguesQuartoRec, notaPortuguesQuartoBimestre))));
-		trocas.put("#nprf", mostraNotas(notaPortuguesRecFinal));
-
-		// Matematica
-		float notaMTM1Bimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float notaMTM2Bimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float notaMTM3Bimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float notaMTM4Bimestre = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float notaMTM1Rec = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float notaMTM2Rec = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float notaMTM3Rec = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float notaMTM4Rec = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA, BimestreEnum.QUARTO_BIMESTRE,
-				true);
-		float notaMtmRecFinal = alunoService.getNota(aluno.getId(), DisciplinaEnum.MATEMATICA, true, true);
-
-		trocas.put("#nm1", mostraNotas(notaMTM1Bimestre));
-		trocas.put("#nm2", mostraNotas(notaMTM2Bimestre));
-		trocas.put("#nm3", mostraNotas(notaMTM3Bimestre));
-		trocas.put("#nm4", mostraNotas(notaMTM4Bimestre));
-		// rec
-		trocas.put("#nmr1", mostraNotas(notaMTM1Rec));
-		trocas.put("#nmr2", mostraNotas(notaMTM2Rec));
-		trocas.put("#nmr3", mostraNotas(notaMTM3Rec));
-		trocas.put("#nmr4", mostraNotas(notaMTM4Rec));
-		// mediaFinal
-		trocas.put("#mm1", mostraNotas(maior(notaMTM1Bimestre, notaMTM1Rec)));
-		trocas.put("#mm2", mostraNotas(maior(notaMTM2Bimestre, notaMTM2Rec)));
-		trocas.put("#mm3", mostraNotas(maior(notaMTM3Bimestre, notaMTM3Rec)));
-		trocas.put("#mm4", mostraNotas(maior(notaMTM4Bimestre, notaMTM4Rec)));
-		// Final do ano
-		trocas.put("#nmF", mostraNotas(media(maior(notaMTM1Bimestre, notaMTM1Rec), maior(notaMTM2Bimestre, notaMTM2Rec),
-				maior(notaMTM3Bimestre, notaMTM3Rec), maior(notaMTM4Bimestre, notaMTM4Rec))));
-		trocas.put("#nmrf", mostraNotas(notaMtmRecFinal));
-
-		// Ingles
-		float nota1BimestreIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES, BimestreEnum.SEGUNDO_BIMESTRE,
-				true);
-		float nota3RecIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES, BimestreEnum.QUARTO_BIMESTRE,
-				true);
-		float notaRecFinalIngles = alunoService.getNota(aluno.getId(), DisciplinaEnum.INGLES, true, true);
-
-		trocas.put("#ni1", mostraNotas(nota1BimestreIngles));
-		trocas.put("#ni2", mostraNotas(nota2BimestreIngles));
-		trocas.put("#ni3", mostraNotas(nota3BimestreIngles));
-		trocas.put("#ni4", mostraNotas(nota4BimestreIngles));
-		// rec
-		trocas.put("#nir1", mostraNotas(nota1RecIngles));
-		trocas.put("#nir2", mostraNotas(nota2RecIngles));
-		trocas.put("#nir3", mostraNotas(nota3RecIngles));
-		trocas.put("#nir4", mostraNotas(nota4RecIngles));
-		// mediaFinal
-		trocas.put("#mi1", mostraNotas(maior(nota1RecIngles, nota1BimestreIngles)));
-		trocas.put("#mi2", mostraNotas(maior(nota2RecIngles, nota2BimestreIngles)));
-		trocas.put("#mi3", mostraNotas(maior(nota3RecIngles, nota3BimestreIngles)));
-		trocas.put("#mi4", mostraNotas(maior(nota4RecIngles, nota4BimestreIngles)));
-		// Final do ano
-		trocas.put("#niF",
-				mostraNotas(media(maior(nota1RecIngles, nota1BimestreIngles),
-						maior(nota2RecIngles, nota2BimestreIngles), maior(nota3RecIngles, nota3BimestreIngles),
-						maior(nota4RecIngles, nota4BimestreIngles))));
-		trocas.put("#nirf", mostraNotas(notaRecFinalIngles));
-
-		// EdFisica
-		float nota1BimestreEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float nota3RecEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaRecFinalEdFisica = alunoService.getNota(aluno.getId(), DisciplinaEnum.EDUCACAO_FISICA, true, true);
-
-		trocas.put("#ne1", mostraNotas(nota1BimestreEdFisica));
-		trocas.put("#ne2", mostraNotas(nota2BimestreEdFisica));
-		trocas.put("#ne3", mostraNotas(nota3BimestreEdFisica));
-		trocas.put("#ne4", mostraNotas(nota4BimestreEdFisica));
-		// rec
-		trocas.put("#ner1", mostraNotas(nota1RecEdFisica));
-		trocas.put("#ner2", mostraNotas(nota2RecEdFisica));
-		trocas.put("#ner3", mostraNotas(nota3RecEdFisica));
-		trocas.put("#ner4", mostraNotas(nota4RecEdFisica));
-		// mediaFinal
-		trocas.put("#me1", mostraNotas(maior(nota1BimestreEdFisica, nota1RecEdFisica)));
-		trocas.put("#me2", mostraNotas(maior(nota2BimestreEdFisica, nota2RecEdFisica)));
-		trocas.put("#me3", mostraNotas(maior(nota3BimestreEdFisica, nota3RecEdFisica)));
-		trocas.put("#me4", mostraNotas(maior(nota4BimestreEdFisica, nota4RecEdFisica)));
-		// Final do ano
-		trocas.put("#neF",
-				mostraNotas(media(maior(nota1BimestreEdFisica, nota1RecEdFisica),
-						maior(nota2BimestreEdFisica, nota2RecEdFisica), maior(nota3BimestreEdFisica, nota3RecEdFisica),
-						maior(nota4BimestreEdFisica, nota4RecEdFisica))));
-		trocas.put("#nerf", mostraNotas(notaRecFinalEdFisica));
-
-		// Geofrafia
-		float nota1BimestreGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float nota3RecGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaRecFinalGeografia = alunoService.getNota(aluno.getId(), DisciplinaEnum.GEOGRAFIA, true, true);
-
-		trocas.put("#ng1", mostraNotas(nota1BimestreGeografia));
-		trocas.put("#ng2", mostraNotas(nota2BimestreGeografia));
-		trocas.put("#ng3", mostraNotas(nota3BimestreGeografia));
-		trocas.put("#ng4", mostraNotas(nota4BimestreGeografia));
-		// rec
-		trocas.put("#ngr1", mostraNotas(nota1RecGeografia));
-		trocas.put("#ngr2", mostraNotas(nota2RecGeografia));
-		trocas.put("#ngr3", mostraNotas(nota3RecGeografia));
-		trocas.put("#ngr4", mostraNotas(nota4RecGeografia));
-		// mediaFinal
-		trocas.put("#mg1", mostraNotas(maior(nota1RecGeografia, nota1BimestreGeografia)));
-		trocas.put("#mg2", mostraNotas(maior(nota2RecGeografia, nota2BimestreGeografia)));
-		trocas.put("#mg3", mostraNotas(maior(nota3RecGeografia, nota3BimestreGeografia)));
-		trocas.put("#mg4", mostraNotas(maior(nota4RecGeografia, nota4BimestreGeografia)));
-		// Final do ano
-		trocas.put("#ngF",
-				mostraNotas(media(maior(nota1RecGeografia, nota1BimestreGeografia),
-						maior(nota2RecGeografia, nota2BimestreGeografia),
-						maior(nota3RecGeografia, nota3BimestreGeografia),
-						maior(nota4RecGeografia, nota4BimestreGeografia))));
-		trocas.put("#ngrf", mostraNotas(notaRecFinalGeografia));
-
-		// Historia
-		float nota1BimestreHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float nota3RecHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaRecFinalHistoria = alunoService.getNota(aluno.getId(), DisciplinaEnum.HISTORIA, true, true);
-
-		trocas.put("#nh1", mostraNotas(nota1BimestreHistoria));
-		trocas.put("#nh2", mostraNotas(nota2BimestreHistoria));
-		trocas.put("#nh3", mostraNotas(nota3BimestreHistoria));
-		trocas.put("#nh4", mostraNotas(nota4BimestreHistoria));
-		// rec
-		trocas.put("#nhr1", mostraNotas(nota1RecHistoria));
-		trocas.put("#nhr2", mostraNotas(nota2RecHistoria));
-		trocas.put("#nhr3", mostraNotas(nota3RecHistoria));
-		trocas.put("#nhr4", mostraNotas(nota4RecHistoria));
-		// mediaFinal
-		trocas.put("#mh1", mostraNotas(maior(nota1RecHistoria, nota1BimestreHistoria)));
-		trocas.put("#mh2", mostraNotas(maior(nota2RecHistoria, nota2BimestreHistoria)));
-		trocas.put("#mh3", mostraNotas(maior(nota3RecHistoria, nota3BimestreHistoria)));
-		trocas.put("#mh4", mostraNotas(maior(nota4RecHistoria, nota4BimestreHistoria)));
-		// Final do ano
-		trocas.put("#nhF",
-				mostraNotas(media(maior(nota1RecHistoria, nota1BimestreHistoria),
-						maior(nota2RecHistoria, nota2BimestreHistoria), maior(nota3RecHistoria, nota3BimestreHistoria),
-						maior(nota4RecHistoria, nota4BimestreHistoria))));
-		trocas.put("#nhrf", mostraNotas(notaRecFinalHistoria));
-
-		// Ciencias
-		float nota1BimestreCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float nota3RecCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecCiencias = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaRecFinalCiencia = alunoService.getNota(aluno.getId(), DisciplinaEnum.CIENCIAS, true, true);
-
-		trocas.put("#nc1", mostraNotas(nota1BimestreCiencias));
-		trocas.put("#nc2", mostraNotas(nota2BimestreCiencias));
-		trocas.put("#nc3", mostraNotas(nota3BimestreCiencias));
-		trocas.put("#nc4", mostraNotas(nota4BimestreCiencias));
-		// rec
-		trocas.put("#ncr1", mostraNotas(nota1RecCiencias));
-		trocas.put("#ncr2", mostraNotas(nota2RecCiencias));
-		trocas.put("#ncr3", mostraNotas(nota3RecCiencias));
-		trocas.put("#ncr4", mostraNotas(nota4RecCiencias));
-		// mediaFinal
-		trocas.put("#mc1", mostraNotas(maior(nota1RecCiencias, nota1BimestreCiencias)));
-		trocas.put("#mc2", mostraNotas(maior(nota2RecCiencias, nota2BimestreCiencias)));
-		trocas.put("#mc3", mostraNotas(maior(nota3RecCiencias, nota3BimestreCiencias)));
-		trocas.put("#mc4", mostraNotas(maior(nota4RecCiencias, nota4BimestreCiencias)));
-		// Final do ano
-		trocas.put("#ncF",
-				mostraNotas(media(maior(nota1RecCiencias, nota1BimestreCiencias),
-						maior(nota2RecCiencias, nota2BimestreCiencias), maior(nota3RecCiencias, nota3BimestreCiencias),
-						maior(nota4RecCiencias, nota4BimestreCiencias))));
-		trocas.put("#ncrf", mostraNotas(notaRecFinalHistoria));
-
-		// Formacao Crista
-		float nota1BimestreFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.PRIMEIRO_BIMESTRE, true);
-		float nota2RecFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.SEGUNDO_BIMESTRE, true);
-		float nota3RecFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.TERCEIRO_BIMESTRE, true);
-		float nota4RecFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA,
-				BimestreEnum.QUARTO_BIMESTRE, true);
-		float notaRecFinalFormaCrista = alunoService.getNota(aluno.getId(), DisciplinaEnum.FORMACAO_CRISTA, true, true);
-
-		trocas.put("#nf1", mostraNotas(nota1BimestreFormaCrista));
-		trocas.put("#nf2", mostraNotas(nota2BimestreFormaCrista));
-		trocas.put("#nf3", mostraNotas(nota3BimestreFormaCrista));
-		trocas.put("#nf4", mostraNotas(nota4BimestreFormaCrista));
-		// rec
-		trocas.put("#nfr1", mostraNotas(nota1RecFormaCrista));
-		trocas.put("#nfr2", mostraNotas(nota2RecFormaCrista));
-		trocas.put("#nfr3", mostraNotas(nota3RecFormaCrista));
-		trocas.put("#nfr4", mostraNotas(nota4RecFormaCrista));
-		// mediaFinal
-		trocas.put("#mf1", mostraNotas(maior(nota1RecFormaCrista, nota1BimestreFormaCrista)));
-		trocas.put("#mf2", mostraNotas(maior(nota2RecFormaCrista, nota2BimestreFormaCrista)));
-		trocas.put("#mf3", mostraNotas(maior(nota3RecFormaCrista, nota3BimestreFormaCrista)));
-		trocas.put("#mf4", mostraNotas(maior(nota4RecFormaCrista, nota4BimestreFormaCrista)));
-		// Final do ano
-		trocas.put("#nfF",
-				mostraNotas(media(maior(nota1RecFormaCrista, nota1BimestreFormaCrista),
-						maior(nota2RecFormaCrista, nota2BimestreFormaCrista),
-						maior(nota3RecFormaCrista, nota3BimestreFormaCrista),
-						maior(nota4RecFormaCrista, nota4BimestreFormaCrista))));
-		trocas.put("#nfrf", mostraNotas(notaRecFinalFormaCrista));
-
-		// Artes
-		float nota1BimestreArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES,
-				BimestreEnum.PRIMEIRO_BIMESTRE, false);
-		float nota2BimestreArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES,
-				BimestreEnum.SEGUNDO_BIMESTRE, false);
-		float nota3BimestreArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES,
-				BimestreEnum.TERCEIRO_BIMESTRE, false);
-		float nota4BimestreArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES,
-				BimestreEnum.QUARTO_BIMESTRE, false);
-
-		float nota1RecArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES, BimestreEnum.PRIMEIRO_BIMESTRE,
-				true);
-		float nota2RecArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES, BimestreEnum.SEGUNDO_BIMESTRE,
-				true);
-		float nota3RecArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES, BimestreEnum.TERCEIRO_BIMESTRE,
-				true);
-		float nota4RecArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES, BimestreEnum.QUARTO_BIMESTRE,
-				true);
-		float notaRecFinalArtes = alunoService.getNota(aluno.getId(), DisciplinaEnum.ARTES, true, true);
-
-		trocas.put("#na1", mostraNotas(nota1BimestreArtes));
-		trocas.put("#na2", mostraNotas(nota2BimestreArtes));
-		trocas.put("#na3", mostraNotas(nota3BimestreArtes));
-		trocas.put("#na4", mostraNotas(nota4BimestreArtes));
-		// rec
-		trocas.put("#nar1", mostraNotas(nota1RecArtes));
-		trocas.put("#nar2", mostraNotas(nota2RecArtes));
-		trocas.put("#nar3", mostraNotas(nota3RecArtes));
-		trocas.put("#nar4", mostraNotas(nota4RecArtes));
-		// mediaFinal
-		trocas.put("#ma1", mostraNotas(maior(nota1RecArtes, nota1BimestreArtes)));
-		trocas.put("#ma2", mostraNotas(maior(nota2RecArtes, nota2BimestreArtes)));
-		trocas.put("#ma3", mostraNotas(maior(nota3RecArtes, nota3BimestreArtes)));
-		trocas.put("#ma4", mostraNotas(maior(nota4RecArtes, nota4BimestreArtes)));
-		// Final do ano
-		trocas.put("#naF",
-				mostraNotas(media(maior(nota1RecArtes, nota1BimestreArtes), maior(nota2RecArtes, nota2BimestreArtes),
-						maior(nota3RecArtes, nota3BimestreArtes), maior(nota4RecArtes, nota4BimestreArtes))));
-		trocas.put("#narf", mostraNotas(notaRecFinalArtes));
-
-		return trocas;
-	}
-
-	public HashMap<String, String> montarAtestadoFrequencia(Aluno aluno) {
-		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));
-		String dataExtenso = formatador.format(new Date());
-
-		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("adonainomealuno", aluno.getNomeAluno());
-		trocas.put("adonainomealuno", aluno.getNomeAluno());
-		trocas.put("adonaiturma", aluno.getSerie().getName());
-		trocas.put("adonaiperiodo", aluno.getPeriodo().getName());
-		trocas.put("adonaidata", dataExtenso);
-
-		return trocas;
-	}
-
-	public HashMap<String, String> montarAtestadoMatricula(Aluno aluno) {
-		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));
-		String dataExtenso = formatador.format(new Date());
-
-		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("adonainomealuno", aluno.getNomeAluno());
-		trocas.put("adonaiturma", aluno.getSerie().getName());
-		trocas.put("adonaiperiodo", aluno.getPeriodo().getName());
-		trocas.put("adonaidata", dataExtenso);
-
-		return trocas;
 	}
 
 	public HashMap<String, String> montarAtestadoNegativoDebito(Aluno aluno) {
@@ -943,15 +455,147 @@ public class AlunoController implements Serializable {
 		DateFormat formatadorAno = DateFormat.getDateInstance(DateFormat.YEAR_FIELD, new Locale("pt", "BR"));
 		String ano = formatadorAno.format(new Date());
 
+		// int anoInt = Integer.parseInt(ano);
+
 		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("adonainomealuno", aluno.getNomeAluno());
-		trocas.put("adonaiurma", aluno.getSerie().getName());
-		trocas.put("adonaieriodo", aluno.getPeriodo().getName());
-		trocas.put("adonaidata", dataExtenso);
-		trocas.put("adonaiano", ano);
-		trocas.put("adonaidatalimtevaga", dataLimiteExtenso);
+		trocas.put("#ANOCONTRATO", "2018"); // TODO colocar o ano atual +1
+		trocas.put("#CONTRATANTECID", "Palhoça"); // TODO COLOCAR CIDADE DO
+													// Contratado
+		trocas.put("#DATAEXTENSO", dataExtenso);
+
+		trocas.put("#CONTRATANTENOME", aluno.getNomeResponsavel());
+		trocas.put("#CONTRATANTERG", aluno.getRgResponsavel());
+		trocas.put("#CONTRATANTECPF", aluno.getCpfResponsavel());
+		trocas.put("#CONTRATANTERUA", aluno.getEndereco() + ", " + aluno.getBairro());
+
+		String nomeAluno = aluno.getNomeAluno();
+		if (aluno.getIrmao1() != null) {
+			nomeAluno += ", " + aluno.getIrmao1().getNomeAluno();
+		}
+		if (aluno.getIrmao2() != null) {
+			nomeAluno += ", " + aluno.getIrmao2().getNomeAluno();
+		}
+		if (aluno.getIrmao3() != null) {
+			nomeAluno += ", " + aluno.getIrmao3().getNomeAluno();
+		}
+		if (aluno.getIrmao4() != null) {
+			nomeAluno += ", " + aluno.getIrmao4().getNomeAluno();
+		}
+
+		trocas.put("#TRANSPORTADONOME", nomeAluno);
+		trocas.put("#TRANSPORTADORUA", aluno.getEndereco() + ", " + aluno.getBairro());
+		trocas.put("#TRANSPORTADOESCOLA", aluno.getEscola().getName());
+
+		String periodo1 = "";
+		if (aluno.getPeriodo().equals(PerioddoEnum.INTEGRAL) || aluno.getPeriodo().equals(PerioddoEnum.MANHA)) {
+			periodo1 = "06:30";
+		} else {
+			periodo1 = "11:30";
+		}
+		String periodo2 = "";
+		if (aluno.getPeriodo().equals(PerioddoEnum.INTEGRAL) || aluno.getPeriodo().equals(PerioddoEnum.TARDE)) {
+			periodo2 = "19:30";
+		} else {
+			periodo2 = "13:30";
+		}
+
+		trocas.put("#DADOSGERAISHORARIO1", periodo1);
+		trocas.put("#DADOSGERAISHORARIO2", periodo2);
+		trocas.put("#DADOSGERAISMES1", getMesInicioPagamento(aluno));
+		trocas.put("#DADOSGERAISMES2", "Dezembro");
+		trocas.put("#DADOSGERAISPARCELAS", aluno.getNumeroParcelas() + "");
+		// BigDecimal valorTotal = (new
+		// BigDecimal(contrato.getValorTotal())).multiply(((new
+		// BigDecimal(contrato.getParcelas()))));
+		// trocas.put("#DADOSGERAISTOTAL", valorTotal.toString());
+		trocas.put("#DADOSGERAISTOTAL", String.valueOf(valorTotal(aluno))); // TODO
+																			// ver
+		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
+		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(aluno))));
+		trocas.put("#DADOSGERAISQTADEPARCELAS", aluno.getNumeroParcelas() + "");
+		trocas.put("#DADOSGERAISEXTENSOPARCELA", cw.write(new BigDecimal(aluno.getValorMensal())));
+		trocas.put("#DADOSGERAISPARCELA", aluno.getValorMensal() + "");/// valor
+																		/// da
+																		/// parcela
+
+		String idaEVolta = "CLAUSULA 6ª – O CONTRATANTE compromete-se a deixar o TRANSPORTADO pronto e aguardando pelo CONTRATADO no endereço e hora combinada, ou seja, na rua  #CONTRATANTERUA   as #DADOSGERAISHORARIO1,  não tolerando qualquer tipo de atraso ou mudança de endereço.";
+		String ida = "CLAUSULA 6ª - O CONTRATADO SO SE RESPONSABILIZARA PELO TRANSPORTE DE IDA PARA A ESCOLA, O TRANSPORTE DE VOLTA DA ESCOLA È DE RESPONSABILIDADE DO CONTRATANTE.";
+		String volta = "CLAUSULA 6ªB – O CONTRATADO SO SE RESPONSABILIZARA PELO TRANSPORTE DE VOLTA DA ESCOLA, O TRANSPORTE DE IDA PARA A ESCOLA È DE RESPONSABILIDADE DO CONTRATANTE.";
+
+		switch (aluno.getIdaVolta()) {
+		case 1:
+			trocas.put("#TIPOCONTRATO", idaEVolta);
+			break;
+
+		case 2:
+			trocas.put("#TIPOCONTRATO", ida);
+			break;
+
+		case 3:
+			trocas.put("#TIPOCONTRATO", volta);
+			break;
+
+		default:
+			break;
+		}
 
 		return trocas;
+	}
+
+	private String getMesInicioPagamento(Aluno aluno2) {
+		String mes = "Janeiro";
+		switch (aluno.getNumeroParcelas()) {
+		case 12:
+			break;
+
+		case 11:
+			mes = "Fevereiro";
+			break;
+
+		case 10:
+			mes = "Março";
+			break;
+
+		case 9:
+			mes = "Abril";
+			break;
+
+		case 8:
+			mes = "Maio";
+			break;
+
+		case 7:
+			mes = "Junho";
+			break;
+
+		case 6:
+			mes = "Julho";
+			break;
+
+		case 5:
+			mes = "Agosto";
+			break;
+
+		case 4:
+			mes = "Setembro";
+			break;
+
+		case 3:
+			mes = "Outubro";
+			break;
+
+		case 2:
+			mes = "Novembro";
+			break;
+
+		case 1:
+			mes = "Dezembro";
+			break;
+
+		default:
+			break;
+		}
+		return mes;
 	}
 
 	public void onRowSelect(SelectEvent event) {
@@ -970,81 +614,20 @@ public class AlunoController implements Serializable {
 		return aluno.getId() != null ? true : false;
 	}
 
-	public StreamedContent imprimirContratoAdonai(Aluno aluno) throws IOException {
-		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			nomeArquivo =aluno.getId() + "b";
-			ImpressoesUtils.imprimirInformacoesAluno(aluno, "mb1.docx", montarBoletim(aluno), nomeArquivo);
-			nomeArquivo += ".doc";
-		}else{
-			nomeArquivo ="mb1.docx";
-		}
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
-		
-		InputStream stream =  new FileInputStream(caminho);
-		return FileDownload.getContentDoc(stream, nomeArquivo);
-	}
-
-	public StreamedContent imprimirContratoAdonai() throws IOException {
-		return imprimirContratoAdonai(aluno);
-	}
-
-	public StreamedContent imprimirAtestadoFrequencia(Aluno aluno) throws IOException {
-		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			nomeArquivo = aluno.getId() + "c";
-			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloAtestadoFrequencia2017.docx",
-					montarAtestadoFrequencia(aluno), nomeArquivo);			
-			nomeArquivo += ".doc";
-		}else{
-			nomeArquivo = "modeloAtestadoFrequencia2017.docx";
-		}
-		
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+ nomeArquivo;
-		InputStream stream =  new FileInputStream(caminho);
-		return FileDownload.getContentDoc(stream, nomeArquivo);
-	}
-
-	public StreamedContent imprimirAtestadoFrequencia() throws IOException {
-		return imprimirAtestadoFrequencia(aluno);
-	}
-
-	public StreamedContent imprimirAtestadoMatricula(Aluno aluno) throws IOException {
-		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			nomeArquivo =aluno.getId() + "d";
-			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloAtestadoMatricula2017.docx",
-					montarAtestadoMatricula(aluno), nomeArquivo);
-			
-			nomeArquivo += ".doc";
-		}else{
-			nomeArquivo ="modeloAtestadoMatricula2017.docx";
-		}
-		
-		
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+ nomeArquivo;
-		InputStream stream =  new FileInputStream(caminho);
-		return FileDownload.getContentDoc(stream, nomeArquivo);
-	}
-
-	public StreamedContent imprimirAtestadoMatricula() throws IOException {
-		return imprimirAtestadoMatricula(aluno);
-	}
-
 	public StreamedContent imprimirNegativoDebito(Aluno aluno) throws IOException {
 		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			nomeArquivo =aluno.getId() + "f";
+		if (aluno != null && aluno.getId() != null) {
+			nomeArquivo = aluno.getId() + "f";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloNegativoDebito2017.docx",
 					montarAtestadoNegativoDebito(aluno), nomeArquivo);
-			
-			nomeArquivo +=".doc";
-		}else{
+
+			nomeArquivo += ".doc";
+		} else {
 			nomeArquivo = "modeloNegativoDebito2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
-		InputStream stream =  new FileInputStream(caminho);
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
@@ -1054,16 +637,16 @@ public class AlunoController implements Serializable {
 
 	public StreamedContent imprimirContrato(Aluno aluno) throws IOException {
 		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			 nomeArquivo =aluno.getId() + "g"; 
-			 ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloContrato2017.docx", montarContrato(aluno),nomeArquivo);
-			 nomeArquivo+= ".doc";
-		}else{
-			nomeArquivo = "modeloContrato2017.docx";
+		if (aluno != null && aluno.getId() != null) {
+			nomeArquivo = aluno.getId() + "g";
+			ImpressoesUtils.imprimirInformacoesAluno(aluno, "MODELO1-2.doc", montarContrato(aluno), nomeArquivo);
+			nomeArquivo += ".doc";
+		} else {
+			nomeArquivo = "MODELO1-1.doc";
 		}
-		
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
-		InputStream stream =  new FileInputStream(caminho);
+
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
@@ -1073,16 +656,17 @@ public class AlunoController implements Serializable {
 
 	public StreamedContent imprimirAtestadoVaga(Aluno aluno) throws IOException {
 		String nomeArquivo = "";
-		if(aluno != null && aluno.getId() != null){
-			nomeArquivo =aluno.getId() + "h";
-			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloAtestadoVaga2017.docx", montarAtestadoVaga(aluno),nomeArquivo);
-			nomeArquivo +=".doc";
-		}else{
+		if (aluno != null && aluno.getId() != null) {
+			nomeArquivo = aluno.getId() + "h";
+			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloAtestadoVaga2017.docx", montarAtestadoVaga(aluno),
+					nomeArquivo);
+			nomeArquivo += ".doc";
+		} else {
 			nomeArquivo = "modeloAtestadoVaga2017.docx";
 		}
-		
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
-		InputStream stream =  new FileInputStream(caminho);
+
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
@@ -1111,23 +695,10 @@ public class AlunoController implements Serializable {
 		return "cadastrar";
 	}
 
-	
-	
 	public String visualizar(Aluno aluno) {
-		popularAlunoAvaliacao(aluno);
-		Util.addAtributoSessao("alunoAvaliacaoIngles", alunoAvaliacaoIngles);
-		Util.addAtributoSessao("alunoAvaliacaoArtes", alunoAvaliacaoArtes);
-		Util.addAtributoSessao("alunoAvaliacaoCiencias", alunoAvaliacaoCiencias);
-		Util.addAtributoSessao("alunoAvaliacaoEdFisica", alunoAvaliacaoEDFisica);
-		Util.addAtributoSessao("alunoAvaliacaoFormacaoCrista", alunoAvaliacaoFormacaoCrista);
-		Util.addAtributoSessao("alunoAvaliacaoGeografia", alunoAvaliacaoGeografia);
-		Util.addAtributoSessao("alunoAvaliacaoHistoria", alunoAvaliacaoHistoria);
-		Util.addAtributoSessao("alunoAvaliacaoMatematica", alunoAvaliacaoMatematica);
-		Util.addAtributoSessao("alunoAvaliacaoPortugues", alunoAvaliacaoPortugues);
-		
 		aluno = alunoService.findById(aluno.getId());
 		Util.addAtributoSessao("aluno", aluno);
-		
+
 		return "cadastrar";
 	}
 
@@ -1139,7 +710,7 @@ public class AlunoController implements Serializable {
 		alunoService.remover(idTurma);
 		return "index";
 	}
-	
+
 	public String restaurar(Long idTurma) {
 		alunoService.restaurar(idTurma);
 		return "index";
@@ -1148,8 +719,36 @@ public class AlunoController implements Serializable {
 	public String adicionarNovo() {
 		return "cadastrar";
 	}
-	
-	public void removerHistorico(long idHistorico){
+
+	public void adicionarIrmao() {
+		if (!isIrmao1()) {
+			setIrmao1(true);
+			aluno.setIrmao1(new Aluno());
+		} else if (!isIrmao2()) {
+			setIrmao2(true);
+			aluno.setIrmao2(new Aluno());
+		} else if (!isIrmao3()) {
+			setIrmao3(true);
+			aluno.setIrmao3(new Aluno());
+		} else if (!isIrmao4()) {
+			setIrmao4(true);
+			aluno.setIrmao4(new Aluno());
+		}
+	}
+
+	public void removerIrmao() {
+		if (isIrmao4()) {
+			setIrmao4(false);
+		} else if (isIrmao3()) {
+			setIrmao3(false);
+		} else if (isIrmao2()) {
+			setIrmao2(false);
+		} else if (isIrmao1()) {
+			setIrmao1(false);
+		}
+	}
+
+	public void removerHistorico(long idHistorico) {
 		alunoService.removerHistorico(idHistorico);
 	}
 
@@ -1164,78 +763,6 @@ public class AlunoController implements Serializable {
 
 	public void setAluno(Aluno aluno) {
 		this.aluno = aluno;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoPortugues() {
-		return alunoAvaliacaoPortugues;
-	}
-
-	public void setAlunoAvaliacaoPortugues(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoPortugues) {
-		this.alunoAvaliacaoPortugues = alunoAvaliacaoPortugues;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoIngles() {
-		return alunoAvaliacaoIngles;
-	}
-
-	public void setAlunoAvaliacaoIngles(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoIngles) {
-		this.alunoAvaliacaoIngles = alunoAvaliacaoIngles;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoMatematica() {
-		return alunoAvaliacaoMatematica;
-	}
-
-	public void setAlunoAvaliacaoMatematica(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoMatematica) {
-		this.alunoAvaliacaoMatematica = alunoAvaliacaoMatematica;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoHistoria() {
-		return alunoAvaliacaoHistoria;
-	}
-
-	public void setAlunoAvaliacaoHistoria(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoHistoria) {
-		this.alunoAvaliacaoHistoria = alunoAvaliacaoHistoria;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoEDFisica() {
-		return alunoAvaliacaoEDFisica;
-	}
-
-	public void setAlunoAvaliacaoEDFisica(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoEDFisica) {
-		this.alunoAvaliacaoEDFisica = alunoAvaliacaoEDFisica;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoGeografia() {
-		return alunoAvaliacaoGeografia;
-	}
-
-	public void setAlunoAvaliacaoGeografia(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoGeografia) {
-		this.alunoAvaliacaoGeografia = alunoAvaliacaoGeografia;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoCiencias() {
-		return alunoAvaliacaoCiencias;
-	}
-
-	public void setAlunoAvaliacaoCiencias(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoCiencias) {
-		this.alunoAvaliacaoCiencias = alunoAvaliacaoCiencias;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoFormacaoCrista() {
-		return alunoAvaliacaoFormacaoCrista;
-	}
-
-	public void setAlunoAvaliacaoFormacaoCrista(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoFormacaoCrista) {
-		this.alunoAvaliacaoFormacaoCrista = alunoAvaliacaoFormacaoCrista;
-	}
-
-	public Map<Aluno, List<AlunoAvaliacao>> getAlunoAvaliacaoArtes() {
-		return alunoAvaliacaoArtes;
-	}
-
-	public void setAlunoAvaliacaoArtes(Map<Aluno, List<AlunoAvaliacao>> alunoAvaliacaoArtes) {
-		this.alunoAvaliacaoArtes = alunoAvaliacaoArtes;
 	}
 
 	public DisciplinaEnum getDisciplinaSel() {
@@ -1254,56 +781,71 @@ public class AlunoController implements Serializable {
 		this.bimestreSel = bimestreSel;
 	}
 
-	public BimestreEnum getPrimeiroBimestre(){
-		return BimestreEnum.PRIMEIRO_BIMESTRE;
+	public boolean isIrmao1() {
+		return irmao1;
 	}
-	
-	public BimestreEnum getSegundoBimestre(){
-		return BimestreEnum.SEGUNDO_BIMESTRE;
+
+	public void setIrmao1(boolean irmao1) {
+		this.irmao1 = irmao1;
 	}
-	
-	public BimestreEnum getTerceiroBimestre(){
-		return BimestreEnum.TERCEIRO_BIMESTRE;
+
+	public boolean isIrmao2() {
+		return irmao2;
 	}
-	
-	public BimestreEnum getQuartoBimestre(){
-		return BimestreEnum.QUARTO_BIMESTRE;
+
+	public void setIrmao2(boolean irmao2) {
+		this.irmao2 = irmao2;
 	}
-	
-	public DisciplinaEnum getPortugues(){
-		return DisciplinaEnum.PORTUGUES;
+
+	public boolean isIrmao3() {
+		return irmao3;
 	}
-	
-	public DisciplinaEnum getMatematica(){
-		return DisciplinaEnum.MATEMATICA;
+
+	public void setIrmao3(boolean irmao3) {
+		this.irmao3 = irmao3;
 	}
-	
-	public DisciplinaEnum getHistoria(){
-		return DisciplinaEnum.HISTORIA;
+
+	public boolean isIrmao4() {
+		return irmao4;
 	}
-	
-	public DisciplinaEnum getIngles(){
-		return DisciplinaEnum.INGLES;
+
+	public void setIrmao4(boolean irmao4) {
+		this.irmao4 = irmao4;
 	}
-	
-	public DisciplinaEnum getEDFisica(){
-		return DisciplinaEnum.EDUCACAO_FISICA;
+
+	public StreamedContent gerarBoleto() {
+		try {
+			CNAB240_SICOOB cnab = new CNAB240_SICOOB();
+			String nomeArquivo = "boleto.pdf";
+			
+			String numeroDoBoleto = "10";
+			Date dataVencimento = new Date();
+			String valorBoleto = "200";
+			
+			String nomePagador = aluno.getNomeResponsavel();
+			String ruaPagador = aluno.getEndereco();
+			String cepPagador = aluno.getCep(); 
+			String cidadePagador = aluno.getCidade(); 
+			String ufPagador = "SC"; 
+			String cpfPagador = aluno.getCpfResponsavel();
+			String bairroPagador = aluno.getBairro();
+			
+			
+			byte[] pdf = cnab.getBoletoPDF(numeroDoBoleto,valorBoleto,nomePagador,ruaPagador,cepPagador,cidadePagador,bairroPagador,ufPagador,cpfPagador,dataVencimento);
+			
+			OfficePDFUtil.geraPDF(nomeArquivo, pdf);
+
+			String temp = System.getProperty("java.io.tmpdir");
+			String caminho = temp + File.separator + nomeArquivo;
+			
+			InputStream stream;
+			stream = new FileInputStream(caminho);
+			return FileDownload.getContentDoc(stream, nomeArquivo);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
-	
-	public DisciplinaEnum getGeografia(){
-		return DisciplinaEnum.GEOGRAFIA;
-	}
-	
-	public DisciplinaEnum getCiencias(){
-		return DisciplinaEnum.CIENCIAS;
-	}
-	
-	public DisciplinaEnum getFormacaoCrista(){
-		return DisciplinaEnum.FORMACAO_CRISTA;
-	}
-	
-	public DisciplinaEnum getArtes(){
-		return DisciplinaEnum.ARTES;
-	}
-	
+
 }

@@ -1,37 +1,35 @@
 package org.escola.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 
-import javax.faces.context.FacesContext;
+import javax.naming.NamingException;
 
+import org.escola.enums.PegarEntregarEnun;
 import org.escola.enums.PerioddoEnum;
+import org.escola.model.Aluno;
 import org.escola.model.Carro;
 import org.escola.model.ObjetoRota;
-import org.escola.util.FileDownload;
-import org.primefaces.model.StreamedContent;
+import org.escola.service.AlunoService;
+import org.escola.util.ServiceLocator;
 
-import com.lowagie.text.Anchor;
 import com.lowagie.text.Chapter;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
-import com.lowagie.text.Image;
 import com.lowagie.text.List;
 import com.lowagie.text.ListItem;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
 import com.lowagie.text.Section;
 import com.lowagie.text.pdf.CMYKColor;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.codec.Base64.OutputStream;
 
 public class OfficePDFUtil {
 
@@ -140,22 +138,71 @@ public class OfficePDFUtil {
 		for(ObjetoRota obj:rota){
 			String itemLista = ""; 
 			if(obj.getAluno() != null){
-				itemLista = obj.getAluno().getNomeAluno(); 	
+				itemLista = obj.getPegarEntregar().getSigla() + " - " + obj.getAluno().getNomeAluno();
+				l.add(new ListItem(itemLista));
 			}else if(obj.getEscola() != null ){
-				itemLista = obj.getEscola().getName();
+				java.util.List<Aluno> alunos = new ArrayList<>();
+				if (periodo.equals(PerioddoEnum.TARDE)) {
+					alunos = getAlunoService().findAlunoPegaEscolaTarde(obj.getEscola(), carro);
+				} else if (periodo.equals(PerioddoEnum.MANHA)) {
+					alunos = getAlunoService().findAlunoPegaEscolaManha(obj.getEscola(), carro);
+				} else {
+
+					if (obj.getPegarEntregar() != null
+							&& obj.getPegarEntregar().equals(PegarEntregarEnun.PEGAR)) {
+						alunos = getAlunoService().findAlunoPegaEscolaMeioDia(obj.getEscola(), carro);
+					} else {
+						alunos = getAlunoService().findAlunoLevaEscolaMeioDia(obj.getEscola(), carro);
+					}
+				}
+				
+				List subLista = new List(true,false,30);
+				for(Aluno al : alunos){
+					ListItem li = new ListItem(al.getNomeAluno());
+					subLista.add(li);					
+				}
+				ListItem li = new ListItem( obj.getPegarEntregar().getSigla() + " - "  +obj.getEscola().getName());
+				l.add(li);
+				l.add(subLista);
 			}else{
 				l.add(new ListItem("TROCA"));
 				l.add(new ListItem(obj.getDescricao()));
 				l.add(new ListItem("TROCA"));
+				l.add(new ListItem(itemLista));
 			}
-			l.add(new ListItem(itemLista));	
 		}
 		
 		section1.add(l);
-
 		document.add(chapter1);
 		document.close();
-		
-		
 	}
+	
+	private static AlunoService getAlunoService(){
+		try {
+			return ServiceLocator.getInstance().getAlunoService(AlunoService.class.getSimpleName(), AlunoService.class.getName());
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+	public static void geraPDF(String nomeArquivo,byte[] pdfByteArray){
+		
+		try {
+			String temp = System.getProperty("java.io.tmpdir");
+		FileOutputStream out;
+			out = new FileOutputStream(temp + File.separator + nomeArquivo);
+			out.write(pdfByteArray);
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

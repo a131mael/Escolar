@@ -9,6 +9,7 @@ import java.util.Properties;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.escola.service.AlunoService;
 import org.escola.service.MemberRegistration;
 
 
@@ -50,4 +51,14 @@ public class ServiceLocator {
 
             return (MemberRegistration) ejbHome2;
         }
+    
+    public AlunoService getAlunoService(String simpleNameImpl, String nameInterface) throws NamingException {
+		Constant c = new Constant();
+	
+		Object ejbHome2 = (Object) jndiContext.lookup(c.getContextoGlobalEJB() + c.getBarra() 
+                            + c.getProjeto() + c.getBarra() 
+                            + simpleNameImpl +"!"  + nameInterface);
+
+        return (AlunoService) ejbHome2;
+    }
 }

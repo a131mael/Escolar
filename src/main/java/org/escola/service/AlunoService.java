@@ -57,7 +57,23 @@ public class AlunoService extends Service {
 	}
 
 	public Aluno findById(Long id) {
-		return em.find(Aluno.class, id);
+		Aluno al = em.find(Aluno.class, id);
+		if(al.getIrmao1() != null){
+			al.getIrmao1().getAnoLetivo();
+		}
+		
+		if(al.getIrmao2() != null){
+			al.getIrmao2().getAnoLetivo();
+		}
+		
+		if(al.getIrmao3() != null){
+			al.getIrmao3().getAnoLetivo();
+		}
+		
+		if(al.getIrmao4() != null){
+			al.getIrmao4().getAnoLetivo();
+		}
+		return al;
 	}
 
 	public Custo findHistoricoById(Long id) {
@@ -160,6 +176,8 @@ public class AlunoService extends Service {
 		sql.append(" or al.carroPegaEscolaTroca.id =   ");
 		sql.append(idCarro);
 		sql.append(" and al.removido = false ");
+		sql.append(" and al.anoLetivo = ");
+		sql.append(Constant.anoLetivoAtual);
 
 		Query query = em.createQuery(sql.toString());
 		alunos = query.getResultList();
@@ -183,6 +201,8 @@ public class AlunoService extends Service {
 		sql.append(idCarro);
 		sql.append(" ) ");
 		sql.append(" and al.removido = false ");
+		sql.append(" and al.anoLetivo = ");
+		sql.append(Constant.anoLetivoAtual);
 		Query query = em.createQuery(sql.toString());
 
 		alunos = query.getResultList();
@@ -209,7 +229,9 @@ public class AlunoService extends Service {
 		sql.append(idCarro);
 		sql.append(" ) ");
 		sql.append(" and al.removido = false ");
-		
+		sql.append(" and al.anoLetivo = ");
+		sql.append(Constant.anoLetivoAtual);
+
 		sql.append(" and (al.idaVolta = 0 or al.idaVolta = 2 )");
 		Query query = em.createQuery(sql.toString());
 		alunos = query.getResultList();
@@ -257,6 +279,55 @@ public class AlunoService extends Service {
 	}
 
 	public Aluno save(Aluno aluno) {
+		return saveAluno(aluno, true);
+	}
+	
+	public void clone (Aluno aluno, Aluno user){
+		// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+		user.setValorMensal(aluno.getValorMensal());
+		user.setDataMatricula(aluno.getDataMatricula());
+		// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
+		user.setCodigo(aluno.getCodigo());
+
+		user.setNomeAvoHPaternoMae(aluno.getNomeAvoHPaternoMae());
+		user.setAnuidade(aluno.getAnuidade() != null ? aluno.getAnuidade() : 0);
+		user.setCpfMae(aluno.getCpfMae());
+		user.setCpfPai(aluno.getCpfPai());
+		user.setCpfResponsavel(aluno.getCpfResponsavel());
+		user.setRgResponsavel(aluno.getRgResponsavel());
+		user.setDataMatricula(aluno.getDataMatricula());
+		user.setEmailMae(aluno.getEmailMae());
+		user.setEmailPai(aluno.getEmailPai());
+		user.setEmpresaTrabalhaMae(aluno.getEmpresaTrabalhaMae());
+		user.setEmpresaTrabalhaPai(aluno.getEmpresaTrabalhaPai());
+		user.setLogin(aluno.getLogin());
+		user.setNaturalidadeMae(aluno.getNaturalidadeMae());
+		user.setNaturalidadePai(aluno.getNaturalidadePai());
+		user.setNomeAvoHPaternoMae(aluno.getNomeAvoHPaternoMae());
+		user.setNomeAvoHPaternoPai(aluno.getNomeAvoHPaternoPai());
+		user.setNomeAvoPaternoMae(aluno.getNomeAvoPaternoMae());
+		user.setNomeAvoPaternoPai(aluno.getNomeAvoPaternoPai());
+		user.setNomeMaeAluno(aluno.getNomeMaeAluno());
+		user.setNomePaiAluno(aluno.getNomePaiAluno());
+		user.setNomeResponsavel(aluno.getNomeResponsavel());
+		user.setNumeroParcelas(aluno.getNumeroParcelas());
+		user.setObservacaoSecretaria(aluno.getObservacaoSecretaria());
+		user.setValorMensal(aluno.getValorMensal());
+		user.setTelefoneResidencialPai(aluno.getTelefoneResidencialPai());
+		user.setRgMae(aluno.getRgMae());
+		user.setRgPai(aluno.getRgPai());
+		user.setSenha(aluno.getSenha());
+		user.setTelefone(aluno.getTelefone());
+		user.setEscola(aluno.getEscola());
+		if (aluno.getRemovido() == null) {
+			user.setRemovido(false);
+		} else {
+			user.setRemovido(aluno.getRemovido());
+		}
+
+	}
+
+	private Aluno saveAluno(Aluno aluno, boolean saveBrother) {
 		Aluno user = null;
 		try {
 
@@ -293,6 +364,7 @@ public class AlunoService extends Service {
 			user.setCpfMae(aluno.getCpfMae());
 			user.setCpfPai(aluno.getCpfPai());
 			user.setCpfResponsavel(aluno.getCpfResponsavel());
+			user.setRgResponsavel(aluno.getRgResponsavel());
 			user.setDataMatricula(aluno.getDataMatricula());
 			user.setEmailMae(aluno.getEmailMae());
 			user.setEmailPai(aluno.getEmailPai());
@@ -366,7 +438,138 @@ public class AlunoService extends Service {
 			e.printStackTrace();
 		}
 
+		if(saveBrother){
+			salvarIrmaos(user,aluno);
+			
+		}
+
 		return user;
+
+	}
+
+	private void salvarIrmaos(Aluno aluno, Aluno unMerge) {
+		Aluno irmao1 = unMerge.getIrmao1();
+		boolean tem1Irmao = irmao1 != null ? true : false;
+		Aluno irmao2 = unMerge.getIrmao2();
+		boolean tem2Irmao = irmao2 != null ? true : false;
+		Aluno irmao3 = unMerge.getIrmao3();
+		boolean tem3Irmao = irmao3 != null ? true : false;
+		Aluno irmao4 = unMerge.getIrmao4();
+		boolean tem4Irmao = irmao4 != null ? true : false;
+
+		if (tem1Irmao) {
+			clone(aluno,irmao1);
+			irmao1 = saveAluno(irmao1, false);
+			
+			aluno.setIrmao1(irmao1);
+			irmao1.setIrmao1(aluno);
+
+			if (tem2Irmao) {
+				clone(aluno,irmao2);
+				irmao2 = saveAluno(irmao2, false);
+				aluno.setIrmao2(irmao2);
+				irmao1.setIrmao1(aluno);
+				irmao1.setIrmao2(irmao2);
+				irmao2.setIrmao1(aluno);
+				irmao2.setIrmao2(irmao1);
+			}
+			if (tem3Irmao) {
+				clone(aluno,irmao3);
+				irmao3 = saveAluno(irmao3, false);
+				aluno.setIrmao3(irmao3);
+				irmao3.setIrmao1(aluno);
+				irmao3.setIrmao2(irmao1);
+				irmao3.setIrmao3(irmao2);
+
+				irmao1.setIrmao1(aluno);
+				irmao1.setIrmao2(irmao2);
+				irmao1.setIrmao3(irmao3);
+				irmao2.setIrmao1(aluno);
+				irmao2.setIrmao2(irmao1);
+				irmao2.setIrmao3(irmao3);
+			}
+			if (tem4Irmao) {
+				clone(aluno,irmao4);
+				irmao4 = saveAluno(irmao4, false);
+				aluno.setIrmao4(irmao4);
+				irmao4.setIrmao1(aluno);
+				irmao4.setIrmao2(irmao1);
+				irmao4.setIrmao3(irmao2);
+				irmao4.setIrmao4(irmao3);
+
+				irmao1.setIrmao1(aluno);
+				irmao1.setIrmao2(irmao2);
+				irmao1.setIrmao3(irmao3);
+				irmao1.setIrmao4(irmao4);
+				irmao2.setIrmao1(aluno);
+				irmao2.setIrmao2(irmao1);
+				irmao2.setIrmao3(irmao3);
+				irmao2.setIrmao4(irmao4);
+
+				irmao3.setIrmao1(aluno);
+				irmao3.setIrmao2(irmao1);
+				irmao3.setIrmao3(irmao2);
+				irmao3.setIrmao4(irmao4);
+			}
+		}
+
+		if (tem2Irmao) {
+			clone(aluno,irmao2);
+			irmao2 = saveAluno(irmao2, false);
+			aluno.setIrmao2(irmao2);
+			irmao2.setIrmao1(aluno);
+
+			if (tem3Irmao) {
+				clone(aluno,irmao3);
+				irmao3 = saveAluno(irmao3, false);
+				aluno.setIrmao3(irmao3);
+				irmao3.setIrmao1(aluno);
+				irmao3.setIrmao3(irmao2);
+
+				irmao2.setIrmao1(aluno);
+				irmao2.setIrmao3(irmao3);
+			}
+			if (tem4Irmao) {
+				clone(aluno,irmao4);
+				irmao4 = saveAluno(irmao4, false);
+				aluno.setIrmao4(irmao4);
+				irmao4.setIrmao1(aluno);
+				irmao4.setIrmao3(irmao2);
+				irmao4.setIrmao4(irmao3);
+
+				irmao2.setIrmao1(aluno);
+				irmao2.setIrmao3(irmao3);
+				irmao2.setIrmao4(irmao4);
+
+				irmao3.setIrmao1(aluno);
+				irmao3.setIrmao3(irmao2);
+				irmao3.setIrmao4(irmao4);
+			}
+
+		}
+		if (tem3Irmao) {
+			clone(aluno,irmao3);
+			irmao3 = saveAluno(irmao3, false);
+			aluno.setIrmao3(irmao3);
+			irmao3.setIrmao1(aluno);
+
+			if (tem4Irmao) {
+				clone(aluno,irmao4);
+				irmao4 = saveAluno(irmao4, false);
+				aluno.setIrmao4(irmao4);
+				irmao4.setIrmao1(aluno);
+				irmao4.setIrmao4(irmao3);
+				irmao3.setIrmao1(aluno);
+				irmao3.setIrmao4(irmao4);
+			}
+		}
+
+		if (tem4Irmao) {
+			clone(aluno,irmao4);
+			irmao4 = saveAluno(irmao4, false);
+			aluno.setIrmao4(irmao4);
+			irmao4.setIrmao1(aluno);
+		}
 	}
 
 	public String remover(Long idAluno) {
@@ -498,7 +701,7 @@ public class AlunoService extends Service {
 		}
 		obj.setNome(objetoRota.getNome());
 		obj.setEscola(objetoRota.getEscola());
-		obj.setPosicao(objetoRota.getPosicao());
+		obj.setPosicao(objetoRota.getPosicao() - 1);
 		obj.setQuantidadeAlunos(objetoRota.getQuantidadeAlunos());
 		obj.setPegarEntregar(objetoRota.getPegarEntregar());
 
@@ -508,21 +711,23 @@ public class AlunoService extends Service {
 		obj.setDescricao(objetoRota.getDescricao());
 		obj.setIdCarroAlvo(objetoRota.getIdCarroAlvo());
 		atualizarIndices(obj);
-		if(obj.getId() == null){
+		if (obj.getId() == null) {
 			em.persist(obj);
+		} else {
+			em.merge(obj);
 		}
 
 	}
 
 	private void atualizarIndices(ObjetoRota obj) {
 		List<ObjetoRota> objs = getObjetosRotasSeguintes(obj);
-		if(objs != null && !objs.isEmpty() && objs.get(0) != null && objs.get(0).getPosicao()==obj.getPosicao()){
+		if (objs != null && !objs.isEmpty() && objs.get(0) != null && objs.get(0).getPosicao() == obj.getPosicao()) {
 			int indice = 0;
-			for(ObjetoRota ob :objs){
-				ob.setPosicao(obj.getPosicao()+indice);
-			
+			for (ObjetoRota ob : objs) {
+				ob.setPosicao(obj.getPosicao() + indice);
+				indice++;
 				em.merge(ob);
-		}
+			}
 		}
 	}
 
@@ -541,10 +746,10 @@ public class AlunoService extends Service {
 		sql.append(" order by obj.posicao ");
 		Query query = em.createQuery(sql.toString());
 		List<ObjetoRota> t = new ArrayList<>();
-		try{
-			 t = (List<ObjetoRota>) query.getResultList();
-			
-		}catch(Exception e){
+		try {
+			t = (List<ObjetoRota>) query.getResultList();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return t;
 		}
@@ -740,8 +945,9 @@ public class AlunoService extends Service {
 		}
 		return ors;
 	}
-	
-	public ObjetoRota findObjetosRota(Long idCarro, PerioddoEnum periodo,Long idCarroAlvo,PegarEntregarEnun pegarEntregarEnun) {
+
+	public ObjetoRota findObjetosRota(Long idCarro, PerioddoEnum periodo, Long idCarroAlvo,
+			PegarEntregarEnun pegarEntregarEnun) {
 		try {
 
 			CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -763,7 +969,6 @@ public class AlunoService extends Service {
 			Predicate pred4 = cb.equal(member.get("pegarEntregar"), pegarEntregarEnun.ordinal());
 			predicates.add(pred4);
 
-			
 			try {
 				cq.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 				cq.orderBy(cb.asc(member.get("posicao")));
@@ -907,56 +1112,55 @@ public class AlunoService extends Service {
 
 	}
 
-	
 	public List<Carro> findCarrosTroca(Carro carro, PerioddoEnum periodo, Boolean pego) {
 		String sql = "";
-		if(periodo.equals(PerioddoEnum.MANHA)){
-			if(pego){
+		if (periodo.equals(PerioddoEnum.MANHA)) {
+			if (pego) {
 				sql = SQLs.getSQLCarrosTrocaManhaPego();
-			}else{
+			} else {
 				sql = SQLs.getSQLCarrosTrocaManha();
 			}
-		}else{
-			if(pego){
+		} else {
+			if (pego) {
 				sql = SQLs.getSQLCarrosTrocaTardePego();
-			}else{
+			} else {
 				sql = SQLs.getSQLCarrosTrocaTarde();
 			}
 		}
-		
+
 		sql = sql.replace("?1", carro.getId().toString());
 		sql = sql.replace("?2", String.valueOf(periodo.ordinal()));
-		
+
 		Query query = em.createQuery(sql);
 		List<Carro> t = new ArrayList<>();
-		try{
-			 t = (List<Carro>) query.getResultList();
-			
-		}catch(Exception e){
+		try {
+			t = (List<Carro>) query.getResultList();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return t;
 		}
 
 		return t;
 	}
-	
+
 	public List<Carro> findCarrosTrocaMeioDia(Carro carro, PerioddoEnum periodo, Boolean pego) {
 		String sql = SQLs.getSQLTrocaMeioDia();
 		sql = sql.replace("?1", carro.getId().toString());
 		sql = sql.replace("?2", String.valueOf(periodo.TARDE.ordinal()));
 		Query query = em.createQuery(sql.toString());
 		List<Carro> t = new ArrayList<>();
-		try{
-			 t = (List<Carro>) query.getResultList();
-			
-		}catch(Exception e){
+		try {
+			t = (List<Carro>) query.getResultList();
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			return t;
 		}
 		return t;
 	}
 
-	public List<Aluno> findAlunosVoltam(Carro carro, Carro carroTroca,PerioddoEnum periodo) {
+	public List<Aluno> findAlunosVoltam(Carro carro, Carro carroTroca, PerioddoEnum periodo) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
 		sql.append(" where 1 = 1");
@@ -972,29 +1176,29 @@ public class AlunoService extends Service {
 		sql.append(" )");
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
-	
-	public List<Aluno> findAlunosVao(Carro carro, Carro carroTroca,PerioddoEnum periodo, Boolean pego) {
-		String sql="";
-		if(pego){
+
+	public List<Aluno> findAlunosVao(Carro carro, Carro carroTroca, PerioddoEnum periodo, Boolean pego) {
+		String sql = "";
+		if (pego) {
 			sql = SQLs.getSQLAlunosVaoPego();
-		}else{
+		} else {
 			sql = SQLs.getSQLAlunosVao();
 		}
-		
+
 		sql = sql.replace("?1", carro.getId().toString());
 		sql = sql.replace("?2", carroTroca.getId().toString());
 		sql = sql.replace("?3", String.valueOf(periodo.ordinal()));
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
-	
-	public List<Aluno> findAlunosTrocaMeioDia(Carro carro, Carro carroTroca,PerioddoEnum periodo) {
+
+	public List<Aluno> findAlunosTrocaMeioDia(Carro carro, Carro carroTroca, PerioddoEnum periodo) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
 		sql.append(" where 1 = 1");
@@ -1006,7 +1210,7 @@ public class AlunoService extends Service {
 		sql.append("  al.periodo = ");
 		sql.append(PerioddoEnum.MANHA.ordinal());
 		sql.append(" or (");
-		
+
 		sql.append(" al.carroLevaParaEscola.id= ");
 		sql.append(carroTroca.getId());
 		sql.append(" and al.carroLevaParaEscolaTroca.id= ");
@@ -1014,12 +1218,12 @@ public class AlunoService extends Service {
 		sql.append(" and");
 		sql.append("  al.periodo = ");
 		sql.append(PerioddoEnum.TARDE.ordinal());
-		
+
 		sql.append(" )");
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
 
@@ -1038,13 +1242,13 @@ public class AlunoService extends Service {
 		sql.append(PerioddoEnum.INTEGRAL.ordinal());
 		sql.append(" )");
 		sql.append(" and ( al.idaVolta = 0 or al.idaVolta = 2)");
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
-	
+
 	public List<Aluno> findAlunoPegaEscolaTarde(EscolaEnum escola, Carro carro) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
@@ -1060,13 +1264,13 @@ public class AlunoService extends Service {
 		sql.append(" or al.periodo = ");
 		sql.append(PerioddoEnum.INTEGRAL.ordinal());
 		sql.append(" )");
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
-	
+
 	public List<Aluno> findAlunoPegaEscolaManha(EscolaEnum escola, Carro carro) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
@@ -1085,10 +1289,10 @@ public class AlunoService extends Service {
 		sql.append(" or al.periodo = ");
 		sql.append(PerioddoEnum.INTEGRAL.ordinal());
 		sql.append(" )");
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
 
@@ -1100,12 +1304,13 @@ public class AlunoService extends Service {
 		sql.append(escola.ordinal());
 		sql.append(" and al.carroPegaEscola.id= ");
 		sql.append(carro.getId());
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
+
 	public List<Aluno> findAlunoLevaEscolaMeioDia(EscolaEnum escola, Carro carro) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
@@ -1121,13 +1326,12 @@ public class AlunoService extends Service {
 		sql.append(" and");
 		sql.append("  al.periodo = ");
 		sql.append(PerioddoEnum.TARDE.ordinal());
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
 		return t;
 	}
-	
-	
+
 	public List<Aluno> findAlunoTrocaNoite(Long idCarro, Long idCarroTroca) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT distinct(al)  from Aluno al ");
@@ -1137,10 +1341,10 @@ public class AlunoService extends Service {
 		sql.append(" and al.trocaVolta = true)");
 		sql.append("  and al.carroPegaEscolaTroca.id");
 		sql.append(idCarroTroca);
-		
+
 		Query query = em.createQuery(sql.toString());
 		List<Aluno> t = (List<Aluno>) query.getResultList();
-		
+
 		return t;
 	}
 

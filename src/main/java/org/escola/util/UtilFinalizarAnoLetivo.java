@@ -32,6 +32,7 @@ public class UtilFinalizarAnoLetivo {
 		finalizarAnoLetivo.mudaDataDosEventosParaAnoLetivoAtual();
 	}
 	
+	
 	public void mudaDataDosEventosParaAnoLetivoAtual(){
 		List<Evento> todosEventos = eventoService.findAll();
 		for(Evento evento : todosEventos){

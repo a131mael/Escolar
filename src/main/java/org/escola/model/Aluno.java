@@ -50,6 +50,19 @@ public class Aluno implements Serializable {
     
     @Column
     private int anoLetivo;
+
+    @ManyToOne
+    private Aluno irmao1;
+    
+    @ManyToOne
+    private Aluno irmao2;
+    
+    @ManyToOne
+    private Aluno irmao3;
+    
+    @ManyToOne
+    private Aluno irmao4;
+    
     
     @Column
     private Boolean removido;
@@ -107,6 +120,9 @@ public class Aluno implements Serializable {
     
     @Column
     private String cpfResponsavel;
+    
+    @Column
+    private String rgResponsavel;
     
     @Column
     private double valorMensal;
@@ -713,6 +729,46 @@ public class Aluno implements Serializable {
 	public String toString() {
 		
 		return nomeAluno + " - " + escola.getName();
+	}
+
+	public String getRgResponsavel() {
+		return rgResponsavel;
+	}
+
+	public void setRgResponsavel(String rgResponsavel) {
+		this.rgResponsavel = rgResponsavel;
+	}
+
+	public Aluno getIrmao1() {
+		return irmao1;
+	}
+
+	public void setIrmao1(Aluno irmao1) {
+		this.irmao1 = irmao1;
+	}
+
+	public Aluno getIrmao2() {
+		return irmao2;
+	}
+
+	public void setIrmao2(Aluno irmao2) {
+		this.irmao2 = irmao2;
+	}
+
+	public Aluno getIrmao3() {
+		return irmao3;
+	}
+
+	public void setIrmao3(Aluno irmao3) {
+		this.irmao3 = irmao3;
+	}
+
+	public Aluno getIrmao4() {
+		return irmao4;
+	}
+
+	public void setIrmao4(Aluno irmao4) {
+		this.irmao4 = irmao4;
 	}
 	
 }

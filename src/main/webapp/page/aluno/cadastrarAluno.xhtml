@@ -14,172 +14,72 @@
 
 				<p:tabView id="tabs">
 					<p:tab id="dadosALunoTab" title="Dados do aluno">
-						<h:panelGrid columns="2" border="0">
-
-							<h:outputLabel for="name" value="Nome(*): "
-								style="font-size: 13px; width:180px" />
-							<p:inputText id="nome" title="" value="#{aluno.nomeAluno}"
-								style="font-size: 15px; width:280px" />
-
-							<h:outputLabel value="Codigo(*): "
-								style="font-size: 13px; width:180px" />
-							<p:inputText title="" value="#{aluno.codigo}"
-								style="font-size: 15px; width:280px" />
-
-							<h:outputLabel value="Periodo: "
-								style="font-size: 13px; width:180px" />
-							<p:selectOneMenu id="periodo" style="width: 256px;"
-								value="#{aluno.periodo}">
-								<f:selectItems value="#{CombosEspeciaisMB.getPeriodos()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-
-							<h:outputLabel value="Endereço: "
-								style="font-size: 13px; width:180px" />
-							<p:inputText value="#{aluno.endereco}"
-								style="font-size: 15px; width:275px">
-							</p:inputText>
-
-							<h:outputLabel value="Bairro: "
-								style="font-size: 13px; width:180px" />
-							<p:inputText value="#{aluno.bairro}"
-								style="font-size: 15px; width:275px">
-							</p:inputText>
-
-							<h:outputLabel value="CEP: " style="font-size: 13px; width:180px" />
-							<p:inputMask id="cpf" value="#{aluno.cep}" mask="99 999-999"
-								style="font-size: 15px; width:275px" />
-
-							<h:outputLabel value="Escola: "
-								style="font-size: 13px; width:180px" />
-								
-							<p:selectOneMenu style="width: 256px;"
-								value="#{aluno.escola}">
-								<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-							
-							<h:outputLabel value="Série "
-								style="font-size: 13px; width:180px" />
-							<p:selectOneMenu id="serie" style="width: 256px;"
-								value="#{aluno.serie}">
-								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-								
-							<h:outputLabel value="Tipo: "
-								style="font-size: 13px; width:180px" />
-							<h:selectOneRadio value="#{aluno.idaVolta}" style="width:100%">
-								<f:selectItem itemValue="0" itemLabel="Ida e Volta" />
-								<f:selectItem itemValue="1" itemLabel="Somente IDA" />
-								<f:selectItem itemValue="2" itemLabel="Somente Volta" />
-								
-								<p:ajax process="form:tabs" update="form:tabs:panelCars,form:tabs" />
-							</h:selectOneRadio> 
-							
-							<h:outputLabel id="trocaIdaLab" value="Troca na ida: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}"/>
-							<h:selectBooleanCheckbox id="trocaIdaSel" value="#{aluno.trocaIDA}" 
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}">
-								<p:ajax process="@this" update="form:tabs:panelCars" />	
-							</h:selectBooleanCheckbox>
-							
-							<h:outputLabel id="trocaVoltaLab" value="Troca na volta: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}"/>
-							<h:selectBooleanCheckbox id="trocaVoltaSel" value="#{aluno.trocaVolta}" 
-							rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}">
-								<p:ajax process="@this" update="form:tabs:panelCars" />
-							</h:selectBooleanCheckbox>
-							
-
-							<h:outputLabel value="Nascimento: "
-								style="font-size: 13px; width:180px" />
-							<p:calendar value="#{aluno.dataNascimento}" pattern="dd/MM/yyyy"
-								mask="true" style="font-size: 15px; width:280px" />
-
-						</h:panelGrid>
-
+					<h:panelGrid columns="2" border="0">
+						<h:commandButton id="adicionar" value="Adicionar" action="#{alunoController.adicionarIrmao()}" >
+							<p:ajax process="@this" update="form:tabs:panelIrmaos,form:tabs:panelCars"/>
+						</h:commandButton>
+						<p:commandButton id="remover" icon="ui-icon-minusthick" action="#{alunoController.removerIrmao()}" ></p:commandButton>
+					</h:panelGrid>
+					<h:panelGrid id="panelIrmaos" columns="1" border="0">
+					
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno}" />
+	    					<ui:param name="visible" value="#{true}" />
+						</ui:include>
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao1}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao1}" />
+						</ui:include>
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao2}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao2}" />
+						</ui:include>
+						
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao3}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao3}" />
+						</ui:include>
+						
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao4}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao4}" />
+						</ui:include>
+					
+					</h:panelGrid>
+					
 					</p:tab>
 					
 					<p:tab id="carro" title="Carro">
-						<h:panelGrid id="panelCars" columns="2" border="0">
-							<h:outputLabel value="Motorista ida: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}"/>
+						<h:panelGrid id="panelCars" columns="1" border="0">
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno}" />
+		    					<ui:param name="visible" value="#{true}" />
+							</ui:include>
 							
-							<p:selectOneMenu id="selectOneMenuMotoristaIda" style="width: 256px;"
-								value="#{aluno.carroLevaParaEscola}"
-								converter="converterCarro"
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 1}">
-								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
-									var="country" itemValue="#{country}" 
-									/>
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao1}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao1}" />
+							</ui:include>
 							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao2}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao2}" />
+							</ui:include>
 							
-							<h:outputLabel value="Motorista ida troca: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 1) and aluno.trocaIDA}"/>
-							<p:selectOneMenu style="width: 256px;"
-								value="#{aluno.carroLevaParaEscolaTroca}"
-								converter="converterCarro"
-								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 1) and aluno.trocaIDA}">
-								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao3}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao3}" />
+							</ui:include>
 							
-							
-							<h:outputLabel value="Motorista volta: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}"/>
-
-							<p:selectOneMenu style="width: 256px;"
-								value="#{aluno.carroPegaEscola}"
-								converter="converterCarro"
-								rendered="#{aluno.idaVolta eq 0 or aluno.idaVolta eq 2}">
-							<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-							
-							<h:outputLabel value="Motorista volta troca: "
-								style="font-size: 13px; width:180px" 
-								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 2) and aluno.trocaVolta}" />
-							<p:selectOneMenu style="width: 256px;"
-								value="#{aluno.carroPegaEscolaTroca}"
-								converter="converterCarro"
-								rendered="#{(aluno.idaVolta eq 0 or aluno.idaVolta eq 2) and aluno.trocaVolta}">
-								<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"
-									var="country" itemLabel="#{country.name}"
-									itemValue="#{country}" />
-								<p:ajax event="change" process="@this" />
-							</p:selectOneMenu>
-							
-							
-							<h:outputLabel value="Hora pegar ida: "
-								style="font-size: 13px; width:180px" />
-							
-							<p:inputText value="#{aluno.horaPegar}" />
-							
-							<h:outputLabel value="Hora entregar volta: "
-								style="font-size: 13px; width:180px" />
-							
-							<p:inputText value="#{aluno.horaEntregar}" />
-							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao4}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao4}" />
+							</ui:include>
 						</h:panelGrid>
-
 					</p:tab>
 					
 					
@@ -326,6 +226,12 @@
 							<h:outputLabel value="CPF Responsável: "
 								style="font-size: 13px; width:180px" />
 							<p:inputText value="#{aluno.cpfResponsavel}"
+								style="font-size: 15px; width:275px">
+							</p:inputText>
+							
+							<h:outputLabel value="RG Responsável: "
+								style="font-size: 13px; width:180px" />
+							<p:inputText value="#{aluno.rgResponsavel}"
 								style="font-size: 15px; width:275px">
 							</p:inputText>
 
