@@ -19,63 +19,41 @@ package org.escola.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+
 
 @SuppressWarnings("serial")
 @Entity
 @XmlRootElement
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "id"))
-public class Boleto implements Serializable {
+public class Boleto  implements Serializable{
 
-    @Id
+	@Id
     @GeneratedValue
     private Long id;
 
-    private String numero;
+	@Column
+    private Date vencimento;
     
-    private Date dataGeracao;
+	@Column
+    private Date emissao;
     
-    private String numeroContrato;
-    
-    private Double valor;
+	@Column
+    private double valorNominal;
 
-	public String getNumero() {
-		return numero;
-	}
-
-	public void setNumero(String numero) {
-		this.numero = numero;
-	}
-
-	public Date getDataGeracao() {
-		return dataGeracao;
-	}
-
-	public void setDataGeracao(Date dataGeracao) {
-		this.dataGeracao = dataGeracao;
-	}
-
-	public String getNumeroContrato() {
-		return numeroContrato;
-	}
-
-	public void setNumeroContrato(String numeroContrato) {
-		this.numeroContrato = numeroContrato;
-	}
-
-	public Double getValor() {
-		return valor;
-	}
-
-	public void setValor(Double valor) {
-		this.valor = valor;
-	}
-
+	@Column
+    private long nossoNumero;
+	
+	@ManyToOne
+	private Aluno pagador;
+	
 	public Long getId() {
 		return id;
 	}
@@ -83,6 +61,46 @@ public class Boleto implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
-    
+
+	public Date getVencimento() {
+		return vencimento;
+	}
+
+	public void setVencimento(Date vencimento) {
+		this.vencimento = vencimento;
+	}
+
+	public double getValorNominal() {
+		return valorNominal;
+	}
+
+	public void setValorNominal(double valorNominal) {
+		this.valorNominal = valorNominal;
+	}
+
+	public Date getEmissao() {
+		return emissao;
+	}
+
+	public void setEmissao(Date emissao) {
+		this.emissao = emissao;
+	}
+
+	public Aluno getPagador() {
+		return pagador;
+	}
+
+	public void setPagador(Aluno pagador) {
+		this.pagador = pagador;
+	}
+
+	public long getNossoNumero() {
+		return nossoNumero;
+	}
+
+	public void setNossoNumero(long nossoNumero) {
+		this.nossoNumero = nossoNumero;
+	}
+
     
 }

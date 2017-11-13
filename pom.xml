@@ -291,7 +291,7 @@
 			<artifactId>Financeiro</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		
+		 
 		<dependency>
 			<groupId>br.com.caelum.stella</groupId>
 			<artifactId>caelum-stella-boleto</artifactId>

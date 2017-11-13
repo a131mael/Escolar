@@ -1,5 +1,5 @@
 /*
- * JBoss, Home of Professional Open Source
+n * JBoss, Home of Professional Open Source
  * Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
  * contributors by the @authors tag. See the copyright.txt in the
  * distribution for a full listing of individual contributors.
@@ -16,6 +16,7 @@
  */
 package org.escola.controller.aluno;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,11 +41,15 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.aaf.financeiro.model.Boleto;
+import org.aaf.financeiro.model.Pagador;
+import org.aaf.financeiro.util.CNAB240_REMESSA_SICOOB;
 import org.aaf.financeiro.util.CNAB240_SICOOB;
 import org.escola.controller.OfficeDOCUtil;
 import org.escola.controller.OfficePDFUtil;
 import org.escola.enums.BimestreEnum;
 import org.escola.enums.DisciplinaEnum;
+import org.escola.enums.EscolaEnum;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Aluno;
@@ -51,11 +57,14 @@ import org.escola.model.AlunoAvaliacao;
 import org.escola.model.Custo;
 import org.escola.service.AlunoService;
 import org.escola.service.AvaliacaoService;
+import org.escola.service.ConfiguracaoService;
+import org.escola.service.TurmaService;
 import org.escola.util.Constant;
 import org.escola.util.CurrencyWriter;
 import org.escola.util.FileDownload;
 import org.escola.util.ImpressoesUtils;
 import org.escola.util.Util;
+import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
@@ -73,6 +82,10 @@ public class AlunoController implements Serializable {
 	@Named
 	private Aluno aluno;
 
+	@Produces
+	@Named
+	private Boleto boleto;
+
 	private boolean irmao1;
 
 	private boolean irmao2;
@@ -89,8 +102,14 @@ public class AlunoController implements Serializable {
 	private AlunoService alunoService;
 
 	@Inject
+	private ConfiguracaoService configuracaoService;
+
+	@Inject
 	private AvaliacaoService avaliacaoService;
 
+	@Inject
+	private TurmaService carroService;
+	
 	private OfficeDOCUtil officeDOCUtil;
 	CurrencyWriter cw;
 
@@ -101,10 +120,14 @@ public class AlunoController implements Serializable {
 
 	private LazyDataModel<Aluno> lazyListDataModel;
 
+	private LazyDataModel<Boleto> lazyListDataModelBoletos;
+
 	private LazyDataModel<Aluno> lazyListDataModelExAlunos;
 
 	private LazyDataModel<Aluno> lazyListDataModelUltimoAnoLetivo;
 
+	private long total = 0;
+	
 	public LazyDataModel<Aluno> getLazyDataModel() {
 		if (lazyListDataModel == null) {
 
@@ -134,7 +157,79 @@ public class AlunoController implements Serializable {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
 					}
+					
+					if (filtros.containsKey("carroLevaParaEscola")) {
+						String carro = filtros.get("carroLevaParaEscola").toString();
+						filtros.put("carroLevaParaEscola", carroService.findByName(carro));
+					}
+					
+					if (filtros.containsKey("carroPegaEscola")) {
+						String carro = filtros.get("carroPegaEscola").toString();
+						filtros.put("carroPegaEscola", carroService.findByName(carro));
+					}
 
+					if (filtros.containsKey("escola")) {
+						String escolaSelecionada =filtros.get("escola").toString(); 
+						if (escolaSelecionada.equals(EscolaEnum.ADONAI.name())) {
+							filtros.put("escola", EscolaEnum.ADONAI);
+						}else if(escolaSelecionada.equals(EscolaEnum.CEMA.name())){
+							filtros.put("escola", EscolaEnum.CEMA);
+						}else if(escolaSelecionada.equals(EscolaEnum.CETEK.name())){
+							filtros.put("escola", EscolaEnum.CETEK);
+						}else if(escolaSelecionada.equals(EscolaEnum.DOM_JAIME.name())){
+							filtros.put("escola", EscolaEnum.DOM_JAIME);
+						}else if(escolaSelecionada.equals(EscolaEnum.ELCANA.name())){
+							filtros.put("escola", EscolaEnum.ELCANA);
+						}else if(escolaSelecionada.equals(EscolaEnum.ELCANANINHA.name())){
+							filtros.put("escola", EscolaEnum.ELCANANINHA);
+						}else if(escolaSelecionada.equals(EscolaEnum.EVANDRA_SUELI.name())){
+							filtros.put("escola", EscolaEnum.EVANDRA_SUELI);
+						}else if(escolaSelecionada.equals(EscolaEnum.INES_MARTA.name())){
+							filtros.put("escola", EscolaEnum.INES_MARTA);
+						}else if(escolaSelecionada.equals(EscolaEnum.INOVACAO.name())){
+							filtros.put("escola", EscolaEnum.INOVACAO);
+						}else if(escolaSelecionada.equals(EscolaEnum.ITERACAO.name())){
+							filtros.put("escola", EscolaEnum.ITERACAO);
+						}else if(escolaSelecionada.equals(EscolaEnum.JOAO_SILVEIRA.name())){
+							filtros.put("escola", EscolaEnum.JOAO_SILVEIRA);
+						}else if(escolaSelecionada.equals(EscolaEnum.MARIA_DO_CARMO.name())){
+							filtros.put("escola", EscolaEnum.MARIA_DO_CARMO);
+						}else if(escolaSelecionada.equals(EscolaEnum.MARIA_JOSE_MEDEIROS.name())){
+							filtros.put("escola", EscolaEnum.MARIA_JOSE_MEDEIROS);
+						}else if(escolaSelecionada.equals(EscolaEnum.ZILAR_ROSAR.name())){
+							filtros.put("escola", EscolaEnum.ZILAR_ROSAR);
+						}else if(escolaSelecionada.equals(EscolaEnum.VOVO_MARIA.name())){
+							filtros.put("escola", EscolaEnum.VOVO_MARIA);
+						}else if(escolaSelecionada.equals(EscolaEnum.VOO_LIVRE.name())){
+							filtros.put("escola", EscolaEnum.VOO_LIVRE);
+						}else if(escolaSelecionada.equals(EscolaEnum.VIVENCIA.name())){
+							filtros.put("escola", EscolaEnum.VIVENCIA);
+						}else if(escolaSelecionada.equals(EscolaEnum.VENCESLAU.name())){
+							filtros.put("escola", EscolaEnum.VENCESLAU);
+						}else if(escolaSelecionada.equals(EscolaEnum.RODA_PIAO.name())){
+							filtros.put("escola", EscolaEnum.RODA_PIAO);
+						}else if(escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())){
+							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
+						}else if(escolaSelecionada.equals(EscolaEnum.MODELO.name())){
+							filtros.put("escola", EscolaEnum.MODELO);
+						}else if(escolaSelecionada.equals(EscolaEnum.MULLER.name())){
+							filtros.put("escola", EscolaEnum.MULLER);
+						}else if(escolaSelecionada.equals(EscolaEnum.MULTIPLA_ESCOLHA.name())){
+							filtros.put("escola", EscolaEnum.MULTIPLA_ESCOLHA);
+						}else if(escolaSelecionada.equals(EscolaEnum.N_S_FATIMA.name())){
+							filtros.put("escola", EscolaEnum.N_S_FATIMA);
+						}else if(escolaSelecionada.equals(EscolaEnum.NOVA_ESPERANCA.name())){
+							filtros.put("escola", EscolaEnum.NOVA_ESPERANCA);
+						}else if(escolaSelecionada.equals(EscolaEnum.PARAISO_DO_AMOR.name())){
+							filtros.put("escola", EscolaEnum.PARAISO_DO_AMOR);
+						}else if(escolaSelecionada.equals(EscolaEnum.PROF_GUILHERME.name())){
+							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
+						}else if(escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())){
+							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
+						}
+						
+					}
+					
 					if (filtros.containsKey("serie")) {
 						if (filtros.get("serie").equals(Serie.JARDIM_I.toString())) {
 							filtros.put("serie", Serie.JARDIM_I);
@@ -164,16 +259,29 @@ public class AlunoController implements Serializable {
 					List<Aluno> ol = alunoService.find(first, pageSize, orderByParam, orderParam, filtros);
 
 					if (ol != null && ol.size() > 0) {
-						lazyListDataModel.setRowCount((int) alunoService.count(filtros));
+						long count =alunoService.count(filtros);
+						lazyListDataModel.setRowCount((int) count);
+						total = count;
+//						FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+//						RequestContext.getCurrentInstance().update("tbl:total");
+
 						return ol;
 					}
-
-					this.setRowCount((int) alunoService.count(filtros));
+					long count =alunoService.count(filtros);
+					total = count;
+//					FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+//					RequestContext.getCurrentInstance().update("tbl:total");
+					this.setRowCount((int) count);
 					return null;
 
 				}
 			};
-			lazyListDataModel.setRowCount((int) alunoService.count(null));
+			long count =alunoService.count(null);
+			total = count;
+//			FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+//			RequestContext.getCurrentInstance().update("tbl:total");
+			lazyListDataModel.setRowCount((int) count);
+			
 
 		}
 
@@ -181,6 +289,7 @@ public class AlunoController implements Serializable {
 
 	}
 
+	
 	public double valorTotal(Aluno aluno) {
 		if (aluno != null && aluno.getNumeroParcelas() != null) {
 			return aluno.getValorMensal() * aluno.getNumeroParcelas();
@@ -359,6 +468,7 @@ public class AlunoController implements Serializable {
 				}
 			} else {
 				aluno = new Aluno();
+				aluno.setCodigo(alunoService.getProximoCodigo()+"");
 			}
 		}
 
@@ -523,19 +633,20 @@ public class AlunoController implements Serializable {
 		String volta = "CLAUSULA 6ªB – O CONTRATADO SO SE RESPONSABILIZARA PELO TRANSPORTE DE VOLTA DA ESCOLA, O TRANSPORTE DE IDA PARA A ESCOLA È DE RESPONSABILIDADE DO CONTRATANTE.";
 
 		switch (aluno.getIdaVolta()) {
-		case 1:
+		case 0:
 			trocas.put("#TIPOCONTRATO", idaEVolta);
 			break;
 
-		case 2:
+		case 1:
 			trocas.put("#TIPOCONTRATO", ida);
 			break;
 
-		case 3:
+		case 2:
 			trocas.put("#TIPOCONTRATO", volta);
 			break;
 
 		default:
+			trocas.put("#TIPOCONTRATO", idaEVolta);
 			break;
 		}
 
@@ -813,31 +924,39 @@ public class AlunoController implements Serializable {
 		this.irmao4 = irmao4;
 	}
 
-	public StreamedContent gerarBoleto() {
+	public StreamedContent downloadBoleto(org.escola.model.Boleto boleto) {
 		try {
+			Calendar c = Calendar.getInstance();
+			c.setTime(boleto.getVencimento());
 			CNAB240_SICOOB cnab = new CNAB240_SICOOB();
-			String nomeArquivo = "boleto.pdf";
-			
-			String numeroDoBoleto = "10";
-			Date dataVencimento = new Date();
-			String valorBoleto = "200";
-			
-			String nomePagador = aluno.getNomeResponsavel();
-			String ruaPagador = aluno.getEndereco();
-			String cepPagador = aluno.getCep(); 
-			String cidadePagador = aluno.getCidade(); 
-			String ufPagador = "SC"; 
-			String cpfPagador = aluno.getCpfResponsavel();
-			String bairroPagador = aluno.getBairro();
-			
-			
-			byte[] pdf = cnab.getBoletoPDF(numeroDoBoleto,valorBoleto,nomePagador,ruaPagador,cepPagador,cidadePagador,bairroPagador,ufPagador,cpfPagador,dataVencimento);
-			
+			String nomeArquivo = aluno.getCodigo() + c.get(Calendar.MONTH) + ".pdf";
+
+			Pagador pagador = new Pagador();
+			pagador.setBairro(aluno.getBairro());
+			pagador.setCep(aluno.getCep());
+			pagador.setCidade(aluno.getCidade() != null ? aluno.getCidade() : "PALHOCA");
+			pagador.setCpfCNPJ(aluno.getCpfResponsavel());
+			pagador.setEndereco(aluno.getEndereco());
+			pagador.setNome(aluno.getNomeResponsavel());
+			pagador.setNossoNumero(boleto.getNossoNumero()+"");
+			pagador.setUF("SC");
+			List<Boleto> boletos = new ArrayList<>();
+			Boleto b = new Boleto();
+			b.setEmissao(boleto.getEmissao());
+			b.setId(boleto.getId());
+			b.setNossoNumero(boleto.getNossoNumero());
+			b.setValorNominal(boleto.getValorNominal());
+			b.setVencimento(boleto.getVencimento());
+			boletos.add(b);
+			pagador.setBoletos(boletos);
+
+			byte[] pdf = cnab.getBoletoPDF(pagador);
+
 			OfficePDFUtil.geraPDF(nomeArquivo, pdf);
 
 			String temp = System.getProperty("java.io.tmpdir");
 			String caminho = temp + File.separator + nomeArquivo;
-			
+
 			InputStream stream;
 			stream = new FileInputStream(caminho);
 			return FileDownload.getContentDoc(stream, nomeArquivo);
@@ -846,6 +965,133 @@ public class AlunoController implements Serializable {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public void gerarBoletoModel(){
+		alunoService.gerarBoletos(aluno,true);
+	}
+	
+	public StreamedContent gerarBoleto() {
+		try {
+
+			CNAB240_SICOOB cnab = new CNAB240_SICOOB();
+			/*Calendar c = Calendar.getInstance();
+			c.setTime(boleto.getVencimento());*/
+			String nomeArquivo = aluno.getCodigo() + ".pdf";
+
+
+			Pagador pagador = new Pagador();
+			pagador.setBairro(aluno.getBairro());
+			pagador.setCep(aluno.getCep());
+			pagador.setCidade(aluno.getCidade() != null ? aluno.getCidade() : "PALHOCA");
+			pagador.setCpfCNPJ(aluno.getCpfResponsavel());
+			pagador.setEndereco(aluno.getEndereco());
+			pagador.setNome(aluno.getNomeResponsavel());
+			pagador.setNossoNumero(aluno.getCodigo());
+			pagador.setUF("SC");
+			pagador.setBoletos(aluno.getBoletosFinanceiro());
+
+			byte[] pdf = cnab.getBoletoPDF(pagador);
+
+			OfficePDFUtil.geraPDF(nomeArquivo, pdf);
+
+			String temp = System.getProperty("java.io.tmpdir");
+			String caminho = temp + File.separator + nomeArquivo;
+
+			InputStream stream;
+			stream = new FileInputStream(caminho);
+			return FileDownload.getContentDoc(stream, nomeArquivo);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public StreamedContent gerarCNB240() {
+		try {
+			String sequencialArquivo = configuracaoService.getSequencialArquivo() + "";
+			String nomeArquivo = "CNAB240_" + aluno.getCodigo() + ".txt";
+
+			Pagador pagador = new Pagador();
+			pagador.setBairro(aluno.getBairro());
+			pagador.setCep(aluno.getCep());
+			pagador.setCidade(aluno.getCidade() != null ? aluno.getCidade() : "PALHOCA");
+			pagador.setCpfCNPJ(aluno.getCpfResponsavel());
+			pagador.setEndereco(aluno.getEndereco());
+			pagador.setNome(aluno.getNomeResponsavel());
+			pagador.setNossoNumero(aluno.getCodigo());
+			pagador.setUF("SC");
+			pagador.setBoletos(aluno.getBoletosFinanceiro());
+			byte[] arquivo = CNAB240_REMESSA_SICOOB.geraRemessa(pagador, sequencialArquivo);
+
+			try {
+				configuracaoService.incrementaSequencialArquivoCNAB();
+				InputStream stream = new ByteArrayInputStream(arquivo);
+				return FileDownload.getContentDoc(stream, nomeArquivo);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public Double getDesconto(org.escola.model.Boleto boleto) {
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.set(Calendar.DAY_OF_MONTH, tomorrow.get(Calendar.DAY_OF_MONTH) + 1);
+		if (boleto.getVencimento().compareTo(tomorrow.getTime()) == 1) {
+			return 20d;
+		} else {
+			return 0d;
+		}
+
+	}
+
+	public String getDescontoString(org.escola.model.Boleto boleto) {
+			return Util.formatarDouble2Decimais(getDesconto(boleto));
+	}
+
+	
+	public Double getJurosMulta(org.escola.model.Boleto boleto) {
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.set(Calendar.DAY_OF_MONTH, tomorrow.get(Calendar.DAY_OF_MONTH) + 1);
+		double multa = boleto.getValorNominal() * 0.02;
+		long diasVencimento = Util.diferencaEntreDatas(tomorrow.getTime(),boleto.getVencimento());
+		if(diasVencimento >0){
+			double juros = (diasVencimento / 2); // juros de 50 centavos
+			return multa + juros;
+			
+		}else{
+			return 0D;
+		}
+
+	}
+	public String getJurosMultaString(org.escola.model.Boleto boleto) {
+		return Util.formatarDouble2Decimais(getJurosMulta(boleto));
+	}
+
+	public Double getValorFinal(org.escola.model.Boleto boleto) {
+
+		return boleto.getValorNominal() + getJurosMulta(boleto) - getDesconto(boleto);
+	}
+
+	public String getValorFinalString(org.escola.model.Boleto boleto) {
+
+		return Util.formatarDouble2Decimais(getValorFinal(boleto));
+	}
+
+
+	public long getTotal() {
+		return total;
+	}
+
+
+	public void setTotal(long total) {
+		this.total = total;
 	}
 
 }

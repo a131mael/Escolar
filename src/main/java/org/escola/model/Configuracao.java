@@ -39,6 +39,9 @@ public class Configuracao implements Serializable {
     @Column
     private int anoLetivo;
     
+    @Column
+    private long sequencialArquivoCNAB;
+    
 	public Long getId() {
 		return id;
 	}
@@ -55,6 +58,14 @@ public class Configuracao implements Serializable {
 
 	public void setAnoLetivo(int anoLetivo) {
 		this.anoLetivo = anoLetivo;
+	}
+
+	public long getSequencialArquivoCNAB() {
+		return sequencialArquivoCNAB;
+	}
+
+	public void setSequencialArquivoCNAB(long sequencialArquivoCNAB) {
+		this.sequencialArquivoCNAB = sequencialArquivoCNAB;
 	}
 
 }

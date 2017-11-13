@@ -21,22 +21,9 @@ import javax.persistence.criteria.Root;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
-import org.escola.enums.BimestreEnum;
-import org.escola.enums.DisciplinaEnum;
-import org.escola.enums.EscolaEnum;
-import org.escola.enums.PegarEntregarEnun;
-import org.escola.enums.PerioddoEnum;
-import org.escola.enums.Serie;
-import org.escola.model.Aluno;
 import org.escola.model.AlunoCarro;
 import org.escola.model.Boleto;
-import org.escola.model.Carro;
-import org.escola.model.Custo;
 import org.escola.model.Devedor;
-import org.escola.model.Evento;
-import org.escola.model.Funcionario;
-import org.escola.model.ObjetoRota;
-import org.escola.util.Constant;
 import org.escola.util.Service;
 import org.escola.util.UtilFinalizarAnoLetivo;
 
@@ -124,9 +111,9 @@ public class DevedorService extends Service {
 			List<Boleto> bs = new ArrayList<>();
 			if(aluno.getBoletos() != null){
 				for(Boleto b : aluno.getBoletos()){
-					if(b.getNumero() != null && !b.getNumero().equalsIgnoreCase("")){
+					/*if(b.getNumero() != null && !b.getNumero().equalsIgnoreCase("")){
 						bs.add(getBoletoAttached(b));
-					}
+					}*/
 				}
 			}
 			
@@ -160,7 +147,7 @@ public class DevedorService extends Service {
 	}
 
 	private Boleto getBoletoAttached(Boleto boleto){
-		String numero = boleto.getNumero();
+		/*String numero = boleto.getNumero();
 		String numeroContrato = boleto.getNumeroContrato();
 		Date dataGeracao =boleto.getDataGeracao();
 		Double valor = boleto.getValor();
@@ -170,9 +157,10 @@ public class DevedorService extends Service {
 			boleto.setDataGeracao(dataGeracao);
 			boleto.setNumeroContrato(numeroContrato);
 			boleto.setDataGeracao(dataGeracao);
-			boleto.setValor(valor);
-		}
-		return boleto;
+			boleto.setValor(valor);*/
+	/*	}
+		return boleto;*/
+		return null;
 	}
 	
 	public String remover(Long idDevedor) {

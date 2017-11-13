@@ -1,7 +1,8 @@
-
 package org.escola.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
 import org.escola.model.Aluno;
 import org.escola.model.AlunoCarro;
+import org.escola.model.Boleto;
 import org.escola.model.Carro;
 import org.escola.model.Custo;
 import org.escola.model.Evento;
@@ -73,6 +75,7 @@ public class AlunoService extends Service {
 		if(al.getIrmao4() != null){
 			al.getIrmao4().getAnoLetivo();
 		}
+		al.getBoletos().size();
 		return al;
 	}
 
@@ -341,7 +344,7 @@ public class AlunoService extends Service {
 			}
 			user.setIdaVolta(aluno.getIdaVolta());
 			// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
-			user.setNomeAluno(aluno.getNomeAluno());
+			user.setNomeAluno(aluno.getNomeAluno().toUpperCase());
 			user.setPeriodo(aluno.getPeriodo());
 			user.setSerie(aluno.getSerie());
 			user.setEndereco(aluno.getEndereco());
@@ -377,9 +380,15 @@ public class AlunoService extends Service {
 			user.setNomeAvoHPaternoPai(aluno.getNomeAvoHPaternoPai());
 			user.setNomeAvoPaternoMae(aluno.getNomeAvoPaternoMae());
 			user.setNomeAvoPaternoPai(aluno.getNomeAvoPaternoPai());
-			user.setNomeMaeAluno(aluno.getNomeMaeAluno());
-			user.setNomePaiAluno(aluno.getNomePaiAluno());
-			user.setNomeResponsavel(aluno.getNomeResponsavel());
+			if(aluno.getNomeMaeAluno() != null){
+				user.setNomeMaeAluno(aluno.getNomeMaeAluno().toUpperCase());
+			}
+			if(aluno.getNomePaiAluno() != null){
+				user.setNomePaiAluno(aluno.getNomePaiAluno().toUpperCase());
+			}
+			if(aluno.getNomeResponsavel() != null){
+				user.setNomeResponsavel(aluno.getNomeResponsavel().toUpperCase());
+			}
 			user.setNumeroParcelas(aluno.getNumeroParcelas());
 			user.setObservacaoSecretaria(aluno.getObservacaoSecretaria());
 			user.setValorMensal(aluno.getValorMensal());
@@ -389,6 +398,26 @@ public class AlunoService extends Service {
 			user.setSenha(aluno.getSenha());
 			user.setTelefone(aluno.getTelefone());
 			user.setEscola(aluno.getEscola());
+			if(aluno.getNomePaiResponsavel() != null){
+				user.setNomePaiResponsavel(aluno.getNomePaiResponsavel().toUpperCase());
+			}
+			if(aluno.getNomeMaeResponsavel() != null){
+				user.setNomeMaeResponsavel(aluno.getNomeMaeResponsavel().toUpperCase());
+			}
+			user.setContatoEmail1(aluno.getContatoEmail1());
+			user.setContatoEmail2(aluno.getContatoEmail2());
+			user.setContatoNome1(aluno.getContatoNome1());
+			user.setContatoNome2(aluno.getContatoNome2());
+			user.setContatoNome3(aluno.getContatoNome3());
+			user.setContatoNome4(aluno.getContatoNome4());
+			user.setContatoNome5(aluno.getContatoNome5());
+			
+			user.setContatoTelefone1(aluno.getContatoTelefone1());
+			user.setContatoTelefone2(aluno.getContatoTelefone2());
+			user.setContatoTelefone3(aluno.getContatoTelefone3());
+			user.setContatoTelefone4(aluno.getContatoTelefone4());
+			user.setContatoTelefone5(aluno.getContatoTelefone5());
+			
 			if (aluno.getRemovido() == null) {
 				user.setRemovido(false);
 			} else {
@@ -438,15 +467,59 @@ public class AlunoService extends Service {
 			e.printStackTrace();
 		}
 
+		List<Boleto> boletos = null;
 		if(saveBrother){
 			salvarIrmaos(user,aluno);
-			
+			if (aluno.getId() == null || aluno.getId() == 0L) {
+				boletos = gerarBoletos(user);
+			}
 		}
-
+		if (aluno.getId() == null || aluno.getId() == 0L) {
+			user.setBoletos(boletos);
+		}
+		
 		return user;
 
 	}
 
+	public List<Boleto> gerarBoletos(Aluno user) {
+		List<Boleto> boletos = new ArrayList<>();
+		int i = 12 - user.getNumeroParcelas();
+		long nossoNumero = getProximoNossoNumero();
+		while(i<12){
+			Boleto boleto = new Boleto();	
+			Calendar vencimento = Calendar.getInstance();
+			vencimento.set(Calendar.DAY_OF_MONTH, 10);
+			vencimento.set(Calendar.MONTH, i);
+			vencimento.set(Calendar.YEAR, Constant.anoLetivoAtual);
+			vencimento.set(Calendar.HOUR, 0);
+			vencimento.set(Calendar.MINUTE,0);
+			vencimento.set(Calendar.SECOND,0);
+			boleto.setVencimento(vencimento.getTime());
+			boleto.setEmissao(new Date());
+			boleto.setValorNominal(user.getValorMensal());
+			boleto.setPagador(user);
+			boleto.setNossoNumero(nossoNumero);
+			em.persist(boleto);
+			nossoNumero++;
+			boletos.add(boleto);
+			
+			i++;
+		}
+		return boletos;
+	}
+	
+	
+
+	public List<Boleto> gerarBoletos(Aluno user,boolean setUser) {
+		user = findById(user.getId());
+		List<Boleto> boletos =gerarBoletos(user); 
+		user.setBoletos(boletos);
+		em.persist(user);
+		return boletos;
+	}
+
+	
 	private void salvarIrmaos(Aluno aluno, Aluno unMerge) {
 		Aluno irmao1 = unMerge.getIrmao1();
 		boolean tem1Irmao = irmao1 != null ? true : false;
@@ -801,7 +874,8 @@ public class AlunoService extends Service {
 			CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
 			Root<Aluno> member = countQuery.from(Aluno.class);
 			countQuery.select(cb.count(member));
-
+			
+			final List<Predicate> predicates = new ArrayList<Predicate>();
 			if (filtros != null) {
 				for (Map.Entry<String, Object> entry : filtros.entrySet()) {
 
@@ -811,9 +885,10 @@ public class AlunoService extends Service {
 					} else {
 						pred = cb.equal(member.get(entry.getKey()), entry.getValue());
 					}
-					countQuery.where(pred);
+					predicates.add(pred);
+					
 				}
-
+				countQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 			}
 
 			Query q = em.createQuery(countQuery);
@@ -1347,5 +1422,37 @@ public class AlunoService extends Service {
 
 		return t;
 	}
+
+	public Long getProximoCodigo() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT max(al.codigo)  from Aluno al ");
+		
+		Query query = em.createQuery(sql.toString());
+		String codigo= (String) query.getSingleResult();
+		return Long.parseLong(codigo)+1;
+	}
+
+	public Long getProximoNossoNumero() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT max(bol.nossoNumero) from Boleto bol ");
+		
+		Query query = em.createQuery(sql.toString());
+		Long codigo = null;
+		try{
+			codigo= (Long) query.getSingleResult();
+			
+		}catch(Exception e){
+			codigo = 10000L;
+		}
+		if(codigo == null){
+			codigo = 10000L;
+		}
+		if(codigo<10000){
+			codigo = 10000L;
+		}
+		
+		return codigo+1;
+	}
+
 
 }

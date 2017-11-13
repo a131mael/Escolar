@@ -1041,6 +1041,11 @@ public class SecretariaController {
 		return lazyListDataModel;
 
 	}
+	
+	public String remover(Long idcusto){
+		custoService.remover(idcusto);
+		return "index";
+	}
 
 	public String linkAlunos() {
 		return "listagemAlunos";

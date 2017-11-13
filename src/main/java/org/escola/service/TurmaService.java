@@ -21,6 +21,7 @@ import javax.validation.ValidationException;
 
 import org.escola.model.FuncionarioCarro;
 import org.escola.model.Carro;
+import org.escola.util.Constant;
 import org.escola.util.Service;
 
 
@@ -61,6 +62,20 @@ public class TurmaService extends Service {
 		}
 	}
 
+	public Carro findByName(String name) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT c from  Carro c ");
+		sql.append("where 1=1 ");
+		sql.append("and c.nome like '%");
+		sql.append(name);
+		sql.append("%'");
+
+		Query query = em.createQuery(sql.toString());
+		return (Carro) query.getSingleResult();
+	}
+
+	
 	public Carro save(Carro professor) {
 		Carro user = null;
 		try {

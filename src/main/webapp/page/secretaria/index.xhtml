@@ -2,61 +2,14 @@
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
 	template="/WEB-INF/templates/templateADM.xhtml">
 
 	<ui:define name="content">
 		<h:form style="width:100%; border:none" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
-			<center>
-				<h1>ADONAI</h1>
-				<div>
-        	    	<p>Escola Adonai do maternal ao fundamental.</p>
-        		</div>
-		
-			</center>
-        	
-			<br />
-			
-			<h:commandButton id="ContratoEscolar" 
-				style="width: 120px;height: 120px; padding-left: 120px"
-				action="#{secretariaController.linkAlunos()}" 
-				value="Alunos"
-				styleClass="alinharFooter " 
-				image="/resources/gfx/criancas.png" />
-				
-				
-			<h:commandButton id="ContratoFretamento" 
-				style="alinharFooter; width: 120px;height: 120px;padding-right: 200px"
-				action="#{secretariaController.linkProfessores()}" 
-				value="Professores"
-				styleClass="alinharDireita" 
-				image="/resources/gfx/motorista.png"/>
-				<br/>
-				<br/>
-				<br/>
-					
-			<h:commandButton id="ContratoAdonai" 
-				style="alinharFooter width: 120px;height: 120px;padding-left: 120px"
-				action="#{secretariaController.linkTurmas()}" 
-				value="Turmas"
-				styleClass="alinharFooter" 
-				image="/resources/gfx/onibos.png"/>	
+		<br />
 
-			<h:commandButton id="calendario" 
-				style="alinharFooter width: 120px;height: 120px;padding-right: 200px"
-				action="#{secretariaController.linkCalendario()}" 
-				value="Turmas"
-				styleClass="alinharDireita" 
-				image="/resources/gfx/calendar.png"/>	
-				<br/>
-
-			<h:commandButton id="recados" 
-				style="alinharFooter width: 120px;height: 120px;padding-left: 120px"
-				action="#{contratoController.irContratoAdonai()}" 
-				value="Turmas"
-				styleClass="alinharFooter" 
-				image="/resources/gfx/recado.png"
-				rendered="false"/>	
-
+		<p:chart type="line" model="#{graficosController.lineModel1}" style="height:300px;"/>			
 
 		</h:form>
 	</ui:define>

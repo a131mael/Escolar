@@ -28,19 +28,27 @@
 				 <p:tooltip  for="editar" value="Editar" position="top"/>
 				<p:tooltip  for="contrato" value="Contrato" position="top"/>
 				<p:tooltip  for="boleto" value="Boleto" position="top"/>
+				<p:tooltip  for="cnab" value="CNAB240" position="top"/>
+				<p:tooltip  for="gerarBoleto" value="GERAR BOLETOS" position="top"/>
 			
 				<p:commandButton id="adicionar" icon="ui-icon-plus" action="#{alunoController.adicionarNovo()}" />
 				<p:commandButton id="editar" icon="ui-icon-pencil" action="#{alunoController.editar()}"	alt="Editar" disabled="#{!alunoController.alunoSelecionado}"/>
 				<p:separator style=" height:25px;" />
-				<p:commandButton id="contrato" icon="ui-icon-pencil"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
+				<p:commandButton id="contrato" icon="ui-icon-contact"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
 								disabled="#{!alunoController.alunoSelecionado}">
 						<p:fileDownload value="#{alunoController.imprimirContrato()}" />
 				</p:commandButton>
 				
-				<p:commandButton id="boleto" icon="ui-icon-pencil"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
+				<p:commandButton id="boleto" icon="ui-icon-print"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
 								disabled="#{!alunoController.alunoSelecionado}">
 						<p:fileDownload value="#{alunoController.gerarBoleto()}" />
 				</p:commandButton>
+				
+				<p:commandButton id="cnab" icon="ui-icon-transfer-e-w"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
+								disabled="#{!alunoController.alunoSelecionado}">
+						<p:fileDownload value="#{alunoController.gerarCNB240()}" />
+				</p:commandButton>
+				<p:commandButton id="gerarBoleto"  action="#{alunoController.gerarBoletoModel()}"	alt="GerarBoleto" rendered="#{true}" disabled="#{!alunoController.alunoSelecionado}"/>				
 				
 			</h:panelGrid>
 
@@ -61,12 +69,11 @@
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                              resizableColumns="true"
                              rows="20"
-                          
+                                                       
   							 id="tbl" var="professorTab"
 							 value="#{alunoController.lazyDataModel}"
 							 >
    <!-- rowsPerPageTemplate="25,50,100" -->
-   
    					<p:ajax event="rowSelect"  update="panelFerramentas" />
 					<f:facet name="{Exporters}">
 						<h:commandLink>
@@ -89,6 +96,11 @@
 							<p:dataExporter type="xml" target="tbl" fileName="cars" />
 						</h:commandLink>
 					</f:facet>
+					
+					<f:facet name="footer">
+						<h:outputText  id="total" value="#{alunoController.total}" />
+        			</f:facet>
+					
 					<p:column style="width:7%; text-align:center;" filterBy="#{professorTab.codigo}"
                               styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
                               sortBy="#{professorTab.codigo}" 
@@ -105,7 +117,7 @@
 					</p:column>
 
 					<p:column filterBy="#{professorTab.periodo}"
-                              sortBy="#{professorTab.periodo}" 
+                              sortBy="#{professorTab.periodo}"
                               style="text-align:center;width:8%"
                               styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
                               headerText="Periodo "
@@ -113,9 +125,29 @@
 						<h:outputText value="#{professorTab.periodo.name}" />
 					</p:column>
 					
-					<p:column filterBy="#{professorTab.escola.name}"
+					<p:column filterBy="#{professorTab.carroLevaParaEscola}"
+                              sortBy="#{professorTab.carroLevaParaEscola}" 
+                              style="text-align:center;width:12%"
+                              styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
+                              headerText="Leva "
+                              filterOptions="#{CombosEspeciaisMB.carrosSelectItem}">
+						<h:outputText value="#{professorTab.carroLevaParaEscola.nome}" />
+						<h:outputText value="#{professorTab.carroLevaParaEscolaTroca.nome}" />
+					</p:column>
+					
+					<p:column filterBy="#{professorTab.carroPegaEscola}"
+                              sortBy="#{professorTab.carroPegaEscola}" 
+                              style="text-align:center;width:12%"
+                              styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
+                              headerText="Pega "
+                              filterOptions="#{CombosEspeciaisMB.carrosSelectItem}">
+						<h:outputText value="#{professorTab.carroPegaEscola.nome}" />
+					</p:column>
+					
+					
+					<p:column filterBy="#{professorTab.escola}"
                               sortBy="#{professorTab.escola.name}" 
-                              style="text-align:center;width:15%"
+                              style="text-align:center;width:14%"
                               styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
                               headerText="Escola "
                               filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
@@ -124,15 +156,15 @@
 					
 					
 					<p:column filterBy="#{professorTab.valorMensal}"
-                              sortBy="#{professorTab.serie}" 
-                              style="text-align: center;width:10%;"
+                              sortBy="#{professorTab.valorMensal}" 
+                              style="text-align: center;width:9%;"
                               styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}"
                               headerText="Valor mensal "
                               >
 						<h:outputText value="#{professorTab.valorMensal}" />
 					</p:column>	
 
-					<p:column style="text-align: center; width:8%" 
+					<p:column style="text-align: center; width:6%" 
 					styleClass="#{alunoController.estaEmUmaTurma(professorTab.id)?'':'marcarLinha'}">
 						<f:facet name="header">
 							<h:outputText value="Remover" />

@@ -82,6 +82,16 @@
 						<h:outputText value="#{alunoTab.valor}" />
 					</p:column>
 
+					
+					<p:column style="width:10%">
+						<f:facet name="header">
+							<h:outputText value="Remover" />
+						</f:facet>
+						<p:commandButton update="tbl" icon="ui-icon-trash"
+							action="#{secretariaController.remover(alunoTab.id)}">
+
+						</p:commandButton>
+					</p:column>
 
 				</p:dataTable>
 

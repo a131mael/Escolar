@@ -52,6 +52,18 @@ public class ConfiguracaoService extends Service {
 		return findAll().get(0);
 	}
 	
+	public long getSequencialArquivo(){
+		return getConfiguracao().getSequencialArquivoCNAB();
+	}
+	
+	public void incrementaSequencialArquivoCNAB(){
+		long sequecial = getSequencialArquivo();
+		sequecial++;
+		Configuracao conf = getConfiguracao();
+		conf.setSequencialArquivoCNAB(sequecial);
+		save(conf);
+	}
+	
 	public List<Configuracao> findAll() {
 		try{
 			CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -85,6 +97,7 @@ public class ConfiguracaoService extends Service {
 			}
 			
 			user.setAnoLetivo(configuracao.getAnoLetivo());
+			user.setSequencialArquivoCNAB(configuracao.getSequencialArquivoCNAB());
 			
 			em.persist(user);
 			

@@ -53,7 +53,9 @@ public enum EscolaEnum {
 
 	INOVACAO("Inovação"),
 	
-	MARIA_DO_CARMO("Maria do Carmo");
+	MARIA_DO_CARMO("Maria do Carmo"),
+	
+	CETEK("CETEK");
 	
 	private String name;
 	

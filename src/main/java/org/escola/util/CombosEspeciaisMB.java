@@ -83,6 +83,26 @@ public class CombosEspeciaisMB implements Serializable {
 		return items;
 	}
 
+	public ArrayList<SelectItem> getCarrosSelectItem() {
+		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
+		try {
+			 items.add(new SelectItem(null, ""));
+
+			List<Carro> professores = carroServeice.findAll();
+			for (Carro m : professores) {
+				items.add(new SelectItem(m, m.getNome()));
+			}
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return items;
+	}
+
+
+	
 	public ArrayList<SelectItem> getSimNao() {
 		ArrayList<SelectItem> items = new ArrayList<SelectItem>();
 		try {

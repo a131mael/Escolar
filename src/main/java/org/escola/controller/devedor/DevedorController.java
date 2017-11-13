@@ -65,7 +65,7 @@ public class DevedorController implements Serializable {
 				setDevedor((Devedor) obj);
 				Double total = 0D;
 				for(Boleto b : devedor.getBoletos()){
-					total+=b.getValor();
+				//+=b.getValor();
 				}
 				getDevedor().setValorTotal(total);
 			} else {
@@ -86,9 +86,9 @@ public class DevedorController implements Serializable {
 			ultimo = devedor.getBoletos().get(devedor.getBoletos().size()-1);
 		}
 		Boleto boleto = new Boleto();
-		boleto.setNumeroContrato(ultimo.getNumeroContrato());
+		/*boleto.setNumeroContrato(ultimo.getNumeroContrato());
 		boleto.setDataGeracao(ultimo.getDataGeracao());
-		boleto.setValor(ultimo.getValor());
+		boleto.setValor(ultimo.getValor());*/
 		devedor.getBoletos().add(boleto);
 	}
 	
@@ -182,9 +182,9 @@ public class DevedorController implements Serializable {
 		if(devedor  != null){
 			if(devedor.getBoletos() != null && !devedor.getBoletos().isEmpty()){
 				for(Boleto b : devedor.getBoletos()){
-					if(b.getValor() != null){
+					/*if(b.getValor() != null){
 						total += b.getValor();
-					}
+					}*/
 				}	
 			}	
 		}

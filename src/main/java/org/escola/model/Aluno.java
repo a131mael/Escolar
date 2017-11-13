@@ -17,6 +17,7 @@
 package org.escola.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +48,51 @@ public class Aluno implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
+    
+    @OneToMany
+    private List<Boleto> boletos;
+    
+    @Column
+    private String nomeMaeResponsavel;
+    
+    @Column
+    private String contatoEmail1;
+    
+    @Column
+    private String contatoEmail2;
+    
+    @Column
+    private String contatoTelefone1;
+    
+    @Column
+    private String contatoNome1;
+    
+    @Column
+    private String contatoTelefone2;
+    
+    @Column
+    private String contatoNome2;
+    
+    @Column
+    private String contatoTelefone3;
+    
+    @Column
+    private String contatoNome3;
+    
+    @Column
+    private String contatoTelefone4;
+    
+    @Column
+    private String contatoNome4;
+    
+    @Column
+    private String contatoTelefone5;
+    
+    @Column
+    private String contatoNome5;
+    
+    @Column
+    private String nomePaiResponsavel;
     
     @Column
     private int anoLetivo;
@@ -769,6 +815,142 @@ public class Aluno implements Serializable {
 
 	public void setIrmao4(Aluno irmao4) {
 		this.irmao4 = irmao4;
+	}
+
+	public String getNomeMaeResponsavel() {
+		return nomeMaeResponsavel;
+	}
+
+	public void setNomeMaeResponsavel(String nomeMaeResponsavel) {
+		this.nomeMaeResponsavel = nomeMaeResponsavel;
+	}
+
+	public String getNomePaiResponsavel() {
+		return nomePaiResponsavel;
+	}
+
+	public void setNomePaiResponsavel(String nomePaiResponsavel) {
+		this.nomePaiResponsavel = nomePaiResponsavel;
+	}
+
+	public String getContatoNome5() {
+		return contatoNome5;
+	}
+
+	public void setContatoNome5(String contatoNome5) {
+		this.contatoNome5 = contatoNome5;
+	}
+
+	public String getContatoTelefone5() {
+		return contatoTelefone5;
+	}
+
+	public void setContatoTelefone5(String contatoTelefone5) {
+		this.contatoTelefone5 = contatoTelefone5;
+	}
+
+	public String getContatoNome4() {
+		return contatoNome4;
+	}
+
+	public void setContatoNome4(String contatoNome4) {
+		this.contatoNome4 = contatoNome4;
+	}
+
+	public String getContatoTelefone4() {
+		return contatoTelefone4;
+	}
+
+	public void setContatoTelefone4(String contatoTelefone4) {
+		this.contatoTelefone4 = contatoTelefone4;
+	}
+
+	public String getContatoNome3() {
+		return contatoNome3;
+	}
+
+	public void setContatoNome3(String contatoNome3) {
+		this.contatoNome3 = contatoNome3;
+	}
+
+	public String getContatoTelefone3() {
+		return contatoTelefone3;
+	}
+
+	public void setContatoTelefone3(String contatoTelefone3) {
+		this.contatoTelefone3 = contatoTelefone3;
+	}
+
+	public String getContatoNome2() {
+		return contatoNome2;
+	}
+
+	public void setContatoNome2(String contatoNome2) {
+		this.contatoNome2 = contatoNome2;
+	}
+
+	public String getContatoTelefone2() {
+		return contatoTelefone2;
+	}
+
+	public void setContatoTelefone2(String contatoTelefone2) {
+		this.contatoTelefone2 = contatoTelefone2;
+	}
+
+	public String getContatoNome1() {
+		return contatoNome1;
+	}
+
+	public void setContatoNome1(String contatoNome1) {
+		this.contatoNome1 = contatoNome1;
+	}
+
+	public String getContatoTelefone1() {
+		return contatoTelefone1;
+	}
+
+	public void setContatoTelefone1(String contatoTelefone1) {
+		this.contatoTelefone1 = contatoTelefone1;
+	}
+
+	public String getContatoEmail2() {
+		return contatoEmail2;
+	}
+
+	public void setContatoEmail2(String contatoEmail2) {
+		this.contatoEmail2 = contatoEmail2;
+	}
+
+	public String getContatoEmail1() {
+		return contatoEmail1;
+	}
+
+	public void setContatoEmail1(String contatoEmail1) {
+		this.contatoEmail1 = contatoEmail1;
+	}
+
+	public List<Boleto> getBoletos() {
+		return boletos;
+	}
+	
+	public List<org.aaf.financeiro.model.Boleto> getBoletosFinanceiro() {
+		List<org.aaf.financeiro.model.Boleto> boletosFinanceiro = new ArrayList<>();
+		if(boletos!= null){
+			for(Boleto boleto : boletos){
+				org.aaf.financeiro.model.Boleto boletoFinanceiro = new org.aaf.financeiro.model.Boleto();
+				boletoFinanceiro.setEmissao(boleto.getEmissao());
+				boletoFinanceiro.setId(boleto.getId());
+				boletoFinanceiro.setValorNominal(boleto.getValorNominal());
+				boletoFinanceiro.setVencimento(boleto.getVencimento());
+				boletoFinanceiro.setNossoNumero(boleto.getNossoNumero());
+				boletosFinanceiro.add(boletoFinanceiro);
+			}
+		}
+		return boletosFinanceiro;
+	}
+
+	public void setBoletos(List<Boleto> boletos) {
+		this.boletos = boletos;
 	}
 	
 }
