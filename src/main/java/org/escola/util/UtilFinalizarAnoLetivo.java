@@ -27,12 +27,6 @@ public class UtilFinalizarAnoLetivo {
 	@PersistenceContext(unitName = "EscolarDS")
 	private EntityManager em;
 	
-	public static void main(String[] args) {
-		UtilFinalizarAnoLetivo finalizarAnoLetivo = new UtilFinalizarAnoLetivo();
-		finalizarAnoLetivo.mudaDataDosEventosParaAnoLetivoAtual();
-	}
-	
-	
 	public void mudaDataDosEventosParaAnoLetivoAtual(){
 		List<Evento> todosEventos = eventoService.findAll();
 		for(Evento evento : todosEventos){

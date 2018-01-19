@@ -29,12 +29,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.aaf.financeiro.util.OfficeUtil;
 import org.escola.enums.EscolaEnum;
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
@@ -54,6 +56,9 @@ public class Aluno implements Serializable {
     
     @Column
     private String nomeMaeResponsavel;
+    
+    @Column
+	private Boolean vencimentoUltimoDia;
     
     @Column
     private String contatoEmail1;
@@ -109,9 +114,15 @@ public class Aluno implements Serializable {
     @ManyToOne
     private Aluno irmao4;
     
+    @Column
+    private Boolean cnabEnviado;
     
     @Column
     private Boolean removido;
+
+    
+    @Column
+    private Boolean rematricular;
 
     /**DADOS DO ALUNO*/
     @NotNull
@@ -178,6 +189,9 @@ public class Aluno implements Serializable {
     
     @Column
     private Date dataMatricula;
+    
+    @Column
+	private Date dataCancelamento;
 
     @Column
     private Date dataNascimento;
@@ -187,20 +201,46 @@ public class Aluno implements Serializable {
     
     @Column
     private boolean trocaIDA;
+    
+    @Column
+    private Boolean trocaIDA2;
+    
+    @Column
+    private Boolean trocaIDA3;
+    
     @Column
     private boolean trocaVolta;
+    
+    @Column
+    private Boolean trocaVolta2;
+    
+    @Column
+    private Boolean trocaVolta3;
     
     @ManyToOne
     private Carro carroLevaParaEscola;
     
     @ManyToOne
     private Carro carroLevaParaEscolaTroca;
+
+    @ManyToOne
+    private Carro carroLevaParaEscolaTroca2;
+
+    @ManyToOne
+    private Carro carroLevaParaEscolaTroca3;
+
     
     @ManyToOne
     private Carro carroPegaEscola;
     
     @ManyToOne
     private Carro carroPegaEscolaTroca;
+    
+    @ManyToOne
+    private Carro carroPegaEscolaTroca2;
+    
+    @ManyToOne
+    private Carro carroPegaEscolaTroca3;
     
     @Column
     private int idaVolta;
@@ -291,6 +331,22 @@ public class Aluno implements Serializable {
 
     @Column
     private String observacaoMotorista;
+    
+
+	//DADOS PARA O FINANCEIRO
+	 
+    @Column
+    private Boolean enviadoParaCobrancaCDL;
+    
+    @Column
+    private Boolean enviadoSPC;
+    
+    @Column
+    private Boolean contratoTerminado;
+
+    @Transient
+    private Double valorTotalDevido;
+	
     
 	public Long getId() {
 		return id;
@@ -568,6 +624,10 @@ public class Aluno implements Serializable {
 
 	public double getValorMensal() {
 		return valorMensal;
+	}
+	
+	public double getValorMensalComDesconto() {
+		return valorMensal-20;
 	}
 
 	public void setValorMensal(double valorMensal) {
@@ -942,7 +1002,9 @@ public class Aluno implements Serializable {
 				boletoFinanceiro.setId(boleto.getId());
 				boletoFinanceiro.setValorNominal(boleto.getValorNominal());
 				boletoFinanceiro.setVencimento(boleto.getVencimento());
-				boletoFinanceiro.setNossoNumero(boleto.getNossoNumero());
+				boletoFinanceiro.setNossoNumero(String.valueOf(boleto.getNossoNumero()));
+				boletoFinanceiro.setDataPagamento(OfficeUtil.retornaDataSomenteNumeros(boleto.getDataPagamento()));
+				boletoFinanceiro.setValorPago(boleto.getValorPago());
 				boletosFinanceiro.add(boletoFinanceiro);
 			}
 		}
@@ -951,6 +1013,134 @@ public class Aluno implements Serializable {
 
 	public void setBoletos(List<Boleto> boletos) {
 		this.boletos = boletos;
+	}
+
+	public Boolean isTrocaIDA2() {
+		return trocaIDA2;
+	}
+
+	public void setTrocaIDA2(Boolean trocaIDA2) {
+		this.trocaIDA2 = trocaIDA2;
+	}
+
+	public Boolean isTrocaIDA3() {
+		return trocaIDA3;
+	}
+
+	public void setTrocaIDA3(Boolean trocaIDA3) {
+		this.trocaIDA3 = trocaIDA3;
+	}
+
+	public Boolean isTrocaVolta3() {
+		return trocaVolta3;
+	}
+
+	public void setTrocaVolta3(Boolean trocaVolta3) {
+		this.trocaVolta3 = trocaVolta3;
+	}
+
+	public Boolean isTrocaVolta2() {
+		return trocaVolta2;
+	}
+
+	public void setTrocaVolta2(Boolean trocaVolta2) {
+		this.trocaVolta2 = trocaVolta2;
+	}
+
+	public Carro getCarroLevaParaEscolaTroca2() {
+		return carroLevaParaEscolaTroca2;
+	}
+
+	public void setCarroLevaParaEscolaTroca2(Carro carroLevaParaEscolaTroca2) {
+		this.carroLevaParaEscolaTroca2 = carroLevaParaEscolaTroca2;
+	}
+
+	public Carro getCarroLevaParaEscolaTroca3() {
+		return carroLevaParaEscolaTroca3;
+	}
+
+	public void setCarroLevaParaEscolaTroca3(Carro carroLevaParaEscolaTroca3) {
+		this.carroLevaParaEscolaTroca3 = carroLevaParaEscolaTroca3;
+	}
+
+	public Carro getCarroPegaEscolaTroca2() {
+		return carroPegaEscolaTroca2;
+	}
+
+	public void setCarroPegaEscolaTroca2(Carro carroPegaEscolaTroca2) {
+		this.carroPegaEscolaTroca2 = carroPegaEscolaTroca2;
+	}
+
+	public Carro getCarroPegaEscolaTroca3() {
+		return carroPegaEscolaTroca3;
+	}
+
+	public void setCarroPegaEscolaTroca3(Carro carroPegaEscolaTroca3) {
+		this.carroPegaEscolaTroca3 = carroPegaEscolaTroca3;
+	}
+
+	public Boolean getRematricular() {
+		return rematricular;
+	}
+
+	public void setRematricular(Boolean rematricular) {
+		this.rematricular = rematricular;
+	}
+
+	public Boolean getEnviadoParaCobrancaCDL() {
+		return enviadoParaCobrancaCDL;
+	}
+
+	public void setEnviadoParaCobrancaCDL(Boolean enviadoParaCobrancaCDL) {
+		this.enviadoParaCobrancaCDL = enviadoParaCobrancaCDL;
+	}
+
+	public Boolean getEnviadoSPC() {
+		return enviadoSPC;
+	}
+
+	public void setEnviadoSPC(Boolean enviadoSPC) {
+		this.enviadoSPC = enviadoSPC;
+	}
+
+	public Boolean getContratoTerminado() {
+		return contratoTerminado;
+	}
+
+	public void setContratoTerminado(Boolean contratoTerminado) {
+		this.contratoTerminado = contratoTerminado;
+	}
+
+	public Double getValorTotalDevido() {
+		return valorTotalDevido;
+	}
+
+	public void setValorTotalDevido(Double valorTotalDevido) {
+		this.valorTotalDevido = valorTotalDevido;
+	}
+
+	public Boolean getCnabEnviado() {
+		return cnabEnviado;
+	}
+
+	public void setCnabEnviado(Boolean cnabEnviado) {
+		this.cnabEnviado = cnabEnviado;
+	}
+
+	public Date getDataCancelamento() {
+		return dataCancelamento;
+	}
+
+	public void setDataCancelamento(Date dataCancelamento) {
+		this.dataCancelamento = dataCancelamento;
+	}
+
+	public Boolean getVencimentoUltimoDia() {
+		return vencimentoUltimoDia;
+	}
+
+	public void setVencimentoUltimoDia(Boolean vencimentoUltimoDia) {
+		this.vencimentoUltimoDia = vencimentoUltimoDia;
 	}
 	
 }

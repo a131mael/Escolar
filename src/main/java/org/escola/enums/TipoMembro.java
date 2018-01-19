@@ -10,7 +10,11 @@ public enum TipoMembro {
 	
 	ALUNO("Aluno"),
 	
-	MONITOR("Monitor");
+	MONITOR("Monitor"),
+	
+	MESTRE("Mestre"),
+	
+	FINANCEIRO("Financeiro");
 	
 	private String tipo;
 	

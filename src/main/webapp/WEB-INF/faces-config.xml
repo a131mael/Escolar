@@ -33,7 +33,20 @@
   <navigation-case>
    <from-outcome>Administrador</from-outcome>
    <to-view-id>/page/secretaria/index.xhtml</to-view-id>
+   <redirect/>
   </navigation-case>
+  <navigation-case>
+   <from-outcome>Mestre</from-outcome>
+   <to-view-id>/page/secretaria/index.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+  
+  <navigation-case>
+   <from-outcome>Financeiro</from-outcome>
+   <to-view-id>/page/secretaria/index.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+  
  </navigation-rule>
  <navigation-rule>
   <from-view-id>/page/aluno/index.xhtml</from-view-id>
@@ -43,6 +56,17 @@
    <redirect/>
   </navigation-case>
  </navigation-rule>
+ 
+  <navigation-rule>
+	  <from-view-id>/page/aluno/indexFinanceiro.xhtml</from-view-id>
+	  <navigation-case>
+	   <from-outcome>cadastrar</from-outcome>
+	   <to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
+	   <redirect/>
+	  </navigation-case>
+ </navigation-rule>
+ 
+ 
  <navigation-rule>
   <from-view-id>/page/aluno/cadastrarAluno.xhtml</from-view-id>
   <navigation-case>
@@ -50,11 +74,20 @@
    <to-view-id>/page/aluno/exibirAluno.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
+  
   <navigation-case>
    <from-outcome>index</from-outcome>
    <to-view-id>/page/aluno/index.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
+  
+  <navigation-case>
+   <from-outcome>indexFinanceiro</from-outcome>
+   <to-view-id>/page/aluno/indexFinanceiro.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
+  
+  
  </navigation-rule>
  <navigation-rule>
   <from-view-id>/page/secretaria/index.xhtml</from-view-id>
@@ -198,6 +231,13 @@
   <navigation-case>
    <from-outcome>index</from-outcome>
    <to-view-id>/page/devedores/index.xhtml</to-view-id>
+  </navigation-case>
+ </navigation-rule>
+ <navigation-rule>
+  <from-view-id>/page/aluno/canceladas.xhtml</from-view-id>
+  <navigation-case>
+   <from-outcome>cadastrar</from-outcome>
+   <to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
   </navigation-case>
  </navigation-rule>
  <application/>

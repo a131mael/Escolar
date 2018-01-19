@@ -82,7 +82,6 @@ public class FaturamentoService extends Service {
 			em.persist(faturamento);
 		}
 		
-		
 	}
 
 	@SuppressWarnings("unchecked")

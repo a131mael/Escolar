@@ -96,23 +96,23 @@
 							            Boletos
 							        </f:facet>
 								<p:column headerText="Numero">
-									<p:inputText value="#{boleto.numero}">
+									<p:inputText value="#{boleto.nossoNumero}">
 										<p:ajax event="change" process="@this" />
 									</p:inputText>
 								</p:column>
 								<p:column headerText="Data Geração">
-									<p:calendar value="#{boleto.dataGeracao}" pattern="dd/MM/yyyy"
+									<p:calendar value="#{boleto.emissao}" pattern="dd/MM/yyyy"
 										mask="true" style="font-size: 15px; ">
 										<p:ajax event="change" process="@this" />
 									</p:calendar>
 								</p:column>
 								<p:column headerText="Numero Contrato">
-									<p:inputText value="#{boleto.numeroContrato}">
+									<p:inputText value="#{devedor.numeroContrato}">
 										<p:ajax event="change" process="@this" />
 									</p:inputText>
 								</p:column>
 								<p:column headerText="Valor">
-									<p:inputText value="#{boleto.valor}"
+									<p:inputText value="#{boleto.valorNominal}"
 										onkeydown="mascara(this,moeda)">
 										<p:ajax event="change" process="@this" />
 										

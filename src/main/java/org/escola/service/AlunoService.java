@@ -60,19 +60,19 @@ public class AlunoService extends Service {
 
 	public Aluno findById(Long id) {
 		Aluno al = em.find(Aluno.class, id);
-		if(al.getIrmao1() != null){
+		if (al.getIrmao1() != null) {
 			al.getIrmao1().getAnoLetivo();
 		}
-		
-		if(al.getIrmao2() != null){
+
+		if (al.getIrmao2() != null) {
 			al.getIrmao2().getAnoLetivo();
 		}
-		
-		if(al.getIrmao3() != null){
+
+		if (al.getIrmao3() != null) {
 			al.getIrmao3().getAnoLetivo();
 		}
-		
-		if(al.getIrmao4() != null){
+
+		if (al.getIrmao4() != null) {
 			al.getIrmao4().getAnoLetivo();
 		}
 		al.getBoletos().size();
@@ -284,8 +284,8 @@ public class AlunoService extends Service {
 	public Aluno save(Aluno aluno) {
 		return saveAluno(aluno, true);
 	}
-	
-	public void clone (Aluno aluno, Aluno user){
+
+	public void clone(Aluno aluno, Aluno user) {
 		// user.setAdministrarParacetamol(aluno.isAdministrarParacetamol());
 		user.setValorMensal(aluno.getValorMensal());
 		user.setDataMatricula(aluno.getDataMatricula());
@@ -322,12 +322,29 @@ public class AlunoService extends Service {
 		user.setSenha(aluno.getSenha());
 		user.setTelefone(aluno.getTelefone());
 		user.setEscola(aluno.getEscola());
+
+		user.setNomePaiResponsavel(aluno.getNomePaiResponsavel());
+		user.setNomeMaeResponsavel(aluno.getNomeMaeResponsavel());
+		user.setAnuidade(aluno.getAnuidade());
+		user.setBairro(aluno.getBairro());
+		user.setCep(aluno.getCep());
+		user.setCidade(aluno.getCidade());
+		user.setCpfMae(aluno.getCpfMae());
+		user.setCpfPai(aluno.getCpfPai());
+		user.setEndereco(aluno.getEndereco());
+		user.setRgResponsavel(aluno.getRgResponsavel());
+
 		if (aluno.getRemovido() == null) {
 			user.setRemovido(false);
 		} else {
 			user.setRemovido(aluno.getRemovido());
 		}
 
+	}
+
+	public String removeCaracteresEspeciais(String texto){
+		texto = texto.replaceAll("[^aA-zZ-Z1-9 ]", "");
+		return texto;
 	}
 
 	private Aluno saveAluno(Aluno aluno, boolean saveBrother) {
@@ -347,7 +364,9 @@ public class AlunoService extends Service {
 			user.setNomeAluno(aluno.getNomeAluno().toUpperCase());
 			user.setPeriodo(aluno.getPeriodo());
 			user.setSerie(aluno.getSerie());
-			user.setEndereco(aluno.getEndereco());
+			if (aluno.getEndereco() != null) {
+				user.setEndereco(removeCaracteresEspeciais(aluno.getEndereco()));
+			}
 			user.setBairro(aluno.getBairro());
 			user.setCep(aluno.getCep());
 			user.setCidade(aluno.getCidade());
@@ -366,7 +385,9 @@ public class AlunoService extends Service {
 			user.setCidade(aluno.getCidade());
 			user.setCpfMae(aluno.getCpfMae());
 			user.setCpfPai(aluno.getCpfPai());
-			user.setCpfResponsavel(aluno.getCpfResponsavel());
+			if(aluno.getCpfResponsavel() != null){
+				user.setCpfResponsavel(aluno.getCpfResponsavel().replace(".", "").replace("-", ""));
+			}
 			user.setRgResponsavel(aluno.getRgResponsavel());
 			user.setDataMatricula(aluno.getDataMatricula());
 			user.setEmailMae(aluno.getEmailMae());
@@ -380,28 +401,33 @@ public class AlunoService extends Service {
 			user.setNomeAvoHPaternoPai(aluno.getNomeAvoHPaternoPai());
 			user.setNomeAvoPaternoMae(aluno.getNomeAvoPaternoMae());
 			user.setNomeAvoPaternoPai(aluno.getNomeAvoPaternoPai());
-			if(aluno.getNomeMaeAluno() != null){
+			if (aluno.getNomeMaeAluno() != null) {
 				user.setNomeMaeAluno(aluno.getNomeMaeAluno().toUpperCase());
 			}
-			if(aluno.getNomePaiAluno() != null){
+			if (aluno.getNomePaiAluno() != null) {
 				user.setNomePaiAluno(aluno.getNomePaiAluno().toUpperCase());
 			}
-			if(aluno.getNomeResponsavel() != null){
+			if (aluno.getNomeResponsavel() != null) {
 				user.setNomeResponsavel(aluno.getNomeResponsavel().toUpperCase());
 			}
 			user.setNumeroParcelas(aluno.getNumeroParcelas());
 			user.setObservacaoSecretaria(aluno.getObservacaoSecretaria());
+			// if(saveBrother){
 			user.setValorMensal(aluno.getValorMensal());
+
+			// }else{
+			// user.setValorMensal(0);
+			// }
 			user.setTelefoneResidencialPai(aluno.getTelefoneResidencialPai());
 			user.setRgMae(aluno.getRgMae());
 			user.setRgPai(aluno.getRgPai());
 			user.setSenha(aluno.getSenha());
 			user.setTelefone(aluno.getTelefone());
 			user.setEscola(aluno.getEscola());
-			if(aluno.getNomePaiResponsavel() != null){
+			if (aluno.getNomePaiResponsavel() != null) {
 				user.setNomePaiResponsavel(aluno.getNomePaiResponsavel().toUpperCase());
 			}
-			if(aluno.getNomeMaeResponsavel() != null){
+			if (aluno.getNomeMaeResponsavel() != null) {
 				user.setNomeMaeResponsavel(aluno.getNomeMaeResponsavel().toUpperCase());
 			}
 			user.setContatoEmail1(aluno.getContatoEmail1());
@@ -411,12 +437,15 @@ public class AlunoService extends Service {
 			user.setContatoNome3(aluno.getContatoNome3());
 			user.setContatoNome4(aluno.getContatoNome4());
 			user.setContatoNome5(aluno.getContatoNome5());
-			
+
 			user.setContatoTelefone1(aluno.getContatoTelefone1());
 			user.setContatoTelefone2(aluno.getContatoTelefone2());
 			user.setContatoTelefone3(aluno.getContatoTelefone3());
 			user.setContatoTelefone4(aluno.getContatoTelefone4());
 			user.setContatoTelefone5(aluno.getContatoTelefone5());
+
+			user.setDataCancelamento(aluno.getDataCancelamento());
+			user.setCnabEnviado(aluno.getCnabEnviado());
 			
 			if (aluno.getRemovido() == null) {
 				user.setRemovido(false);
@@ -468,8 +497,8 @@ public class AlunoService extends Service {
 		}
 
 		List<Boleto> boletos = null;
-		if(saveBrother){
-			salvarIrmaos(user,aluno);
+		if (saveBrother) {
+			salvarIrmaos(user, aluno);
 			if (aluno.getId() == null || aluno.getId() == 0L) {
 				boletos = gerarBoletos(user);
 			}
@@ -477,7 +506,7 @@ public class AlunoService extends Service {
 		if (aluno.getId() == null || aluno.getId() == 0L) {
 			user.setBoletos(boletos);
 		}
-		
+
 		return user;
 
 	}
@@ -486,15 +515,15 @@ public class AlunoService extends Service {
 		List<Boleto> boletos = new ArrayList<>();
 		int i = 12 - user.getNumeroParcelas();
 		long nossoNumero = getProximoNossoNumero();
-		while(i<12){
-			Boleto boleto = new Boleto();	
+		while (i < 12) {
+			Boleto boleto = new Boleto();
 			Calendar vencimento = Calendar.getInstance();
 			vencimento.set(Calendar.DAY_OF_MONTH, 10);
 			vencimento.set(Calendar.MONTH, i);
 			vencimento.set(Calendar.YEAR, Constant.anoLetivoAtual);
 			vencimento.set(Calendar.HOUR, 0);
-			vencimento.set(Calendar.MINUTE,0);
-			vencimento.set(Calendar.SECOND,0);
+			vencimento.set(Calendar.MINUTE, 0);
+			vencimento.set(Calendar.SECOND, 0);
 			boleto.setVencimento(vencimento.getTime());
 			boleto.setEmissao(new Date());
 			boleto.setValorNominal(user.getValorMensal());
@@ -503,23 +532,79 @@ public class AlunoService extends Service {
 			em.persist(boleto);
 			nossoNumero++;
 			boletos.add(boleto);
-			
+
 			i++;
 		}
 		return boletos;
 	}
-	
-	
 
-	public List<Boleto> gerarBoletos(Aluno user,boolean setUser) {
+	public void gerarBoletos() {
+		List<Aluno> alunos = findAll();
+		for (Aluno al : alunos) {
+			if (al.getRemovido() != null && !al.getRemovido()) {
+				if (al.getBoletos() == null || al.getBoletos().size() == 0) {
+					if((al.getAnoLetivo() == Constant.anoLetivoAtual) || (al.getRematricular() != null && al.getRematricular()) ){
+						if (!irmaoJaTemBoleto(al)) {
+							List<Boleto> boletos = gerarBoletos(al);
+							al.setBoletos(boletos);
+							em.persist(al);
+						}	
+					}
+					
+				} else if (al.getBoletos() != null && al.getBoletos().size() > 0) {
+					List<Boleto> boletos = al.getBoletos();
+					for (Boleto b : boletos) {
+						if(b.getAlteracaoBoletoManual() == null || !b.getAlteracaoBoletoManual()){
+							b.setValorNominal(al.getValorMensal());
+						}
+						em.merge(b);
+					}
+				}
+			}
+		}
+	}
+
+	private boolean irmaoJaTemBoleto(Aluno aluno) {
+		Aluno irmao1 = aluno.getIrmao1();
+		Aluno irmao2 = aluno.getIrmao2();
+		Aluno irmao3 = aluno.getIrmao3();
+		Aluno irmao4 = aluno.getIrmao4();
+
+		if (irmao1 != null) {
+			if (irmao1.getBoletos() != null && irmao1.getBoletos().size() > 0) {
+				return true;
+			}
+		}
+
+		if (irmao2 != null) {
+			if (irmao2.getBoletos() != null && irmao2.getBoletos().size() > 0) {
+				return true;
+			}
+		}
+
+		if (irmao3 != null) {
+			if (irmao3.getBoletos() != null && irmao3.getBoletos().size() > 0) {
+				return true;
+			}
+		}
+
+		if (irmao4 != null) {
+			if (irmao4.getBoletos() != null && irmao4.getBoletos().size() > 0) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public List<Boleto> gerarBoletos(Aluno user, boolean setUser) {
 		user = findById(user.getId());
-		List<Boleto> boletos =gerarBoletos(user); 
+		List<Boleto> boletos = gerarBoletos(user);
 		user.setBoletos(boletos);
 		em.persist(user);
 		return boletos;
 	}
 
-	
 	private void salvarIrmaos(Aluno aluno, Aluno unMerge) {
 		Aluno irmao1 = unMerge.getIrmao1();
 		boolean tem1Irmao = irmao1 != null ? true : false;
@@ -531,14 +616,14 @@ public class AlunoService extends Service {
 		boolean tem4Irmao = irmao4 != null ? true : false;
 
 		if (tem1Irmao) {
-			clone(aluno,irmao1);
+			clone(aluno, irmao1);
 			irmao1 = saveAluno(irmao1, false);
-			
+
 			aluno.setIrmao1(irmao1);
 			irmao1.setIrmao1(aluno);
 
 			if (tem2Irmao) {
-				clone(aluno,irmao2);
+				clone(aluno, irmao2);
 				irmao2 = saveAluno(irmao2, false);
 				aluno.setIrmao2(irmao2);
 				irmao1.setIrmao1(aluno);
@@ -547,7 +632,7 @@ public class AlunoService extends Service {
 				irmao2.setIrmao2(irmao1);
 			}
 			if (tem3Irmao) {
-				clone(aluno,irmao3);
+				clone(aluno, irmao3);
 				irmao3 = saveAluno(irmao3, false);
 				aluno.setIrmao3(irmao3);
 				irmao3.setIrmao1(aluno);
@@ -562,7 +647,7 @@ public class AlunoService extends Service {
 				irmao2.setIrmao3(irmao3);
 			}
 			if (tem4Irmao) {
-				clone(aluno,irmao4);
+				clone(aluno, irmao4);
 				irmao4 = saveAluno(irmao4, false);
 				aluno.setIrmao4(irmao4);
 				irmao4.setIrmao1(aluno);
@@ -587,13 +672,13 @@ public class AlunoService extends Service {
 		}
 
 		if (tem2Irmao) {
-			clone(aluno,irmao2);
+			clone(aluno, irmao2);
 			irmao2 = saveAluno(irmao2, false);
 			aluno.setIrmao2(irmao2);
 			irmao2.setIrmao1(aluno);
 
 			if (tem3Irmao) {
-				clone(aluno,irmao3);
+				clone(aluno, irmao3);
 				irmao3 = saveAluno(irmao3, false);
 				aluno.setIrmao3(irmao3);
 				irmao3.setIrmao1(aluno);
@@ -603,7 +688,7 @@ public class AlunoService extends Service {
 				irmao2.setIrmao3(irmao3);
 			}
 			if (tem4Irmao) {
-				clone(aluno,irmao4);
+				clone(aluno, irmao4);
 				irmao4 = saveAluno(irmao4, false);
 				aluno.setIrmao4(irmao4);
 				irmao4.setIrmao1(aluno);
@@ -621,13 +706,13 @@ public class AlunoService extends Service {
 
 		}
 		if (tem3Irmao) {
-			clone(aluno,irmao3);
+			clone(aluno, irmao3);
 			irmao3 = saveAluno(irmao3, false);
 			aluno.setIrmao3(irmao3);
 			irmao3.setIrmao1(aluno);
 
 			if (tem4Irmao) {
-				clone(aluno,irmao4);
+				clone(aluno, irmao4);
 				irmao4 = saveAluno(irmao4, false);
 				aluno.setIrmao4(irmao4);
 				irmao4.setIrmao1(aluno);
@@ -638,7 +723,7 @@ public class AlunoService extends Service {
 		}
 
 		if (tem4Irmao) {
-			clone(aluno,irmao4);
+			clone(aluno, irmao4);
 			irmao4 = saveAluno(irmao4, false);
 			aluno.setIrmao4(irmao4);
 			irmao4.setIrmao1(aluno);
@@ -648,6 +733,7 @@ public class AlunoService extends Service {
 	public String remover(Long idAluno) {
 		Aluno al = findById(idAluno);
 		al.setRemovido(true);
+		al.setDataCancelamento(new Date());
 		em.persist(al);
 		return "ok";
 	}
@@ -874,7 +960,7 @@ public class AlunoService extends Service {
 			CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
 			Root<Aluno> member = countQuery.from(Aluno.class);
 			countQuery.select(cb.count(member));
-			
+
 			final List<Predicate> predicates = new ArrayList<Predicate>();
 			if (filtros != null) {
 				for (Map.Entry<String, Object> entry : filtros.entrySet()) {
@@ -886,7 +972,7 @@ public class AlunoService extends Service {
 						pred = cb.equal(member.get(entry.getKey()), entry.getValue());
 					}
 					predicates.add(pred);
-					
+
 				}
 				countQuery.where(cb.and(predicates.toArray(new Predicate[predicates.size()])));
 			}
@@ -901,6 +987,32 @@ public class AlunoService extends Service {
 			return 0;
 		}
 	}
+
+	/*
+	 * public long sum(Map<String, Object> filtros) { try { CriteriaBuilder cb =
+	 * em.getCriteriaBuilder(); CriteriaQuery<Double> countQuery =
+	 * cb.createQuery(Double.class); Root<Aluno> member =
+	 * countQuery.from(Aluno.class);
+	 * countQuery.select(cb.sumAsDouble(member.get("valorMensal")));
+	 * 
+	 * final List<Predicate> predicates = new ArrayList<Predicate>(); if
+	 * (filtros != null) { for (Map.Entry<String, Object> entry :
+	 * filtros.entrySet()) {
+	 * 
+	 * Predicate pred = cb.and(); if (entry.getValue() instanceof String) { pred
+	 * = cb.and(pred, cb.like(member.<String> get(entry.getKey()), "%" +
+	 * entry.getValue() + "%")); } else { pred =
+	 * cb.equal(member.get(entry.getKey()), entry.getValue()); }
+	 * predicates.add(pred);
+	 * 
+	 * } countQuery.where(cb.and(predicates.toArray(new
+	 * Predicate[predicates.size()]))); }
+	 * 
+	 * Query q = em.createQuery(countQuery); return (long) q.getSingleResult();
+	 * 
+	 * } catch (NoResultException nre) { return 0; } catch (Exception e) {
+	 * e.printStackTrace(); return 0; } }
+	 */
 
 	public List<Custo> getHistoricoAluno(Aluno aluno) {
 		try {
@@ -1426,33 +1538,84 @@ public class AlunoService extends Service {
 	public Long getProximoCodigo() {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT max(al.codigo)  from Aluno al ");
-		
+
 		Query query = em.createQuery(sql.toString());
-		String codigo= (String) query.getSingleResult();
-		return Long.parseLong(codigo)+1;
+		String codigo = (String) query.getSingleResult();
+		return Long.parseLong(codigo) + 1;
 	}
 
 	public Long getProximoNossoNumero() {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT max(bol.nossoNumero) from Boleto bol ");
-		
+
 		Query query = em.createQuery(sql.toString());
 		Long codigo = null;
-		try{
-			codigo= (Long) query.getSingleResult();
-			
-		}catch(Exception e){
+		try {
+			codigo = (Long) query.getSingleResult();
+
+		} catch (Exception e) {
 			codigo = 10000L;
 		}
-		if(codigo == null){
+		if (codigo == null) {
 			codigo = 10000L;
 		}
-		if(codigo<10000){
+		if (codigo < 10000) {
 			codigo = 10000L;
 		}
-		
-		return codigo+1;
+
+		return codigo + 1;
 	}
 
+	public List<Aluno> findAluno(String nome, String nomeResponsavel, String cpf, String numeroDocumento) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT distinct(al) from  Boleto bol ");
+		sql.append("left join bol.pagador al ");
+		sql.append("where 1=2 ");
+		if (nome != null && !nome.equalsIgnoreCase("")) {
+			sql.append(" or al.nomeAluno like '%");
+			sql.append(nome);
+			sql.append("%' ");
+		} else {
+
+		}
+		if (nomeResponsavel != null && !nomeResponsavel.equalsIgnoreCase("")) {
+			sql.append(" or al.nomeResponsavel like '%");
+			sql.append(nomeResponsavel);
+			sql.append("%' ");
+		}
+
+		if (cpf != null && !cpf.equalsIgnoreCase("")) {
+			sql.append(" or al.cpfResponsavel like '%");
+			sql.append(cpf);
+			sql.append("%' ");
+		}
+		
+		if (numeroDocumento != null && !numeroDocumento.equalsIgnoreCase("")) {
+			sql.append(" or bol.nossoNumero = ");
+			sql.append(numeroDocumento);
+		}
+
+		Query query = em.createQuery(sql.toString());
+
+		@SuppressWarnings("unchecked")
+		List<Aluno> alunos = query.getResultList();
+		for (Aluno al : alunos) {
+			al.getBoletos().size();
+		}
+
+		return alunos;
+	}
+	
+	public void removerCnabEnviado(Long id) {
+		Aluno aluno = findById(id);
+		aluno.setCnabEnviado(false);
+		em.merge(aluno);
+	}
+
+	public void enviarCnab(Long id) {
+		Aluno aluno = findById(id);
+		aluno.setCnabEnviado(true);
+		em.merge(aluno);
+	}
 
 }

@@ -111,6 +111,20 @@ public class FileUtils {
         out.close();
     }
     
+    public static void escreveBinarioEmDiretorio(byte[] arquivoBinario, String caminhoCompletoArquivo) throws FileNotFoundException, IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(arquivoBinario);
+        FileOutputStream out = new FileOutputStream(caminhoCompletoArquivo);
+        int n;
+        int buffsize = 4096;
+        byte[] buf = new byte[buffsize];
+        while ((n = bais.read(buf, 0, buffsize)) > -1) {
+            out.write(buf, 0, n);
+        }
+        bais.close();
+        out.close();
+    }
+    
+    
     /**
      * retorna array de bytes com conteudo total do caminho de arquivo passado por parametro
      * @param file

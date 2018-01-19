@@ -19,6 +19,7 @@ package org.escola.controller;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -28,7 +29,9 @@ import javax.inject.Named;
 
 import org.escola.enums.PerioddoEnum;
 import org.escola.enums.Serie;
+import org.escola.model.Aluno;
 import org.escola.model.Carro;
+import org.escola.service.AlunoService;
 import org.escola.service.RelatorioService;
 
 @Named
@@ -40,6 +43,9 @@ public class RelatorioController implements Serializable{
 		
 	@Inject
     private RelatorioService relatorioService;
+	
+	@Inject
+    private AlunoService alunoService;
 
 	
 	@PostConstruct
@@ -60,21 +66,102 @@ public class RelatorioController implements Serializable{
 	private PerioddoEnum tarde;
 	private PerioddoEnum integral;
 	
-
-	public long getTotalAlunos(){
-		return relatorioService.count(null);
-	}
-
-	public long getTotalAlunosManha(){
-		Map<String, Object> filtros = new HashMap<>();
-		filtros.put("periodo", PerioddoEnum.MANHA);
-		return relatorioService.count(filtros);
+	public int quantidadeIrmaos(Aluno aluno){
+		int quatidade = 1;
+		if(aluno.getIrmao1()!= null){
+			quatidade ++;
+		}
+		if(aluno.getIrmao2()!= null){
+			quatidade ++;
+		}
+		if(aluno.getIrmao3()!= null){
+			quatidade ++;
+		}
+		
+		return quatidade;
 	}
 	
-	public long getTotalAlunosTarde(){
+	public int quantidadeCarrosIda(Aluno aluno){
+		int carros = 1;
+		if(aluno.getIdaVolta()==2){ //Soh volta
+			return 0;
+		}else{
+			if(aluno.isTrocaIDA()){
+				carros++;
+			}
+			if((aluno.isTrocaIDA2() != null && aluno.isTrocaIDA2())){
+				carros++;
+			}
+			if(aluno.isTrocaIDA3() != null && aluno.isTrocaIDA3()){
+				carros++;
+			}
+			
+		}
+		
+		return carros;
+	}
+	
+	public int quantidadeCarrosVolta(Aluno aluno){
+		int carros = 1;
+		if(aluno.getIdaVolta()==1){ //Soh Vai
+			return 0;
+		}else{
+			if(aluno.isTrocaVolta()){
+				carros++;
+			}
+			if(aluno.isTrocaVolta2() != null && aluno.isTrocaVolta2()){
+				carros++;
+			}
+			if(aluno.isTrocaVolta3() != null && aluno.isTrocaVolta3()){
+				carros++;
+			}
+			
+		}
+		
+		return carros;
+	}
+
+	public boolean leva(Aluno aluno, Carro carro){
+		if (aluno.getCarroLevaParaEscola() != null && aluno.getCarroLevaParaEscola().equals(carro)){
+			return true;
+		}else if(aluno.getCarroLevaParaEscolaTroca() != null &&  aluno.getCarroLevaParaEscolaTroca().equals(carro)){
+			return true;
+		}else if(aluno.getCarroLevaParaEscolaTroca2() != null &&  aluno.getCarroLevaParaEscolaTroca2().equals(carro)){
+			return true;
+		}else if(aluno.getCarroLevaParaEscolaTroca3() != null &&  aluno.getCarroLevaParaEscolaTroca3().equals(carro)){
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean pega(Aluno aluno, Carro carro){
+		if (aluno.getCarroPegaEscola() != null && aluno.getCarroPegaEscola().equals(carro)){
+			return true;
+		}else if(aluno.getCarroPegaEscolaTroca() != null && aluno.getCarroPegaEscolaTroca().equals(carro)){
+			return true;
+		}else if(aluno.getCarroPegaEscolaTroca2() != null && aluno.getCarroPegaEscolaTroca2().equals(carro)){
+			return true;
+		}else if(aluno.getCarroPegaEscolaTroca3() != null && aluno.getCarroPegaEscolaTroca3().equals(carro)){
+			return true;
+		}
+		return false;
+	}
+	
+	public double getTotalAlunos(){
+		Map<String, Object> filtros = new HashMap<>();
+		return relatorioService.countAlunos(filtros);
+	}
+
+	public double getTotalAlunosManha(){
+		Map<String, Object> filtros = new HashMap<>();
+		filtros.put("periodo", PerioddoEnum.MANHA);
+		return relatorioService.countAlunos(filtros);
+	}
+	
+	public double getTotalAlunosTarde(){
 		Map<String, Object> filtros = new HashMap<>();
 		filtros.put("periodo", PerioddoEnum.TARDE);
-		return relatorioService.count(filtros);
+		return relatorioService.countAlunos(filtros);
 	}
 	
 	public long getTotalAlunosIntegral(){
@@ -83,44 +170,83 @@ public class RelatorioController implements Serializable{
 		return relatorioService.count(filtros);
 	}
 
-	public long getTotalAlunos(Serie serie, PerioddoEnum periodo){
+	public double getTotalAlunos(Serie serie, PerioddoEnum periodo){
 		Map<String, Object> filtros = new HashMap<>();
 		filtros.put("serie", getSerie(serie));
 		filtros.put("periodo", getPeriodo(periodo));
-		return relatorioService.count(filtros);
+		return relatorioService.countAlunos(filtros);
 	}
 	
-	public long getTotalAlunos(Carro carro){
-		Map<String, Object> filtros = new HashMap<>();
-		filtros.put("carroLevaParaEscola", carro);
-		filtros.put("carroLevaParaEscolaTroca", carro);
-		filtros.put("carroPegaEscola", carro);
-		filtros.put("carroPegaEscolaTroca", carro);
+	public int getTotalAlunos(Carro carro){
+		int quantidade = 0;
+		List<Aluno> todosAlunos = alunoService.findAll();
+		for(Aluno aluno : todosAlunos){
+			boolean pega = pega(aluno, carro);
+			boolean leva = leva(aluno, carro);
+			
+			if(pega || leva){
+				quantidade++;
+			}
+		}
 		
-		return relatorioService.countCriancasCarro(filtros);
+		return quantidade;
 	}
 	
-	public long getValorTotal(Carro carro){
+	public double getValorTotal(Carro carro){
+		Double valorTotal = 0D;
+		List<Aluno> todosAlunos = alunoService.findAll();
+		for(Aluno aluno : todosAlunos){
+			boolean pega = pega(aluno, carro);
+			boolean leva = leva(aluno, carro);
+			
+			int qdadeIda = quantidadeCarrosIda(aluno);
+			int qdadeVolta = quantidadeCarrosVolta(aluno);
+
+			double valorCrianca = 0;
+			if(pega || leva){
+				if(qdadeVolta==0){ //soh vai
+					if(leva){
+						valorCrianca = aluno.getValorMensalComDesconto()/qdadeIda;
+					}	
+				}else if(qdadeIda==0){ //soh volta
+						if(pega){
+							valorCrianca = aluno.getValorMensalComDesconto()/qdadeVolta;
+						}	
+				}else{ // vai e volta
+					if(pega){
+						valorCrianca = (aluno.getValorMensalComDesconto()/qdadeVolta)/2;
+					}	
+					if(leva){
+						valorCrianca += (aluno.getValorMensalComDesconto()/qdadeIda)/2;
+					}	
+				}
+				int quantidadeIrmaos = quantidadeIrmaos(aluno);
+				if(quantidadeIrmaos>1){
+					valorTotal += (valorCrianca/quantidadeIrmaos);
+					
+				}else{
+					valorTotal += valorCrianca;
+				}
+			}
+			
+		}
+		return valorTotal;
+	}
+	
+	
+	
+	public double getValorTotalMensalidade(Carro carro){
 		Map<String, Object> filtros = new HashMap<>();
 		filtros.put("carroLevaParaEscola", carro);
 		filtros.put("carroLevaParaEscolaTroca", carro);
 		filtros.put("carroPegaEscola", carro);
 		filtros.put("carroPegaEscolaTroca", carro);
-		return relatorioService.getValorTotal(filtros);
+		return relatorioService.getValor(filtros);
 	}
 	
-	public long getValorTotalMensalidade(Carro carro){
+	public double getValorTotalMensalidade(){
 		Map<String, Object> filtros = new HashMap<>();
-		filtros.put("carroLevaParaEscola", carro);
-		filtros.put("carroLevaParaEscolaTroca", carro);
-		filtros.put("carroPegaEscola", carro);
-		filtros.put("carroPegaEscolaTroca", carro);
-		return relatorioService.getValorTotalMensalidade(filtros);
-	}
-	
-	public long getValorTotalMensalidade(){
-		Map<String, Object> filtros = new HashMap<>();
-		return relatorioService.getValorTotalMensalidade(filtros);
+		return relatorioService.getValor(filtros);
 	}
 	
 	//TODO nao pergunte =) converter para o server funcionar

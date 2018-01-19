@@ -16,26 +16,38 @@
  */
 package org.escola.controller.devedor;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.escola.controller.OfficePDFUtil;
 import org.escola.enums.PerioddoEnum;
 import org.escola.model.Aluno;
 import org.escola.model.Boleto;
 import org.escola.model.Devedor;
 import org.escola.service.DevedorService;
+import org.escola.util.FileDownload;
 import org.escola.util.Util;
+import org.escola.util.Verificador;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
+import org.primefaces.model.StreamedContent;
+
+import com.lowagie.text.DocumentException;
 
 @Named
 @ViewScoped
@@ -55,7 +67,8 @@ public class DevedorController implements Serializable {
 	@Inject
 	private DevedorService devedorService;
 
-	private LazyDataModel<Devedor> lazyListDataModel;
+	private LazyDataModel<Aluno> lazyListDataModel;
+	
 	
 	@PostConstruct
 	private void init() {
@@ -80,6 +93,24 @@ public class DevedorController implements Serializable {
 		}
 	}
 	
+	public StreamedContent imprimirDevedores() throws IOException, DocumentException {
+		String nomeArquivo = "devedores.pdf";
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
+		Map<String, Object> filtros = new LinkedHashMap();
+		filtros.put("removido", false);
+		List<Aluno> devedores = devedorService.find(0, 2000, "nomeAluno", "asc", filtros);
+		
+		LinkedHashSet<Aluno> aux = new LinkedHashSet();
+		aux.addAll(devedores);
+		
+		List<Aluno> aux2 = new ArrayList<>();
+		aux2.addAll(aux);
+		OfficePDFUtil.criaPDFDevedores(aux2, caminho);
+		
+		InputStream stream =  new FileInputStream(caminho);
+		return FileDownload.getContentDoc(stream, nomeArquivo);
+	}
+	
 	public void adicionarBoleto(){
 		Boleto ultimo = new Boleto();
 		if(devedor.getBoletos().size()>0){
@@ -93,23 +124,23 @@ public class DevedorController implements Serializable {
 	}
 	
 	
-	public LazyDataModel<Devedor> getLazyDataModel() {
+	public LazyDataModel<Aluno> getLazyDataModel() {
 		if (lazyListDataModel == null) {
 
-			lazyListDataModel = new LazyDataModel<Devedor>() {
+			lazyListDataModel = new LazyDataModel<Aluno>() {
 
 				@Override
-				public Devedor getRowData(String rowKey) {
+				public Aluno getRowData(String rowKey) {
 					return getDevedorService().findById(Long.valueOf(rowKey));
 				}
 
 				@Override
-				public Object getRowKey(Devedor al) {
+				public Long getRowKey(Aluno al) {
 					return al.getId();
 				}
 
 				@Override
-				public List<Devedor> load(int first, int pageSize, String order, SortOrder so,
+				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,
 						Map<String, Object> where) {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
@@ -137,10 +168,10 @@ public class DevedorController implements Serializable {
 					String orderByParam = (order != null) ? order : "id";
 					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
 
-					List<Devedor> ol = getDevedorService().find(first, pageSize, orderByParam, orderParam, filtros);
+					List<Aluno> ol = getDevedorService().find(first, pageSize, orderByParam, orderParam, filtros);
 
 					if (ol != null && ol.size() > 0) {
-						lazyListDataModel.setRowCount((int) getDevedorService().count(filtros));
+						lazyListDataModel.setRowCount(ol.size());
 						return ol;
 					}
 
@@ -166,25 +197,25 @@ public class DevedorController implements Serializable {
 	}
 	
 	public String salvar() {
-		devedorService.save(devedor);
+		//devedorService.save(devedor);
 		Util.removeAtributoSessao("devedor");
 		return "index";
 	}
 
 	public String editar(Long idprof) {
-		devedor = devedorService.findById(idprof);
+		//devedor = devedorService.findById(idprof);
 		Util.addAtributoSessao("devedor", devedor);
 		return "cadastrar";
 	}
 	
-	public Double getTotal(Devedor devedor){
+	public Double getTotal(Aluno devedor){
 		Double total = 0D;
 		if(devedor  != null){
 			if(devedor.getBoletos() != null && !devedor.getBoletos().isEmpty()){
 				for(Boleto b : devedor.getBoletos()){
-					/*if(b.getValor() != null){
-						total += b.getValor();
-					}*/
+					if(b.getAtrasado() != null && b.getAtrasado()){
+						total += Verificador.getValorFinal(b);
+					}
 				}	
 			}	
 		}
@@ -219,10 +250,6 @@ public class DevedorController implements Serializable {
 		}
 	}
 	
-	public boolean estaEmUmaTurma(long idAluno){
-		boolean estaNaTurma =getDevedorService().estaEmUmaTUrma(idAluno);
-		return estaNaTurma;
-	}
 
 	private Float maior(Float float1, Float float2) {
 		return float1 > float2 ? float1 : float2;

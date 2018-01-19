@@ -36,6 +36,7 @@ import org.escola.model.Custo;
 import org.escola.service.CustoService;
 import org.escola.util.Constant;
 import org.escola.util.Util;
+import org.escola.util.UtilFinalizarAnoLetivo;
 import org.primefaces.event.CloseEvent;
 import org.primefaces.event.DashboardReorderEvent;
 import org.primefaces.event.ToggleEvent;
@@ -98,7 +99,7 @@ public class SecretariaController {
 		dashboardModelManha.addColumn(column3);
 
 	}
-
+	
 	public void handleReorder(DashboardReorderEvent event) {
 		FacesMessage message = new FacesMessage();
 		message.setSeverity(FacesMessage.SEVERITY_INFO);

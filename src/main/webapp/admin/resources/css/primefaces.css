@@ -11,6 +11,10 @@ ui-inputtextarea{
 
 /* ATEH AQUI */
 
+.ui-columntoggler .ui-columntoggler-item label {
+	    float: none !important;
+}
+
 table tbody .marcarLinha {color: #00008B !important; }
  /* box-shadow: 0 0 0 !important; */
  /* border: #e2bfbf !important; */
@@ -604,6 +608,9 @@ width: 76%;
 }
 .table_abas .ui-tabs-panels{
     padding: 10px;
+}
+.tableStatus .ui-widget-content{
+	border: none !important;
 }
 
 .table_abas .ui-panel .ui-panel-content{

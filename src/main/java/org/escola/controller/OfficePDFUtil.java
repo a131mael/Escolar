@@ -1,22 +1,31 @@
 package org.escola.controller;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.naming.NamingException;
 
 import org.escola.enums.PegarEntregarEnun;
 import org.escola.enums.PerioddoEnum;
 import org.escola.model.Aluno;
+import org.escola.model.Boleto;
 import org.escola.model.Carro;
 import org.escola.model.ObjetoRota;
 import org.escola.service.AlunoService;
+import org.escola.util.Formatador;
 import org.escola.util.ServiceLocator;
+import org.escola.util.Verificador;
 
+import com.lowagie.text.BadElementException;
+import com.lowagie.text.Cell;
 import com.lowagie.text.Chapter;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -26,10 +35,11 @@ import com.lowagie.text.List;
 import com.lowagie.text.ListItem;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
 import com.lowagie.text.Section;
+import com.lowagie.text.Table;
 import com.lowagie.text.pdf.CMYKColor;
 import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.codec.Base64.OutputStream;
 
 public class OfficePDFUtil {
 
@@ -181,7 +191,6 @@ public class OfficePDFUtil {
 		try {
 			return ServiceLocator.getInstance().getAlunoService(AlunoService.class.getSimpleName(), AlunoService.class.getName());
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -203,6 +212,140 @@ public class OfficePDFUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	public static void criaPDFDevedores(java.util.List<Aluno> alunos, String nomeArquivo) throws DocumentException, IOException{
+		Document document = new Document(PageSize.A4.rotate(),  10f, 10f, 10f, 0f);
+		PdfWriter writer = PdfWriter.getInstance(document,	new FileOutputStream(nomeArquivo));
+		document.open();
+		
+		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));
+		String dataExtenso = formatador.format(new Date());
+		
+		document.add(new Paragraph("Lista de Devedores TEFAMEL gerada no dia :" + dataExtenso ));
+		
+		java.util.List<String> colunas = new ArrayList<>();
+		colunas.add("Nome");
+		colunas.add("CPF");
+		colunas.add("Telefone");
+		colunas.add("Nome Criança");
+		colunas.add("Num Contrato");
+		colunas.add("Entrada");
+		colunas.add("Vencimento");
+		colunas.add("Valor total");
+		Table tabela = criaTabela(colunas);
+		
+		for(Aluno aluno : alunos){
+			tabela.addCell(criaCell(aluno.getNomeResponsavel(),6));
+			tabela.addCell(criaCell(aluno.getCpfResponsavel(),6));
+			String telefones = "";
+			
+			telefones+= getTelefones(aluno);
+			tabela.addCell(criaCell(telefones,7));
+			
+			tabela.addCell(criaCell(aluno.getNomeAluno(),6));
+			Double valorTotalDevido = 0D;
+			String numeroBoleto = "";
+			String vencimento = "";
+			String entrada = "";
+			for(org.escola.model.Boleto boleto : aluno.getBoletos()){
+				if(boleto.getAtrasado() != null && boleto.getAtrasado()){
+					numeroBoleto +=aluno.getCodigo() + "\n"; 
+					entrada += Formatador.formataData(boleto.getEmissao()) + "\n";
+					vencimento += Formatador.formataData(boleto.getVencimento()) + "\n";
+					valorTotalDevido += Verificador.getValorFinal(boleto);
+				}
+			}
+			tabela.addCell(criaCell(numeroBoleto,6));
+			tabela.addCell(criaCell(entrada,6));
+			tabela.addCell(criaCell(vencimento,6));
+			tabela.addCell(criaCell("R$ " + valorTotalDevido+"",7));
+		}
+		
+		document.add(tabela);
+		document.add(new Paragraph("Quantidade Crianças : " + alunos.size()));
+		document.add(new Paragraph("Quantidade de boletos : " + getQuantidadeBoletos(alunos)));
+		document.add(new Paragraph("Valor total : " + Formatador.valorFormatado(getValorTotal(alunos))));
+		
+		document.close();
+	}
+	
+	private static Double getValorTotal(java.util.List<Aluno> alunos) {
+		Double quantidade = 0D;
+		for(Aluno al : alunos){
+			for(Boleto b : al.getBoletos()){
+				if(b.getAtrasado() != null && b.getAtrasado()){
+					quantidade+=  Verificador.getValorFinal(b);
+				}
+			}
+		}
+		return quantidade;
+	}
+
+	private static int getQuantidadeBoletos(java.util.List<Aluno> alunos) {
+		int quantidade = 0;
+		for(Aluno al : alunos){
+			for(Boleto b : al.getBoletos()){
+				if(b.getAtrasado() != null && b.getAtrasado()){
+					quantidade+= 1;
+				}
+			}
+		}
+		return quantidade;
+	}
+
+	private static String getTelefones(Aluno aluno) {
+		String telefones = "";
+		if(aluno.getTelefone() != null && !aluno.getTelefone().equalsIgnoreCase("")){
+			telefones+=aluno.getTelefoneCelularMae()+ " / ";
+		}if(aluno.getTelefoneEmpresaTrabalhaMae() != null && !aluno.getTelefoneEmpresaTrabalhaMae().equalsIgnoreCase("")){
+			telefones+=aluno.getTelefoneEmpresaTrabalhaMae()+ " \n";
+		}if(aluno.getTelefoneCelularPai() != null && !aluno.getTelefoneCelularPai().equalsIgnoreCase("")){
+			telefones+=aluno.getTelefoneCelularPai()+ " / ";
+		}if(aluno.getTelefoneEmpresaTrabalhaPai() != null && !aluno.getTelefoneEmpresaTrabalhaPai().equalsIgnoreCase("")){
+			telefones+=aluno.getTelefoneEmpresaTrabalhaPai()+ " \n";
+		}if(aluno.getTelefoneResidencialPai() != null && !aluno.getTelefoneResidencialPai().equalsIgnoreCase("")){
+			telefones+=aluno.getTelefoneResidencialPai()+ " / ";
+		}if(aluno.getContatoTelefone1()!= null){
+			telefones+=aluno.getContatoTelefone1() + " \n";
+		}if(aluno.getContatoTelefone2()!= null){
+			telefones+=aluno.getContatoTelefone2() + " / ";
+		}if(aluno.getContatoTelefone3()!= null){
+			telefones+=aluno.getContatoTelefone3() + " \n";
+		}if(aluno.getContatoTelefone4()!= null){
+			telefones+=aluno.getContatoTelefone4() + " / ";
+		}if(aluno.getContatoTelefone5()!= null){
+			telefones+=aluno.getContatoTelefone5() ;
+		}
+		return telefones;
+	}
+
+	public static Cell criaCell(String string, float size) throws IOException, BadElementException {
+		Font colfont = new Font(Font.HELVETICA, size); //you can change Font size 
+		 
+		Cell cell = null;
+		if (string != null && "".equals(string)) {
+	            return new Cell();
+	        }else{
+	        	cell = new Cell(new Phrase(string, colfont));
+	        }
+	        return cell;
+	  }
+	
+	public static Table criaTabela(java.util.List<String> colunas) throws BadElementException, IOException{
+		Table t = new Table(colunas.size());
+		t.setBorderColor(new Color(220, 255, 100));
+		t.setPadding(1);
+		t.setSpacing(0);
+		t.setBorderWidth(1);
+		t.setWidth(100);
+		for(String coluna : colunas){
+			Cell c1 = criaCell(coluna, 12);
+			c1.setHeader(true);
+			t.addCell(c1);
+		}
+		t.endHeaders();
+		
+		return t;
 	}
 	
 }

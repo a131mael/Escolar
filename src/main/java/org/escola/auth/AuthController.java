@@ -74,6 +74,10 @@ public class AuthController implements Serializable {
 		if (getLoggedUser().getTipoMembro().equals(membro)) {
 			return true;
 		}
+		
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.MESTRE)) {
+			return true;
+		}
 
 		return false;
 
@@ -86,6 +90,9 @@ public class AuthController implements Serializable {
 			return true;
 		}
 		
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.MESTRE)) {
+			return true;
+		}
 
 		return false;
 
@@ -103,8 +110,11 @@ public class AuthController implements Serializable {
 			return true;
 		}
 		
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.MESTRE)) {
+			return true;
+		}
+		
 		return false;
-
 	}
 
 	public boolean hasPermission(TipoMembro m1, TipoMembro m2, TipoMembro m3, TipoMembro m4) {
@@ -122,8 +132,11 @@ public class AuthController implements Serializable {
 			return true;
 		}
 		
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.MESTRE)) {
+			return true;
+		}
+		
 		return false;
-
 	}
 	
 	public String login() throws Exception {
@@ -230,7 +243,6 @@ public class AuthController implements Serializable {
 		try {
 			req.getInputStream();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -275,6 +287,10 @@ public class AuthController implements Serializable {
 		return TipoMembro.MOTORISTA;
 	}
 
+	public TipoMembro getFinanceiro() {
+		return TipoMembro.FINANCEIRO;
+	}
+
 	public TipoMembro getAluno() {
 		return TipoMembro.ALUNO;
 	}
@@ -285,6 +301,10 @@ public class AuthController implements Serializable {
 	
 	public TipoMembro getMonitor() {
 		return TipoMembro.MONITOR;
+	}
+	
+	public TipoMembro getMestre() {
+		return TipoMembro.MESTRE;
 	}
 	
 	public Carro getCarro1(){

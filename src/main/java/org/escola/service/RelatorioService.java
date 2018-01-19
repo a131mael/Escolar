@@ -17,9 +17,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.apache.bcel.generic.GETFIELD;
 import org.escola.model.Aluno;
-import org.escola.model.AlunoCarro;
+import org.escola.model.Carro;
 import org.escola.util.Service;
 
 
@@ -351,5 +350,65 @@ public class RelatorioService extends Service {
 
 	}
 
+	public double getValor(Map<String, Object> filtros){
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT sum(al.valorMensal) from  Aluno al ");
+//		if(filtros.size()>0){
+//			sql.append("where 1=1 and ");
+//			
+//		}
+//		
+//		if(filtros.containsKey("carroLevaParaEscola")){
+//			sql.append(" al.carroLevaParaEscola.id = ");
+//			sql.append(((Carro)filtros.get("carroLevaParaEscola")).getId());
+//			
+//		}
+
+		
+		/*filtros.put("carroLevaParaEscola", carro);
+		filtros.put("carroLevaParaEscolaTroca", carro);
+		filtros.put("carroPegaEscola", carro);
+		filtros.put("carroPegaEscolaTroca", carro);*/
+		
+		Query query = em.createQuery(sql.toString());
+
+		try {
+			 return (double) query.getSingleResult();
+		}catch(Exception e){
+			
+		}
+		return 0;
+	}
+	
+	public double countAlunos(Map<String, Object> filtros){
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT count(al) from  Aluno al ");
+//		if(filtros.size()>0){
+//			sql.append("where 1=1 and ");
+//			
+//		}
+//		
+//		if(filtros.containsKey("carroLevaParaEscola")){
+//			sql.append(" al.carroLevaParaEscola.id = ");
+//			sql.append(((Carro)filtros.get("carroLevaParaEscola")).getId());
+//			
+//		}
+
+		
+		/*filtros.put("carroLevaParaEscola", carro);
+		filtros.put("carroLevaParaEscolaTroca", carro);
+		filtros.put("carroPegaEscola", carro);
+		filtros.put("carroPegaEscolaTroca", carro);*/
+		
+		Query query = em.createQuery(sql.toString());
+
+		try {
+			 return (double) query.getSingleResult();
+		}catch(Exception e){
+			
+		}
+		return 0;
+	}
+	
 }
 

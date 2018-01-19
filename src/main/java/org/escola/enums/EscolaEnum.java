@@ -55,7 +55,14 @@ public enum EscolaEnum {
 	
 	MARIA_DO_CARMO("Maria do Carmo"),
 	
-	CETEK("CETEK");
+	CETEK("CETEK"),
+	
+	CENTRO_COMUNITARIO_ARIRIU("Centro comunitario aririu"),
+	
+	CENTRO_COMUNITARIO_ALTO_ARIRIU("Centro comunitario alto aririu"),
+	
+	NICOLINA("Nicolina Tancredo");
+	
 	
 	private String name;
 	
