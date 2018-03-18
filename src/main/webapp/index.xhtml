@@ -23,12 +23,12 @@
     <ui:define name="content">
         <center><h1>TEFAMEL</h1></center>
 
-
+	<center>
         <div>
             <p>TEFAMEL - Transporte Escolar e Turismo</p>
             <a href="http://www.tefamel.com/">Site oficial</a>
             <p> </p>
-            <img src="resources/gfx/logo_tefamel.png" width="390"/>
+            <img src="resources/gfx/logo tefamel.png" width="390"/>
         </div>
 
         <h:form id="reg">
@@ -56,38 +56,7 @@
                 </h:panelGrid>
             </p>
         </h:form>
-        <h2>Members</h2>
-        <h:panelGroup rendered="#{empty members}">
-            <em>No registered members.</em>
-        </h:panelGroup>
-        <h:dataTable var="_member" value="#{members}"
-            rendered="#{not empty members}"
-            styleClass="simpletablestyle">
-            <h:column>
-                <f:facet name="header">Id</f:facet>
-                #{_member.id}
-            </h:column>
-            <h:column>
-                <f:facet name="header">Name</f:facet>
-                #{_member.name}
-            </h:column>
-            <h:column>
-                <f:facet name="header">Email</f:facet>
-                #{_member.email}
-            </h:column>
-            <h:column>
-                <f:facet name="header">Phone #</f:facet>
-                #{_member.phoneNumber}
-            </h:column>
-            <h:column>
-                <f:facet name="header">REST URL</f:facet>
-                <a
-                    href="#{request.contextPath}/rest/members/#{_member.id}">/rest/members/#{_member.id}</a>
-            </h:column>
-            <f:facet name="footer">
-            REST URL for all members: <a
-                    href="#{request.contextPath}/rest/members">/rest/members</a>
-            </f:facet>
-        </h:dataTable>
+        
+ </center>
     </ui:define>
 </ui:composition>

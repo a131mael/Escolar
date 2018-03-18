@@ -61,6 +61,12 @@
 					action="#{alunoController.gerarBoletoModel()}" alt="GerarBoleto"
 					rendered="#{true}" />
 
+				<p:commandButton id="restaurar" icon="ui-icon-transfer-e-w"
+					action="#{alunoController.restaurarCancelado()}" alt="Restaurar Cancelado"
+					rendered="#{true}" 
+					disabled="#{!alunoController.alunoSelecionado}" 
+					update="@form"/>
+					
 				<h:panelGrid columns="1"
 					style="float:right; float: none !important;">
 					<p:commandButton id="toggler" type="button" value="Columns"

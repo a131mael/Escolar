@@ -1,21 +1,9 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
- * contributors by the @authors tag. See the copyright.txt in the
- * distribution for a full listing of individual contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.escola.controller;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,11 +20,16 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.escola.model.Aluno;
 import org.escola.model.Custo;
+import org.escola.service.AlunoService;
+import org.escola.service.ConfiguracaoService;
 import org.escola.service.CustoService;
+import org.escola.util.CompactadorZip;
 import org.escola.util.Constant;
+import org.escola.util.FileDownload;
+import org.escola.util.FileUtils;
 import org.escola.util.Util;
-import org.escola.util.UtilFinalizarAnoLetivo;
 import org.primefaces.event.CloseEvent;
 import org.primefaces.event.DashboardReorderEvent;
 import org.primefaces.event.ToggleEvent;
@@ -46,6 +39,9 @@ import org.primefaces.model.DefaultDashboardColumn;
 import org.primefaces.model.DefaultDashboardModel;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
+import org.primefaces.model.StreamedContent;
+
+import br.org.cdl_sc.ClienteWebServiceSPC;
 
 @Model
 @ViewScoped
@@ -54,9 +50,18 @@ public class SecretariaController {
 	@Produces
 	@Named
 	private Custo custo;
+	
+	@Inject
+	private ConfiguracaoService configuracaoService;
 
 	@Inject
 	private CustoService custoService;
+
+	@Inject
+	private AlunoService alunoService;
+	
+	@Inject
+	private ClienteWebServiceSPC clienteSPC;
 
 	private LazyDataModel<Custo> lazyListDataModel;
 	private LazyDataModel<Custo> lazyListDataModelJan;
@@ -78,8 +83,8 @@ public class SecretariaController {
 
 	@PostConstruct
 	private void init() {
-		if (custo == null) {
-			custo = new Custo();
+		if (getCusto() == null) {
+			setCusto(new Custo());
 		}
 
 		setDashboardModelManha(new DefaultDashboardModel());
@@ -93,13 +98,12 @@ public class SecretariaController {
 		column1.addWidget("avaliable");
 		column1.addWidget("used");
 
-
 		dashboardModelManha.addColumn(column1);
 		dashboardModelManha.addColumn(column2);
 		dashboardModelManha.addColumn(column3);
 
 	}
-	
+
 	public void handleReorder(DashboardReorderEvent event) {
 		FacesMessage message = new FacesMessage();
 		message.setSeverity(FacesMessage.SEVERITY_INFO);
@@ -137,9 +141,13 @@ public class SecretariaController {
 		return "cadastrar";
 	}
 
+	public void enviarSPC() {
+		clienteSPC.enviarSPC();
+	}
+
 	public String editar(Long idprof) {
-		custo = custoService.findById(idprof);
-		Util.addAtributoSessao("custo", custo);
+		setCusto(custoService.findById(idprof));
+		Util.addAtributoSessao("custo", getCusto());
 		return "cadastrar";
 	}
 
@@ -1042,9 +1050,50 @@ public class SecretariaController {
 		return lazyListDataModel;
 
 	}
-	
-	public String remover(Long idcusto){
+
+	public StreamedContent gerarCNAB240_TodosAlunos() {
+		try {
+			Map<String,Object> parametros = new HashMap<>();
+			parametros.put("removido", false);
+			List<Aluno> todosAlunos = alunoService.findAll(parametros);
+			long sequencialArquivo = configuracaoService.getSequencialArquivo() ;
+			String pasta = ""+System.currentTimeMillis();
+			String caminhoFinalPasta = System.getProperty("java.io.tmpdir") + pasta;
+			CompactadorZip.createDir(caminhoFinalPasta);
+			
+			for(Aluno al : todosAlunos){
+				String nomeArquivo = caminhoFinalPasta +System.getProperty("file.separator")+ "CNAB240_" + al.getCodigo() + ".txt";
+				InputStream stream = FileUtils.gerarCNB240(sequencialArquivo+"", nomeArquivo, al);
+				configuracaoService.incrementaSequencialArquivoCNAB();
+				sequencialArquivo++;
+				
+				FileUtils.inputStreamToFile(stream, nomeArquivo);
+			}
+			
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+"escolartodasCriancasCNAB.zip";
+			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
+			
+			InputStream stream2 =  new FileInputStream(arquivoSaida);
+			return FileDownload.getContentDoc(stream2, "escolartodasCriancasCNAB.zip");
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public String remover(Long idcusto) {
 		custoService.remover(idcusto);
+		return "index";
+	}
+	
+	public String remover() {
+		custoService.remover(custo.getId());
 		return "index";
 	}
 
@@ -1086,6 +1135,14 @@ public class SecretariaController {
 
 	public void setDashboardModelTarde(DashboardModel dashboardModelTarde) {
 		this.dashboardModelTarde = dashboardModelTarde;
+	}
+
+	public Custo getCusto() {
+		return custo;
+	}
+
+	public void setCusto(Custo custo) {
+		this.custo = custo;
 	}
 
 }

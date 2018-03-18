@@ -6,7 +6,6 @@ package org.escola.util;
 
 import java.io.InputStream;
 
-import javax.ejb.LocalBean;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -20,7 +19,6 @@ import org.primefaces.model.StreamedContent;
  */
 @ManagedBean(name = "FileDownload")
 @ViewScoped
-@LocalBean
 public class FileDownload {
 
     private StreamedContent file;

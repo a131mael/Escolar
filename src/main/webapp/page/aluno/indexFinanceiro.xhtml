@@ -41,6 +41,19 @@
 				<p:tooltip  for="gerarBaixa" value="Gerar arquivo Baixa" position="top"
 							rendered="#{authController.hasPermission(authController.mestre)}"/>
 
+				<p:commandButton id="verificado" update="@form" icon="ui-icon-check" action="#{alunoController.verificarOk()}" 
+								alt="Verificar ok" disabled="#{!alunoController.alunoSelecionado}"
+								rendered="#{authController.hasPermission(authController.mestre) and !alunoController.verificadoOk}">
+				 		<p:confirm header="Confirmacao" message="Deseja confirmar a verificacao ?" icon="ui-icon-alert" />
+				</p:commandButton>
+			 
+			 	<p:commandButton id="removerVerificado" update="@form" icon="ui-icon-check" action="#{alunoController.removerVerificadoOk()}"	
+			 					 alt="Remover Verificado ok" disabled="#{!alunoController.alunoSelecionado}"
+			 					 rendered="#{authController.hasPermission(authController.mestre) and alunoController.verificadoOk}">
+					<p:confirm header="Confirmacao" message="Deseja remover a verificacao ok ?" icon="ui-icon-alert" />
+				</p:commandButton>
+
+
 				<p:commandButton id="adicionar" icon="ui-icon-plus"
 					action="#{alunoController.adicionarNovo()}" />
 				<p:commandButton id="editar" icon="ui-icon-pencil"
@@ -137,6 +150,37 @@
 							<p:dataExporter type="xml" target="tbl" fileName="cars" />
 						</h:commandLink>
 					</f:facet>
+					
+					
+					
+					
+					<p:column style="width:10%; text-align:center;"
+						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						headerText="Status ">
+						<table>
+							<tr>
+								<td style="border: none;">
+									<p:panelGrid
+										rendered="#{alunoController.isVerificadoOk(professorTab.id)}"
+										styleClass="semborda" style="border:none !important;padding:1px">
+										<img src="../../admin/resources/ico/ok.png" width="390"
+											style="width: 20px; height: 20px;" />
+									</p:panelGrid>
+									<p:panelGrid
+										rendered="#{!alunoController.isVerificadoOk(professorTab.id)}"
+										styleClass="semborda" style="border:none !important;padding:1px">
+										<img src="../../admin/resources/ico/alertRed.png" width="390"
+											style="width: 20px; height: 20px;" />
+									</p:panelGrid>
+								
+								</td>
+						
+							</tr>
+						</table>
+
+					</p:column>
+					
+					
 
 					<p:column style="width:7%; text-align:center;"
 						filterBy="#{professorTab.codigo}"
@@ -208,6 +252,14 @@
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>
 					
+					<p:column style="text-align: center; width:8%" 
+					styleClass="#{alunoController.marcarLinha(professorTab.id)}">
+						<f:facet name="header">
+							<h:outputText value="Email" />
+						</f:facet>
+							<p:commandButton update="tbl" icon="ui-icon-mail-closed" action="#{alunoController.enviarEmailBoletoAtualEAtrasado(professorTab.id)}" />
+					</p:column>
+										
 				</p:dataTable>
 
 			</h:panelGrid>

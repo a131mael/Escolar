@@ -11,12 +11,19 @@
 
 			<p:growl id="messages" showDetail="true" />
 			
-			<h:panelGrid id="panelSche" columns="2" columnClasses="value" width="98%" style="height:100%">
+			<!-- <h:panelGrid id="panelSche" columns="2" columnClasses="value" width="98%" style="height:100%">
 				<h:outputText value="Ano Letivo:" />
 			  	<p:inputText value=""/>
-			</h:panelGrid>
+			</h:panelGrid> -->
 				
-
+			<p:commandButton value="ENVIAR SPC" icon="ui-icon-pencil" action="#{secretariaController.enviarSPC()}" />
+				
+			<p:commandButton value="Gerar CNAB Todos Alunos Matriculados" 
+								icon="ui-icon-pencil" 
+								ajax="false"
+								onclick="PrimeFaces.monitorDownload(start, stop);">
+				<p:fileDownload value="#{secretariaController.gerarCNAB240_TodosAlunos()}" />
+			</p:commandButton>	
 
 		</h:form>
 	</ui:define>

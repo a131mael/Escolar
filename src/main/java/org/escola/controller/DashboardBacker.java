@@ -537,9 +537,12 @@ public class DashboardBacker extends AuthController implements Serializable {
 			HashedMap<Carro, List<Aluno>> trocas, List<Aluno> alunosPegoPorOutroCarro) {
 
 		for (Carro aux : trocas.keySet()) {
-			if (trocas.get(aux).get(0).getCarroLevaParaEscola().equals(carro)
-					|| trocas.get(aux).get(0).getCarroPegaEscola().equals(carro)) {
-				alunos.removeAll(trocas.get(aux));
+			if(trocas.get(aux) != null && trocas.get(aux).size() >0){
+				if(trocas.get(aux).get(0).getCarroLevaParaEscola() != null && trocas.get(aux).get(0).getCarroLevaParaEscola().equals(carro)){
+					alunos.removeAll(trocas.get(aux));
+				}else if (trocas.get(aux).get(0).getCarroPegaEscola() != null && trocas.get(aux).get(0).getCarroPegaEscola().equals(carro)){
+					alunos.removeAll(trocas.get(aux));
+				}
 			}
 		}
 		todosAlunos.removeAll(alunosPegoPorOutroCarro);

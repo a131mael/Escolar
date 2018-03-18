@@ -187,6 +187,9 @@
     NAME="output" PATH="/page/secretaria/cadastrarDespesa.xhtml"
     TARGET="rules:#page#secretaria#cadastrarDespesa.xhtml"
     TITLE="cadastrar" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="index::#page#secretaria#despesas.xhtml"
+    NAME="output1" PATH="/page/secretaria/despesas.xhtml"
+    TARGET="rules:#page#secretaria#despesas.xhtml" TITLE="index" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#page#secretaria#cadastrarDespesa.xhtml"

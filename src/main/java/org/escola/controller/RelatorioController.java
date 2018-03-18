@@ -196,39 +196,42 @@ public class RelatorioController implements Serializable{
 		Double valorTotal = 0D;
 		List<Aluno> todosAlunos = alunoService.findAll();
 		for(Aluno aluno : todosAlunos){
-			boolean pega = pega(aluno, carro);
-			boolean leva = leva(aluno, carro);
-			
-			int qdadeIda = quantidadeCarrosIda(aluno);
-			int qdadeVolta = quantidadeCarrosVolta(aluno);
+			if(aluno.getRemovido() != null && aluno.getRemovido() != null){
+				boolean pega = pega(aluno, carro);
+				boolean leva = leva(aluno, carro);
+				
+				int qdadeIda = quantidadeCarrosIda(aluno); 
+				int qdadeVolta = quantidadeCarrosVolta(aluno);
 
-			double valorCrianca = 0;
-			if(pega || leva){
-				if(qdadeVolta==0){ //soh vai
-					if(leva){
-						valorCrianca = aluno.getValorMensalComDesconto()/qdadeIda;
-					}	
-				}else if(qdadeIda==0){ //soh volta
-						if(pega){
-							valorCrianca = aluno.getValorMensalComDesconto()/qdadeVolta;
+				double valorCrianca = 0;
+				if(pega || leva){
+					if(qdadeVolta==0){ //soh vai
+						if(leva){
+							valorCrianca = aluno.getValorMensalComDesconto()/qdadeIda;
 						}	
-				}else{ // vai e volta
-					if(pega){
-						valorCrianca = (aluno.getValorMensalComDesconto()/qdadeVolta)/2;
-					}	
-					if(leva){
-						valorCrianca += (aluno.getValorMensalComDesconto()/qdadeIda)/2;
-					}	
+					}else if(qdadeIda==0){ //soh volta
+							if(pega){
+								valorCrianca = aluno.getValorMensalComDesconto()/qdadeVolta;
+							}	
+					}else{ // vai e volta
+						if(pega){
+							valorCrianca = (aluno.getValorMensalComDesconto()/qdadeVolta)/2;
+						}	
+						if(leva){
+							valorCrianca += (aluno.getValorMensalComDesconto()/qdadeIda)/2;
+						}	
+					}
+					int quantidadeIrmaos = quantidadeIrmaos(aluno);
+					if(quantidadeIrmaos>1){
+						valorTotal += (valorCrianca/quantidadeIrmaos);
+						
+					}else{
+						valorTotal += valorCrianca;
+					}
 				}
-				int quantidadeIrmaos = quantidadeIrmaos(aluno);
-				if(quantidadeIrmaos>1){
-					valorTotal += (valorCrianca/quantidadeIrmaos);
-					
-				}else{
-					valorTotal += valorCrianca;
-				}
+	
 			}
-			
+						
 		}
 		return valorTotal;
 	}

@@ -75,9 +75,11 @@ import org.escola.util.Constant;
 import org.escola.util.CurrencyWriter;
 import org.escola.util.FileDownload;
 import org.escola.util.FileUtils;
+import org.escola.util.Formatador;
 import org.escola.util.ImpressoesUtils;
 import org.escola.util.Util;
 import org.escola.util.Verificador;
+import org.escolar.rotinasAutomaticas.EnviadorEmail;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
@@ -484,6 +486,16 @@ public class AlunoController implements Serializable {
 			total += a.getValorMensal();
 		}
 		return total;
+	}
+
+	public void enviarEmailBoletoAtualEAtrasado(final Long idAluno) {
+		new Thread() {
+			@Override
+			public void run() {
+				EnviadorEmail email = new EnviadorEmail();
+				email.enviarEmailBoletosMesAtualEAtrasados(idAluno);
+			}
+		}.start();
 	}
 
 	public double valorTotal(Aluno aluno) {
@@ -968,6 +980,34 @@ public class AlunoController implements Serializable {
 		return imprimirContrato(aluno);
 	}
 
+	public List<org.escola.model.Boleto> getBoletosParaPagar(Aluno aluno) {
+		List<org.escola.model.Boleto> boletosParaPagar = new ArrayList<>();
+		if (aluno.getBoletos() != null) {
+			for (org.escola.model.Boleto b : aluno.getBoletos()) {
+				if ((!Verificador.getStatusEnum(b).equals(StatusBoletoEnum.PAGO))
+						&& !(Verificador.getStatusEnum(b).equals(StatusBoletoEnum.CANCELADO))) {
+					boletosParaPagar.add(b);
+				}
+			}
+
+		}
+		return boletosParaPagar;
+	}
+
+	public List<org.escola.model.Boleto> getBoletosParaPagar(List<org.escola.model.Boleto> boletos) {
+		List<org.escola.model.Boleto> boletosParaPagar = new ArrayList<>();
+		if (aluno.getBoletos() != null) {
+			for (org.escola.model.Boleto b : boletos) {
+				if ((!Verificador.getStatusEnum(b).equals(StatusBoletoEnum.PAGO))
+						&& !(Verificador.getStatusEnum(b).equals(StatusBoletoEnum.CANCELADO))) {
+					boletosParaPagar.add(b);
+				}
+			}
+
+		}
+		return boletosParaPagar;
+	}
+
 	public StreamedContent imprimirAtestadoVaga(Aluno aluno) throws IOException {
 		String nomeArquivo = "";
 		if (aluno != null && aluno.getId() != null) {
@@ -996,14 +1036,14 @@ public class AlunoController implements Serializable {
 	public String salvar() {
 		alunoService.save(aluno);
 		Util.removeAtributoSessao("aluno");
-		if(getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)){
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)) {
 			return "indexFinanceiro";
 		}
 		return "index";
 	}
 
 	public String voltar() {
-		if(getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)){
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)) {
 			return "indexFinanceiro";
 		}
 		return "index";
@@ -1028,7 +1068,7 @@ public class AlunoController implements Serializable {
 
 	public String remover(Long idTurma) {
 		alunoService.remover(idTurma);
-		if(getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)){
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)) {
 			return "indexFinanceiro";
 		}
 		return "index";
@@ -1036,10 +1076,19 @@ public class AlunoController implements Serializable {
 
 	public String restaurar(Long idTurma) {
 		alunoService.restaurar(idTurma);
-		if(getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)){
+		if (getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)) {
 			return "indexFinanceiro";
 		}
 		return "index";
+	}
+
+	public String restaurarCancelado(Long id) {
+		alunoService.rematricularCancelado(id);
+		return "ok";
+	}
+
+	public String restaurarCancelado() {
+		return restaurarCancelado(aluno.getId());
 	}
 
 	public String adicionarNovo() {
@@ -1205,7 +1254,7 @@ public class AlunoController implements Serializable {
 			pagador.setNome(aluno.getNomeResponsavel());
 			pagador.setNossoNumero(aluno.getCodigo());
 			pagador.setUF("SC");
-			pagador.setBoletos(aluno.getBoletosFinanceiro());
+			pagador.setBoletos(Formatador.getBoletosFinanceiro(getBoletosParaPagar(aluno)));
 
 			byte[] pdf = cnab.getBoletoPDF(pagador);
 
@@ -1228,28 +1277,10 @@ public class AlunoController implements Serializable {
 		try {
 			String sequencialArquivo = configuracaoService.getSequencialArquivo() + "";
 			String nomeArquivo = "CNAB240_" + aluno.getCodigo() + ".txt";
+			InputStream stream = FileUtils.gerarCNB240(sequencialArquivo, nomeArquivo, aluno);
+			configuracaoService.incrementaSequencialArquivoCNAB();
 
-			Pagador pagador = new Pagador();
-			pagador.setBairro(aluno.getBairro());
-			pagador.setCep(aluno.getCep());
-			pagador.setCidade(aluno.getCidade() != null ? aluno.getCidade() : "PALHOCA");
-			pagador.setCpfCNPJ(aluno.getCpfResponsavel());
-			pagador.setEndereco(aluno.getEndereco());
-			pagador.setNome(aluno.getNomeResponsavel());
-			pagador.setNossoNumero(aluno.getCodigo());
-			pagador.setUF("SC");
-			pagador.setBoletos(aluno.getBoletosFinanceiro());
-			CNAB240_REMESSA_SICOOB remessaCNAB240 = new CNAB240_REMESSA_SICOOB(1);
-			byte[] arquivo = remessaCNAB240.geraRemessa(pagador, sequencialArquivo);
-
-			try {
-				configuracaoService.incrementaSequencialArquivoCNAB();
-				InputStream stream = new ByteArrayInputStream(arquivo);
-				return FileDownload.getContentDoc(stream, nomeArquivo);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			return FileDownload.getContentDoc(stream, nomeArquivo);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1381,6 +1412,27 @@ public class AlunoController implements Serializable {
 		return aluno.getCnabEnviado();
 	}
 
+	public boolean isVerificadoOk() {
+		if (aluno == null) {
+			return false;
+		}
+		if (aluno.getVerificadoOk() == null) {
+			return false;
+		}
+		return aluno.getVerificadoOk();
+	}
+	
+	public boolean isVerificadoOk(Long idAluno) {
+		Aluno a = alunoService.findById(idAluno);
+		if (a == null) {
+			return false;
+		}
+		if (a.getVerificadoOk() == null) {
+			return false;
+		}
+		return a.getVerificadoOk();
+	}
+	
 	public String enviarCnab() {
 		return enviarCnab(aluno.getId());
 	}
@@ -1396,6 +1448,24 @@ public class AlunoController implements Serializable {
 
 	private String enviarCnab(Long id) {
 		alunoService.enviarCnab(id);
+		return "ok";
+	}
+
+	public String verificarOk() {
+		return verificarOk(aluno.getId());
+	}
+
+	public String removerVerificadoOk() {
+		return removerVerificadoOk(aluno.getId());
+	}
+
+	private String removerVerificadoOk(Long id) {
+		alunoService.removerVerificadoOk(id);
+		return "ok";
+	}
+
+	private String verificarOk(Long id) {
+		alunoService.verificadoOk(id);
 		return "ok";
 	}
 
@@ -1538,7 +1608,7 @@ public class AlunoController implements Serializable {
 
 	public Member getLoggedUser() {
 		try {
-			
+
 			Member user = null;
 			if (SecurityUtils.getSubject().getPrincipal() != null) {
 				System.out.println("CONSTRUIU O USUARIO LOGADO !!");
