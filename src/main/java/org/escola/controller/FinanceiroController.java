@@ -92,10 +92,36 @@ public class FinanceiroController implements Serializable{
 		financeiroService.save(boleto);
 	}
 	
-	public boolean isBoletoPago(Boleto boleto){
-		return Verificador.getStatusEnum(boleto).equals(StatusBoletoEnum.PAGO);
+	public String marcarLinha(Aluno a) {
+		String cor = "";
+		if(a == null){
+			return "";
+		}
+		
+		if(a.getRemovido() != null && a.getRemovido()){
+			cor = "marcarLinhaVermelho";
+		}else{
+			cor = "marcarLinha";
+		}
+		
+		/*cor = "marcarLinhaVermelho";
+		cor = "marcarLinhaVerde";
+		cor = "marcarLinhaAmarelo";
+		cor = "marcarLinha"
+		*/
+		return cor;
 	}
 	
+	public boolean isBoletoPago(Boleto boleto){
+		return Verificador.getStatusEnum(boleto).equals(StatusBoletoEnum.PAGO) || isRemovido(boleto);
+	}
+	
+	public boolean isRemovido(Boleto boleto){
+		if(boleto.getCancelado() != null && boleto.getCancelado()){
+			return true;
+		}
+		return false;
+	}
 	
 	public String formatarData(Date data){
 		return Formatador.formataData(data);	

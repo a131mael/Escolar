@@ -53,8 +53,8 @@
                              paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                              resizableColumns="true"
-                             rows="20"
-                          
+                             rows="1200"
+                             sortBy="#{professorTab.nomeResponsavel}"
   							 id="tbl" var="professorTab"
 							 value="#{devedorController.lazyDataModel}"
 							  editable="true" editMode="cell"
@@ -88,89 +88,103 @@
                               sortBy="#{professorTab.nomeResponsavel}" 
                               style="text-align:center;"
                               headerText="Nome "
-                              width="20%">
-                        <h:outputText value="#{professorTab.nomeAluno}" />
+                              width="20%"
+                              styleClass="#{devedorController.marcarLinha(professorTab)}">
+ 						<h:outputText value="#{professorTab.nomeResponsavel}" />
+						<br />
+						<h:outputText value="#{professorTab.cpfResponsavel}" />
+						<br />
+						<h:outputText value="#{professorTab.nomeAluno}" />
+                        <br />
+                        <h:outputText value="#{professorTab.escola.name}" />
                         <br />
                         <h:outputText value="#{professorTab.irmao1.nomeAluno}" />
                         <br />
                         <h:outputText value="#{professorTab.irmao2.nomeAluno}" />
                         <br />
                         <h:outputText value="#{professorTab.irmao3.nomeAluno}" />
-						<br />
-						<h:outputText value="#{professorTab.nomeResponsavel}" />
-						<br />
-						<h:outputText value="#{professorTab.telefone}" />
-						<br />
-						<h:outputText value="#{professorTab.telefoneCelularMae}" />
-						<br />
-						<h:outputText value="#{professorTab.telefoneCelularPai}" />
-						<br />
-						<h:outputText value="#{professorTab.telefoneResidencialPai}" />
-						<br />
-						<h:outputText value="#{professorTab.telefoneResidencialMae}" />
-
+                        <br />
+                        <h:outputText value="#{professorTab.endereco}" />
+                        <br/>
+                        <h:outputText value="#{professorTab.bairro}" />
+                        <br/>
+                        <h:outputText value="#{professorTab.cep}" />
 					</p:column>
 
 					<p:column filterBy="#{professorTab.cpfResponsavel}"
                               sortBy="#{professorTab.cpfResponsavel}" 
                               style="text-align:center;"
-                              headerText="CPF "
-                              width="14%">
-						<h:outputText value="#{professorTab.cpfResponsavel}" />
-					</p:column>
-					
-					<p:column filterBy="#{professorTab.enviadoParaCobrancaCDL}"
-                              sortBy="#{professorTab.enviadoParaCobrancaCDL}" 
-                              style="text-align:center;"
-                              headerText="P/ CDL "
-                              filterOptions="#{CombosEspeciaisMB.simNaoNull}"
-                              width="7%">
-						<h:outputText value="#{professorTab.enviadoParaCobrancaCDL eq true?'Sim':'Não'}" />
-					</p:column>
-					
-					<p:column filterBy="#{professorTab.contratoTerminado}"
-                              sortBy="#{professorTab.contratoTerminado}" 
-                              style="text-align:center;"
-                              headerText="Sem Contr."
-                              filterOptions="#{CombosEspeciaisMB.simNaoNull}"
-                              width="8%">
-						<h:outputText value="#{professorTab.contratoTerminado eq true?'Sim':'Não'}" />
-					</p:column>
-					
-					<p:column filterBy="#{professorTab.enviadoSPC}"
-                              sortBy="#{professorTab.enviadoSPC}" 
-                              style="text-align:center;"
-                              headerText="SPC"
-                              filterOptions="#{CombosEspeciaisMB.simNaoNull}"
-                              width="7%">
-						<h:outputText value="#{professorTab.enviadoSPC eq true?'Sim':'Não'}" />
+                              headerText="Contato "
+                              width="16%">
+                              <p:panelGrid >
+			                        <h:outputText value="#{professorTab.contatoTelefone1}" />
+									<h:outputText value=" - " />
+									<h:outputText value="#{professorTab.contatoNome1}" />
+	                         </p:panelGrid>
+							<p:panelGrid >
+			                        <h:outputText value="#{professorTab.contatoTelefone2}" />
+									<h:outputText value=" - " />
+									<h:outputText value="#{professorTab.contatoNome2}" />
+	                         </p:panelGrid>
+							<p:panelGrid >
+			                        <h:outputText value="#{professorTab.contatoTelefone3}" />
+									<h:outputText value=" - " />
+									<h:outputText value="#{professorTab.contatoNome3}" />
+	                         </p:panelGrid>
+							<p:panelGrid >
+			                        <h:outputText value="#{professorTab.contatoTelefone4}" />
+									<h:outputText value=" - " />
+									<h:outputText value="#{professorTab.contatoNome4}" />
+	                         </p:panelGrid>
+							<p:panelGrid >
+			                        <h:outputText value="#{professorTab.contatoTelefone5}" />
+									<h:outputText value=" - " />
+									<h:outputText value="#{professorTab.contatoNome5}" />
+	                         </p:panelGrid>
+							
+						
+								
+						
 					</p:column>
 					
 					<p:column style="text-align:center;"
+                              headerText="SPC"
+                              filterOptions="#{CombosEspeciaisMB.simNaoNull}"
+                              width="7%">
+						<!-- <h:outputText value="#{professorTab.enviadoParaCobrancaCDL eq true?'Sim':'Não'}" /> -->
+					</p:column>
+					
+					<p:column style="text-align:center;" width="50%"
+								styleClass="#{devedorController.marcarLinha(professorTab)}"
                               headerText="Boletos" >
+                              
                               <ui:repeat var="boleto" value="#{professorTab.boletos}" style="border:none">
-                              		<p:panel rendered="#{boleto.atrasado}" columns="5" style="border:none; background:none !important">
-	                              		<h:outputText value="#{boleto.nossoNumero}" style="border:none;background:none !important"/>
-	                             		<br/>
+                              		<p:panelGrid rendered="#{boleto.atrasado}" columns="5" 
+                              					 columnClasses="tamanhoCelula"
+                              					 style="border:none; background:none !important; padding:1px">
+	                              		<h:outputText value="#{boleto.nossoNumero}" style="border:none;background:none !important"></h:outputText>
 	                              		<h:outputText value="#{boleto.emissao}" style="border:none">
 	                              			<f:convertDateTime attern="dd/MM/yyyy" />
 	                              		</h:outputText>
-	                              		<br/>
 	                              		<h:outputText value="#{boleto.vencimento}" style="border:none">
 	                              			<f:convertDateTime attern="dd/MM/yyyy" />
 	                              		</h:outputText>
-	                              		<br/>
 	                              		<h:outputText value="#{boleto.valorNominal}" style="border:none">
 	                              		    <f:convertNumber minFractionDigits="2" />
 	                              		</h:outputText>
-	                              		<h:outputText value=" / " style="border:none"/>
+	                              		
 	                              		<h:outputText value="#{financeiroController.verificaValorFinalBoleto(boleto)}" style="border:none">
 	                              		    <f:convertNumber minFractionDigits="2" />
 	                              		</h:outputText>
-	                              		<br/>
-                              		</p:panel>
+                              		</p:panelGrid>
 	                              
                               </ui:repeat>
+                              <p:panelGrid style="width:100%" columns="2">
+                              		<h:outputText value="TOTAL:" />
+	                              <h:outputLabel value="#{devedorController.getTotal(professorTab)}" style="text-align:right">
+	                         		    <f:convertNumber minFractionDigits="2" />
+	                        	</h:outputLabel>
+                        	</p:panelGrid>
 					</p:column>
 					
 					
@@ -198,21 +212,13 @@
 						<h:outputText value="#{professorTab.telefoneResidencial}" />
 					</p:column>
 					 -->
-					<p:column sortBy="#{professorTab.valorTotalDevido}" 
-                              style="text-align:center;"
-                              headerText="TOTAL"
-                              width="7%">
-						<h:outputText value="#{devedorController.getTotal(professorTab)}" >
-                         		    <f:convertNumber minFractionDigits="2" />
-                        </h:outputText>
-					</p:column>
 					
-										<p:column>
+					<p:column>
 					 <p:cellEditor>
 			               <f:facet name="output"><p:inputTextarea value="#{professorTab.observacaoSecretaria}" style="width:93%;height:90px" /></f:facet>
 			               <f:facet name="input">
 			               <p:inputTextarea id="modelInput" value="#{professorTab.observacaoSecretaria}" style="width:93%;height:90px">
-			               		<p:ajax event="change" process="@this" listener="#{devedorController.saveObservavao(professorTab)}"/>
+			               		<p:ajax event="blur" process="@this" listener="#{devedorController.saveObservavao(professorTab)}"/>
 			               </p:inputTextarea>
 			               
 			               </f:facet>

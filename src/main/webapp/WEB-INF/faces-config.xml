@@ -53,6 +53,11 @@
    <to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
    <redirect/>
   </navigation-case>
+  <navigation-case>
+   <from-outcome>remover</from-outcome>
+   <to-view-id>/page/aluno/removerAluno.xhtml</to-view-id>
+   <redirect/>
+  </navigation-case>
  </navigation-rule>
  <navigation-rule>
   <from-view-id>/page/aluno/indexFinanceiro.xhtml</from-view-id>

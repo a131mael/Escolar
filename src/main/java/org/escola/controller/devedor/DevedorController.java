@@ -39,6 +39,7 @@ import org.escola.enums.PerioddoEnum;
 import org.escola.model.Aluno;
 import org.escola.model.Boleto;
 import org.escola.model.Devedor;
+import org.escola.service.AlunoService;
 import org.escola.service.DevedorService;
 import org.escola.util.FileDownload;
 import org.escola.util.Util;
@@ -66,6 +67,10 @@ public class DevedorController implements Serializable {
 
 	@Inject
 	private DevedorService devedorService;
+	
+	@Inject
+	private AlunoService alunoService;
+
 
 	private LazyDataModel<Aluno> lazyListDataModel;
 	
@@ -98,7 +103,7 @@ public class DevedorController implements Serializable {
 		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+nomeArquivo;
 		Map<String, Object> filtros = new LinkedHashMap();
 		filtros.put("removido", false);
-		List<Aluno> devedores = devedorService.find(0, 2000, "nomeAluno", "asc", filtros);
+		List<Aluno> devedores = devedorService.find(0, 2000, "nomeResponsavel", "asc", filtros);
 		
 		LinkedHashSet<Aluno> aux = new LinkedHashSet();
 		aux.addAll(devedores);
@@ -146,7 +151,6 @@ public class DevedorController implements Serializable {
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
 					filtros.putAll(where);
-					filtros.put("removido", false);
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -171,7 +175,7 @@ public class DevedorController implements Serializable {
 					List<Aluno> ol = getDevedorService().find(first, pageSize, orderByParam, orderParam, filtros);
 
 					if (ol != null && ol.size() > 0) {
-						lazyListDataModel.setRowCount(ol.size());
+						lazyListDataModel.setRowCount((int) getDevedorService().count(filtros));
 						return ol;
 					}
 
@@ -195,6 +199,28 @@ public class DevedorController implements Serializable {
 	public String voltar() {
 		return "index";
 	}
+	
+	public String marcarLinha(Aluno a) {
+		String cor = "";
+		
+		if(a == null){
+			return "";
+		}
+		
+		if(a.getRemovido() != null && a.getRemovido()){
+			cor = "marcarLinhaVermelho";
+		}else{
+			cor = "marcarLinha";
+		}
+		
+		/*cor = "marcarLinhaVermelho";
+		cor = "marcarLinhaVerde";
+		cor = "marcarLinhaAmarelo";
+		cor = "marcarLinha"
+		*/
+		return cor;
+	}
+	
 	
 	public String salvar() {
 		//devedorService.save(devedor);
@@ -249,7 +275,10 @@ public class DevedorController implements Serializable {
 			return 0;
 		}
 	}
-	
+
+	public void saveObservavao(Aluno aluno){
+		devedorService.saveObservacao(aluno);
+	}
 
 	private Float maior(Float float1, Float float2) {
 		return float1 > float2 ? float1 : float2;
