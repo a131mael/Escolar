@@ -24,9 +24,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.model.AlunoAvaliacao;
-import org.escola.model.Faturamento;
-import org.escola.service.FaturamentoService;
+import org.escolar.model.AlunoAvaliacao;
+import org.escolar.model.Faturamento;
+import org.escolar.service.FaturamentoService;
 
 @Named
 @ViewScoped

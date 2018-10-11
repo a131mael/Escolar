@@ -28,10 +28,11 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 
-import org.escola.model.Contrato;
-import org.escola.model.ContratoAdonai;
-import org.escola.model.ContratoFretamento;
-import org.escola.util.CurrencyWriter;
+import org.escolar.controller.OfficeDOCUtil;
+import org.escolar.model.Contrato;
+import org.escolar.model.ContratoAdonai;
+import org.escolar.model.ContratoFretamento;
+import org.escolar.util.CurrencyWriter;
 
 @Model
 @ViewScoped

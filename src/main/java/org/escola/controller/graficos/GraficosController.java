@@ -28,11 +28,11 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.model.Carro;
-import org.escola.model.Faturamento;
-import org.escola.service.AlunoService;
-import org.escola.service.FaturamentoService;
-import org.escola.service.TurmaService;
+import org.escolar.model.Carro;
+import org.escolar.model.Faturamento;
+import org.escolar.service.AlunoService;
+import org.escolar.service.FaturamentoService;
+import org.escolar.service.TurmaService;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
 import org.primefaces.model.chart.LineChartModel;

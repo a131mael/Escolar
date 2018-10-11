@@ -24,13 +24,13 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.escola.auth.AuthController;
-import org.escola.model.Aluno;
-import org.escola.model.Member;
-import org.escola.model.Funcionario;
-import org.escola.model.Carro;
-import org.escola.service.AlunoService;
-import org.escola.service.ProfessorService;
-import org.escola.util.Util;
+import org.escolar.model.Aluno;
+import org.escolar.model.Carro;
+import org.escolar.model.Funcionario;
+import org.escolar.model.Member;
+import org.escolar.service.AlunoService;
+import org.escolar.service.ProfessorService;
+import org.escolar.util.Util;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;

@@ -23,9 +23,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.escola.model.Member;
-import org.escola.service.UsuarioService;
-import org.escola.util.Util;
+import org.escolar.model.Member;
+import org.escolar.service.UsuarioService;
+import org.escolar.util.Util;
 
 import javax.inject.Named;
 import javax.faces.view.ViewScoped;

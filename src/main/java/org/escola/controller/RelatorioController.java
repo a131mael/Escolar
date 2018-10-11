@@ -27,12 +27,13 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.enums.PerioddoEnum;
-import org.escola.enums.Serie;
-import org.escola.model.Aluno;
-import org.escola.model.Carro;
-import org.escola.service.AlunoService;
-import org.escola.service.RelatorioService;
+import org.escolar.enums.PerioddoEnum;
+import org.escolar.enums.Serie;
+import org.escolar.enums.TipoMobilidadeEnum;
+import org.escolar.model.Aluno;
+import org.escolar.model.Carro;
+import org.escolar.service.AlunoService;
+import org.escolar.service.RelatorioService;
 
 @Named
 @ViewScoped
@@ -190,6 +191,35 @@ public class RelatorioController implements Serializable{
 		}
 		
 		return quantidade;
+	}
+	
+	public double getValorTotal2(Carro carro){
+		double totalCriancasSoLeva = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.SO_VAI);
+		double totalCriancasSoLevaComTrocaIda = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.SO_VAI_TROCA_IDA)/2;
+
+		double totalCriancasSoPega = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.SO_VOLTA);
+		double totalCriancasSoPegaComTroca = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.SO_VOLTA_TROCA_VOLTA)/2;
+		
+		double totalvaiVoltaComOutroCarro = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_IDA_CARRO_DIFERENTE);
+		double totalvaiVoltaComOutroCarroComtrocaIda = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_IDA_COM_TROCA_IDA);
+		double totalvaiVoltaComOutroCarroComtrocaIdaeVolta = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_IDA_COM_TROCA_IDA_E_COM_TROCA_VOLTA);
+		double totalvaiVoltaComOutroCarroComtrocaVolta = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_IDA_COM_TROCA_VOLTA);
+		
+		double totalvaivoltaVaicomOutroCarro = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_VOLTA_CARRO_DIFERENTE);
+		double totalvaivoltaVaicomOutrocarroTrocaIda = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_VOLTA_COM_TROCA_IDA);
+		double totalvaivoltaVaicomOutrocarroTrocaIdaENaVolta = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_VOLTA_COM_TROCA_IDA_E_COM_TROCA_VOLTA);
+		double totalvaivoltaVaicomOutrocarroTrocaNaVolta = relatorioService.getValorTotalMensalidade(carro,TipoMobilidadeEnum.VAI_VOLTA_VOLTA_COM_TROCA_VOLTA);
+		
+		//TROCA na IDA e TROCA na VOLTA carros iguais
+		return totalCriancasSoLeva + totalCriancasSoLevaComTrocaIda+totalCriancasSoPega
+				+totalCriancasSoPegaComTroca+totalvaiVoltaComOutroCarro
+				+totalvaiVoltaComOutroCarroComtrocaIda
+				+totalvaiVoltaComOutroCarroComtrocaIdaeVolta
+				+totalvaiVoltaComOutroCarroComtrocaVolta
+				+totalvaivoltaVaicomOutroCarro
+				+totalvaivoltaVaicomOutrocarroTrocaIda
+				+totalvaivoltaVaicomOutrocarroTrocaIdaENaVolta
+				+totalvaivoltaVaicomOutrocarroTrocaNaVolta;
 	}
 	
 	public double getValorTotal(Carro carro){

@@ -11,7 +11,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
-import org.escola.model.Carro;
+import org.escolar.model.Carro;
 
 
 @FacesConverter(value = "converterCarro")

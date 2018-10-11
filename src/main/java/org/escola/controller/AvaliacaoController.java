@@ -27,13 +27,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.escola.auth.AuthController;
-import org.escola.enums.BimestreEnum;
-import org.escola.enums.DisciplinaEnum;
-import org.escola.enums.Serie;
-import org.escola.model.AlunoAvaliacao;
-import org.escola.model.Avaliacao;
-import org.escola.service.AvaliacaoService;
-import org.escola.util.Util;
+import org.escolar.enums.BimestreEnum;
+import org.escolar.enums.DisciplinaEnum;
+import org.escolar.enums.Serie;
+import org.escolar.model.AlunoAvaliacao;
+import org.escolar.model.Avaliacao;
+import org.escolar.service.AvaliacaoService;
+import org.escolar.util.Util;
 @Named
 @ViewScoped
 public class AvaliacaoController extends AuthController implements Serializable{

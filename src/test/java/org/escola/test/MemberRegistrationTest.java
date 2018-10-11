@@ -24,9 +24,9 @@ import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.escola.model.Member;
-import org.escola.service.MemberRegistration;
 import org.escola.util.Resources;
+import org.escolar.model.Member;
+import org.escolar.service.MemberRegistration;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;

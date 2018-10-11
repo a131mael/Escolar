@@ -7,6 +7,13 @@
 	xmlns:p="http://primefaces.org/ui">
 
 <h:form style="width:100%; border:none !important">
+				 
+		<p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()" />
+		 
+		 <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		    <p:graphicImage name="/gfx/preloader.gif" width="100" height="15" />
+		</p:dialog>
+		 
 	<p:growl id="messages" />
 
 	<p:menubar style="width:100%;margin-left: -16px;margin-top: -16px">
@@ -110,4 +117,5 @@
 		</f:facet>
 	</p:menubar>
 </h:form>
+
 </html>

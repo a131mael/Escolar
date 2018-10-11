@@ -51,7 +51,6 @@
   <navigation-case>
    <from-outcome>cadastrar</from-outcome>
    <to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
-   <redirect/>
   </navigation-case>
   <navigation-case>
    <from-outcome>remover</from-outcome>
@@ -64,7 +63,6 @@
   <navigation-case>
    <from-outcome>cadastrar</from-outcome>
    <to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
-   <redirect/>
   </navigation-case>
  </navigation-rule>
  <navigation-rule>
@@ -72,7 +70,6 @@
   <navigation-case>
    <from-outcome>exibirAluno</from-outcome>
    <to-view-id>/page/aluno/exibirAluno.xhtml</to-view-id>
-   <redirect/>
   </navigation-case>
   <navigation-case>
    <from-outcome>index</from-outcome>

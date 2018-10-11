@@ -30,10 +30,10 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.model.Evento;
-import org.escola.service.AlunoService;
-import org.escola.service.EventoService;
-import org.escola.util.UtilFinalizarAnoLetivo;
+import org.escolar.model.Evento;
+import org.escolar.service.AlunoService;
+import org.escolar.service.EventoService;
+import org.escolar.util.UtilFinalizarAnoLetivo;
 import org.primefaces.event.ScheduleEntryMoveEvent;
 import org.primefaces.event.ScheduleEntryResizeEvent;
 import org.primefaces.event.SelectEvent;

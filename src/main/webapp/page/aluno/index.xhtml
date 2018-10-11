@@ -58,6 +58,14 @@
 					disabled="#{!alunoController.alunoSelecionado}">
 					<p:fileDownload value="#{alunoController.gerarBoleto()}" />
 				</p:commandButton>
+				
+				<p:commandButton icon="ui-icon-arrowrefresh-1-e" 
+							ajax="false"
+							alt="Ficha rematricula"
+					onclick="PrimeFaces.monitorDownload(start, stop);"
+					disabled="#{!alunoController.alunoSelecionado}">
+					<p:fileDownload value="#{alunoController.imprimirFichaRematricula()}" />
+				</p:commandButton>
 
 				<p:commandButton id="cnab" icon="ui-icon-transfer-e-w" ajax="false"
 					onclick="PrimeFaces.monitorDownload(start, stop);"
@@ -89,7 +97,7 @@
 					
 					<p:fileDownload value="#{alunoController.gerarArquivoBaixa()}" />
 				</p:commandButton>
-			 
+				
 
 				<h:panelGrid columns="1"
 					style="float:right; float: none !important;">
@@ -219,6 +227,8 @@
 						headerText="Pega "
 						filterOptions="#{CombosEspeciaisMB.carrosSelectItem}">
 						<h:outputText value="#{professorTab.carroPegaEscola.nome}" />
+						<br />
+						<h:outputText value="#{professorTab.carroPegaEscolaTroca.nome}" />
 					</p:column>
 
 

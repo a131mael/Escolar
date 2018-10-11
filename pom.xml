@@ -102,7 +102,6 @@
 			<version>6.0</version>
 		</dependency>
 
-
 		<!-- https://mvnrepository.com/artifact/org.primefaces.extensions/primefaces-extensions -->
 		<dependency>
 			<groupId>org.primefaces.extensions</groupId>
@@ -192,7 +191,7 @@
 		<dependency>
 			<groupId>org.escolar.service</groupId>
 			<artifactId>EscolarServices</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>

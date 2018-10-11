@@ -24,9 +24,9 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.enums.TipoMembro;
-import org.escola.model.Member;
-import org.escola.service.MemberRegistration;
+import org.escolar.enums.TipoMembro;
+import org.escolar.model.Member;
+import org.escolar.service.MemberRegistration;
 
 // The @Model stereotype is a convenience mechanism to make this a request-scoped bean that has an
 // EL name

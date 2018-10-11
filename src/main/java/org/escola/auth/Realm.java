@@ -9,9 +9,9 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.escola.model.Member;
-import org.escola.service.MemberRegistration;
-import org.escola.util.ServiceLocator;
+import org.escolar.model.Member;
+import org.escolar.service.MemberRegistration;
+import org.escolar.util.ServiceLocator;
 
 
 /**

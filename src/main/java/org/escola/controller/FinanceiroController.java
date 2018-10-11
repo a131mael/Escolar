@@ -27,16 +27,16 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.enums.PerioddoEnum;
-import org.escola.enums.Serie;
-import org.escola.enums.StatusBoletoEnum;
-import org.escola.model.Aluno;
-import org.escola.model.Boleto;
-import org.escola.service.AlunoService;
-import org.escola.service.FinanceiroService;
-import org.escola.util.Formatador;
-import org.escola.util.Util;
-import org.escola.util.Verificador;
+import org.escolar.enums.PerioddoEnum;
+import org.escolar.enums.Serie;
+import org.escolar.enums.StatusBoletoEnum;
+import org.escolar.model.Aluno;
+import org.escolar.model.Boleto;
+import org.escolar.service.AlunoService;
+import org.escolar.service.FinanceiroService;
+import org.escolar.util.Formatador;
+import org.escolar.util.Util;
+import org.escolar.util.Verificador;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 

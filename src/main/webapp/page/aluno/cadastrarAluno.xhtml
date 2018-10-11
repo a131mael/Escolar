@@ -1,4 +1,4 @@
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+ <ui:composition xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:h="http://java.sun.com/jsf/html"
@@ -364,23 +364,15 @@
 	    					<ui:param name="parametro" value="#{aluno}" />
 	    					<ui:param name="visible" value="#{aluno.boletos eq null?false:true}" />
 					</ui:include>
-												
-
 					</p:tab>
-					
 
 					<p:tab title="Observações">
 						<h:panelGrid columns="2" border="0">
 							<h:outputLabel value="Observações Secretaria: "
 								style="font-size: 13px; width:180px" />
-							<p:inputTextarea value="#{aluno.observacaoSecretaria}">
-
-							</p:inputTextarea>
-
+							<p:inputTextarea value="#{aluno.observacaoSecretaria}" />
 						</h:panelGrid>
-
 					</p:tab>
-
 				</p:tabView>
 
 			</h:panelGrid>
@@ -388,8 +380,7 @@
 			<h:commandButton id="voltarButtom" immediate="true"
 				action="#{alunoController.voltar()}" value="Voltar" />
 
-
-			<h:commandButton id="salvarButtom"
+			<p:commandButton id="salvarButtom"
 				style="margin-left:690px !important"
 				action="#{alunoController.salvar()}" value="Salvar" />
 

@@ -24,8 +24,8 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escola.model.Configuracao;
-import org.escola.service.ConfiguracaoService;
+import org.escolar.model.Configuracao;
+import org.escolar.service.ConfiguracaoService;
 
 @Named
 @ViewScoped

@@ -30,11 +30,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.escola.enums.TipoMembro;
-import org.escola.model.Carro;
-import org.escola.model.Member;
-import org.escola.service.TurmaService;
-import org.escola.util.Constant;
+import org.escolar.enums.TipoMembro;
+import org.escolar.model.Carro;
+import org.escolar.model.Member;
+import org.escolar.service.TurmaService;
+import org.escolar.util.Constant;
 
 import javax.inject.Inject;
 import javax.inject.Named;
