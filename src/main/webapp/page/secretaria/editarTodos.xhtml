@@ -1,0 +1,70 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form style="width:60%; border:none; height:60%"
+			rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+
+			<h:panelGrid columns="2" border="0">
+				<h:outputLabel value="Nome(*): " style="font-size: 13px; width:180px" />
+				<p:inputText title="" value="#{alunoEditarTodos.nomeAluno}"
+					style="font-size: 15px; width:180px" disabled="#{true}">
+					<p:ajax process="@this" />
+				</p:inputText>
+
+			 	<h:outputLabel value="Bairro: " style="font-size: 13px; width:180px" />
+				<p:selectOneMenu style="width: 256px;"
+					value="#{alunoEditarTodos.bairroAluno}">
+					<f:selectItems value="#{CombosEspeciaisMB.getBairroSelectIItem()}"
+						var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}"
+						disabled="#{true}" />
+					<p:ajax event="change" process="@this" />
+				</p:selectOneMenu>
+
+
+				<h:outputLabel value="Rua(*): "
+					style="font-size: 13px; width:180px" />
+				<p:inputText title="" value="#{alunoEditarTodos.enderecoAluno}"
+					style="font-size: 15px; width:280px" >
+					<p:ajax process="@this" />
+				</p:inputText>
+
+				<h:outputLabel value="Endereço: "
+					style="font-size: 13px; width:180px" />
+				<p:inputText value="#{alunoEditarTodos.endereco}" disabled="#{true}"
+					style="font-size: 15px; width:275px">
+					<p:ajax process="@this" />
+				</p:inputText>
+
+				<h:outputLabel value="Bairro: " style="font-size: 13px; width:180px" />
+				<p:inputText value="#{alunoEditarTodos.bairro}"
+					style="font-size: 15px; width:275px">
+					<p:ajax process="@this" />
+				</p:inputText>
+
+				<h:outputLabel value="Escola: " style="font-size: 13px; width:180px" />
+				<p:selectOneMenu style="width: 256px;"
+					value="#{alunoEditarTodos.escola}">
+					<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
+						var="country" itemLabel="#{country.name}" itemValue="#{country}"
+						disabled="#{true}" />
+					<p:ajax event="change" process="@this" />
+				</p:selectOneMenu>
+
+<br></br>
+<br></br>
+
+				<h:outputLabel value="" />
+				<p:commandButton id="salvarButtom"
+					style="margin-left:380px !important"
+					value="Proximo">
+					<p:ajax process="@form" update="@form" listener="#{alunoEditarTodosController.proximo()}" />
+				</p:commandButton> 
+			</h:panelGrid>
+		</h:form>
+	</ui:define>
+</ui:composition>

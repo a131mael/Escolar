@@ -24,6 +24,21 @@
 								onclick="PrimeFaces.monitorDownload(start, stop);">
 				<p:fileDownload value="#{secretariaController.gerarCNAB240_TodosAlunos()}" />
 			</p:commandButton>	
+			
+			<p:commandButton value="Gerar REMATRICULA Todos Alunos Matriculados" 
+								icon="ui-icon-pencil" 
+								ajax="false"
+								onclick="PrimeFaces.monitorDownload(start, stop);">
+				<p:fileDownload value="#{alunoController.gerarRematricula_TodosAlunos()}" />
+			</p:commandButton>	
+			
+			<p:panelGrid columns="2"> 
+				<h:outputText value="Ano rematrícula:" />
+				<p:inputText value="#{configuracao.anoRematricula}">
+					<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}"/>
+				</p:inputText>
+			</p:panelGrid>
+			
 
 		</h:form>
 	</ui:define>

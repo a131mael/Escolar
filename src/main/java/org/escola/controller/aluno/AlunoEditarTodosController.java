@@ -1,5 +1,6 @@
 /*
- * JBoss, Home of Professional Open Source
+
+n * JBoss, Home of Professional Open Source
  * Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
  * contributors by the @authors tag. See the copyright.txt in the
  * distribution for a full listing of individual contributors.
@@ -14,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.escola.controller;
+package org.escola.controller.aluno;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
@@ -25,49 +25,54 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.escolar.model.Configuracao;
-import org.escolar.service.ConfiguracaoService;
+import org.escolar.model.Aluno;
+import org.escolar.service.AlunoService;
 
 @Named
 @ViewScoped
-public class ConfiguracaoController implements Serializable {
+public class AlunoEditarTodosController implements Serializable {
 
 	/****/
 	private static final long serialVersionUID = 1L;
 
 	@Produces
 	@Named
-	private Configuracao configuracao;
-
+	private Aluno alunoEditarTodos;
+		
 	@Inject
-	private ConfiguracaoService configuracaoService;
+	private AlunoService alunoService;
+	
+	private int index = 0;
+	
+	public Aluno getAlunoEditarTodos() {
+		return alunoEditarTodos;
+	}
+
+	public void setAlunoEditarTodos(Aluno alunoEditarTodos) {
+		this.alunoEditarTodos = alunoEditarTodos;
+	}
 
 	@PostConstruct
-	private void init() {
-		List<Configuracao> confs = configuracaoService.findAll();
-
-		if (confs == null || confs.isEmpty()) {
-			configuracao = new Configuracao();
-		} else {
-			configuracao = confs.get(0);
+	private void ini() {
+		//alunoEditarTodos = alunoService.findAlunoSemEndereco();
+		alunoEditarTodos = alunoService.findAlunoBairro(index);
+		index ++;
+	}
+	
+	public void proximo() {
+		salvar();
+		alunoEditarTodos = alunoService.findAlunoBairro(index);
+		index ++;
+	}
+	
+	public void salvar() {
+		alunoService.saveAlunoEndereco(alunoEditarTodos);
+		//Util.removeAtributoSessao("aluno");
+		/*if (getLoggedUser().getTipoMembro().equals(TipoMembro.FINANCEIRO)) {
+			return "indexFinanceiro";
 		}
+		return "index";*/
 	}
 
-	public String salvar() {
-		configuracaoService.save(configuracao);
-		return "index";
-	}
-
-	public void alterAnoRematricula() {
-
-	}
-
-	public Configuracao getConfiguracao() {
-		return configuracao;
-	}
-
-	public void setConfiguracao(Configuracao configuracao) {
-		this.configuracao = configuracao;
-	}
-
+	
 }

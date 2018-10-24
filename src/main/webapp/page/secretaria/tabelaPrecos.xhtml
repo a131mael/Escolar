@@ -1,0 +1,112 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form id="form">
+			<p:growl id="msgs" showDetail="true" />
+
+			<p:dataTable id="cars1" widgetVar="cars1" var="car"
+				value="#{tabelaPrecosController.listaPrecos}" editable="true"
+				style="margin-bottom:20px">
+				<f:facet name="header">
+           			Tabela de Preços
+       			</f:facet>
+
+				<p:ajax event="rowEdit" listener="#{tabelaPrecosController.onRowEdit}"
+					update=":form:msgs" />
+				<p:ajax event="rowEditCancel" listener="#{tabelaPrecosController.onRowCancel}"
+					update=":form:msgs" />
+
+				<p:column headerText="Id" rendered="true">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.ano}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText id="modelInput" value="#{car.ano}" style="width:100%" />
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="Bairro">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.bairroCrianca.name}" />
+						</f:facet>
+						<f:facet name="input">
+							<h:selectOneMenu value="#{car.bairroCrianca}" style="width:100%">
+								<f:selectItems value="#{CombosEspeciaisMB.bairroSelectIItem}" var="bairroE"
+									itemLabel="#{bairroE}" itemValue="#{bairroE}" />
+							</h:selectOneMenu>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="Escola">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.bairroEscola.name}" />
+						</f:facet>
+						<f:facet name="input">
+							<h:selectOneMenu value="#{car.bairroEscola}" style="width:100%">
+								<f:selectItems value="#{CombosEspeciaisMB.bairroSelectIItem}" var="man"
+									itemLabel="#{man}" itemValue="#{man}" />
+							</h:selectOneMenu>
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column headerText="Valor Janeiro">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.valorJaneiro}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{car.valorJaneiro}" style="width:100%" label="valor Janeiro" />
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+				
+				<p:column headerText="Valor Fevereiro">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.valorFevereiro}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{car.valorFevereiro}" style="width:100%" label="valor Fevereiro" />
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+				
+				<p:column headerText="Valor Março">
+					<p:cellEditor>
+						<f:facet name="output">
+							<h:outputText value="#{car.valorMarco}" />
+						</f:facet>
+						<f:facet name="input">
+							<p:inputText value="#{car.valorMarco}" style="width:100%" label="valor Marco" />
+						</f:facet>
+					</p:cellEditor>
+				</p:column>
+
+				<p:column style="width:32px">
+					<p:rowEditor />
+				</p:column>
+			</p:dataTable>
+
+			<div class="ui-g">
+				<div class="ui-g-12">
+					<p:commandButton value="Add new row"
+						styleClass="ui-priority-primary" process="@this"
+						update=":form:msgs" actionListener="#{tabelaPrecosController.onAddNew()}"
+						oncomplete="PF('cars1').addRow();" />
+				</div>
+			</div>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

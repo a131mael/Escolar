@@ -23,7 +23,17 @@
 			<p:ajax process="@this"/>
 		</p:inputText>
 		
-		<h:outputLabel for="name" value="Endereço(*): "
+
+		<h:outputLabel value="Bairro: " style="font-size: 13px; width:180px" />
+		<p:selectOneMenu style="width: 256px;" value="#{parametro.bairroAluno}">
+			<f:selectItems value="#{CombosEspeciaisMB.getBairroSelectIItem()}"
+				var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}" 
+				disabled="#{disable}"/>
+			<p:ajax event="change" process="@this" />
+		</p:selectOneMenu>
+				
+		
+		<h:outputLabel for="name" value="Rua(*): "
 			style="font-size: 13px; width:180px" />
 		<p:inputText title="" value="#{parametro.enderecoAluno}"
 			style="font-size: 15px; width:280px" disabled="#{disable}">
@@ -31,7 +41,6 @@
 		</p:inputText>
 
 		<h:outputLabel value="Escola: " style="font-size: 13px; width:180px" />
-
 		<p:selectOneMenu style="width: 256px;" value="#{parametro.escola}">
 			<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
 				var="country" itemLabel="#{country.name}" itemValue="#{country}" 

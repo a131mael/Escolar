@@ -64,13 +64,17 @@ import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.enums.TipoMembro;
 import org.escolar.model.Aluno;
 import org.escolar.model.AlunoAvaliacao;
+import org.escolar.model.Configuracao;
 import org.escolar.model.Custo;
 import org.escolar.model.Member;
+import org.escolar.model.TabelaPrecos;
 import org.escolar.rotinasAutomaticas.EnviadorEmail;
 import org.escolar.service.AlunoService;
 import org.escolar.service.AvaliacaoService;
 import org.escolar.service.ConfiguracaoService;
+import org.escolar.service.DevedorService;
 import org.escolar.service.FinanceiroService;
+import org.escolar.service.TabelaPrecoService;
 import org.escolar.service.TurmaService;
 import org.escolar.util.CompactadorZip;
 import org.escolar.util.Constant;
@@ -115,6 +119,12 @@ public class AlunoController implements Serializable {
 
 	@Inject
 	private AlunoService alunoService;
+	
+	@Inject
+	private DevedorService devedorService ;
+	
+	@Inject
+	private TabelaPrecoService tabelaPrecoService ;
 
 	@Inject
 	private FinanceiroService financeiroService;
@@ -146,8 +156,44 @@ public class AlunoController implements Serializable {
 
 	private LazyDataModel<Aluno> lazyListDataModelUltimoAnoLetivo;
 
+	private Configuracao configuracao;
+	
 	private long total = 0;
 	private Double valorTotal = 0D;
+	
+	@PostConstruct
+	private void init() {
+		if (aluno == null) {
+			Object obj = Util.getAtributoSessao("aluno");
+			if (obj != null) {
+				aluno = (Aluno) obj;
+				if (aluno.getIrmao1() != null
+						&& (aluno.getIrmao1().getRemovido() == null || !aluno.getIrmao1().getRemovido())) {
+					irmao1 = true;
+				}
+				if (aluno.getIrmao2() != null
+						&& (aluno.getIrmao2().getRemovido() == null || !aluno.getIrmao2().getRemovido())) {
+					irmao2 = true;
+				}
+				if (aluno.getIrmao3() != null
+						&& (aluno.getIrmao3().getRemovido() == null || !aluno.getIrmao3().getRemovido())) {
+					irmao3 = true;
+				}
+				if (aluno.getIrmao4() != null
+						&& (aluno.getIrmao4().getRemovido() == null || !aluno.getIrmao4().getRemovido())) {
+					irmao4 = true;
+				}
+
+			} else {
+				aluno = new Aluno();
+				aluno.setCodigo(alunoService.getProximoCodigo() + "");
+			}
+		}
+
+		officeDOCUtil = new OfficeDOCUtil();
+		cw = new CurrencyWriter();
+		configuracao = configuracaoService.getConfiguracao();
+	}
 
 	public LazyDataModel<Aluno> getLazyDataModelCanceladas() {
 		if (lazyListDataModelCanceladas == null) {
@@ -170,7 +216,7 @@ public class AlunoController implements Serializable {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
-					filtros.put("anoLetivo", Constant.anoLetivoAtual);
+					filtros.put("anoLetivo", configuracao.getAnoLetivo());
 
 					filtros.putAll(where);
 					filtros.put("removido", true);
@@ -336,7 +382,7 @@ public class AlunoController implements Serializable {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
-					filtros.put("anoLetivo", Constant.anoLetivoAtual);
+					filtros.put("anoLetivo", configuracao.getAnoLetivo());
 
 					filtros.putAll(where);
 					if (filtros.containsKey("nomeAluno")) {
@@ -602,7 +648,7 @@ public class AlunoController implements Serializable {
 
 					filtros.putAll(where);
 
-					filtros.put("anoLetivo", Constant.anoLetivoAtual - 1);
+					filtros.put("anoLetivo", configuracao.getAnoLetivo() -1);
 
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
@@ -653,39 +699,6 @@ public class AlunoController implements Serializable {
 
 		return lazyListDataModelUltimoAnoLetivo;
 
-	}
-
-	@PostConstruct
-	private void init() {
-		if (aluno == null) {
-			Object obj = Util.getAtributoSessao("aluno");
-			if (obj != null) {
-				aluno = (Aluno) obj;
-				if (aluno.getIrmao1() != null
-						&& (aluno.getIrmao1().getRemovido() == null || !aluno.getIrmao1().getRemovido())) {
-					irmao1 = true;
-				}
-				if (aluno.getIrmao2() != null
-						&& (aluno.getIrmao2().getRemovido() == null || !aluno.getIrmao2().getRemovido())) {
-					irmao2 = true;
-				}
-				if (aluno.getIrmao3() != null
-						&& (aluno.getIrmao3().getRemovido() == null || !aluno.getIrmao3().getRemovido())) {
-					irmao3 = true;
-				}
-				if (aluno.getIrmao4() != null
-						&& (aluno.getIrmao4().getRemovido() == null || !aluno.getIrmao4().getRemovido())) {
-					irmao4 = true;
-				}
-
-			} else {
-				aluno = new Aluno();
-				aluno.setCodigo(alunoService.getProximoCodigo() + "");
-			}
-		}
-
-		officeDOCUtil = new OfficeDOCUtil();
-		cw = new CurrencyWriter();
 	}
 
 	public boolean estaEmUmaTurma(long idAluno) {
@@ -772,17 +785,16 @@ public class AlunoController implements Serializable {
 		String dataExtenso = formatador.format(new Date());
 		Calendar dataLim = Calendar.getInstance();
 		dataLim.add(Calendar.MONTH, 1);
-		String dataLimiteExtenso = formatador.format(dataLim.getTime());
-
-		DateFormat formatadorAno = DateFormat.getDateInstance(DateFormat.YEAR_FIELD, new Locale("pt", "BR"));
-		String ano = formatadorAno.format(new Date());
 		
 		DateFormat fomatadorData = DateFormat.getDateInstance(DateFormat.DEFAULT, new Locale("pt", "BR"));
 		String aniversario = fomatadorData.format(aluno.getDataNascimento());
-		
 
 		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("#ANOCONTRATO", "2018"); // TODO colocar o ano atual +1
+		if(aluno.getRematricular() != null && aluno.getRematricular()){
+			trocas.put("#ANOCONTRATO", configuracao.getAnoRematricula()+"");
+		}else{
+			trocas.put("#ANOCONTRATO", configuracao.getAnoLetivo()+"");
+		}
 		trocas.put("#CONTRATANTECID", "Palhoça"); // TODO COLOCAR CIDADE DO
 													// Contratado
 		trocas.put("#DATAEXTENSO", dataExtenso);
@@ -884,20 +896,23 @@ public class AlunoController implements Serializable {
 		String dataExtenso = formatador.format(new Date());
 		Calendar dataLim = Calendar.getInstance();
 		dataLim.add(Calendar.MONTH, 1);
-		String dataLimiteExtenso = formatador.format(dataLim.getTime());
-
+		int ano = configuracao.getAnoLetivo();
+		if(aluno.getRematricular() != null && aluno.getRematricular()){
+			ano = configuracao.getAnoRematricula();
+		}
 		Calendar calendar = Calendar.getInstance();
-		Calendar calendarNascimento = Calendar.getInstance();
-		calendarNascimento.setTime(aluno.getDataNascimento());
-		int ano = calendar.get(Calendar.YEAR);
-		int anoNascimento = calendarNascimento.get(Calendar.YEAR);
-		
 		DateFormat fomatadorData = DateFormat.getDateInstance(DateFormat.DEFAULT, new Locale("pt", "BR"));
-		String aniversario = fomatadorData.format(aluno.getDataNascimento());
-		
-		
+		int anoNascimento  = 0;
+		String aniversario = null;
+		if(aluno.getDataNascimento() != null){
+			Calendar calendarNascimento = Calendar.getInstance();
+			calendarNascimento.setTime(aluno.getDataNascimento());
+			anoNascimento = calendarNascimento.get(Calendar.YEAR);
+			aniversario = fomatadorData.format(aluno.getDataNascimento());
+			
+		}
 		HashMap<String, String> trocas = new HashMap<>();
-		trocas.put("#ANOCONTRATO", ano+1 +""); 
+		trocas.put("#ANOCONTRATO", ano +""); 
 		trocas.put("#CONTRATANTECID", "Palhoca"); // TODO COLOCAR CIDADE DO
 													// Contratado
 		trocas.put("#DATAEXTENSO", dataExtenso);
@@ -906,13 +921,28 @@ public class AlunoController implements Serializable {
 		trocas.put("#CONTRATANTERG", aluno.getRgResponsavel());
 		trocas.put("#CONTRATANTECPF", aluno.getCpfResponsavel());
 		trocas.put("#CONTRATANTERUA", aluno.getEndereco() + ", " + aluno.getBairro());
-		trocas.put("atencaodevedor", "ATENÇÃO! "
-				+ " \n"
-				+ "Consta em nosso sistema débitos pendentes relativos ao "
-				+ " \n"
-				+"transporte escolar do ano letivo de 2018.");
+		boolean devedor = devedorService.isdevedor(aluno);
+		
+		
+		
+		if(devedor){
+			trocas.put("atencaodevedor", "ATENÇÃO! Consta em nosso sistema débitos pendentes relativos ao transporte escolar do ano letivo de " +ano +".");
+			
+			trocas.put("devedormensagem", "Caso já tenha efetuado o pagamento favor desconsiderar o aviso acima.");
+			trocas.put("finalmensagem", "Informamos que a rematrícula do seu filho(a) está condicionada quitação total das parcelas em aberto até 31/12/"+ ano +". Para acertar os valores em aberto favor entrar em contato com o financeiro através dos telefones 3242-4194 ou 9 8837-5270.");	
+		}else{
+			trocas.put("atencaodevedor","");
+			trocas.put("devedormensagem", "");
+			trocas.put("finalmensagem", "");
+		}
+		
 				
-		trocas.put("cidaderesponsavel", "");
+		trocas.put("cidaderesp", "");
+		trocas.put("ruaaluno", aluno.getEnderecoAluno());
+		trocas.put("BAIRROALUNO", aluno.getBairroAluno().getName());
+		trocas.put("valorjaneiro", getValor(1,aluno)+"");
+		trocas.put("valorfevereiro", getValor(2,aluno)+"");
+		trocas.put("valormarco", getValor(3,aluno)+"");
 		
 
 		String nomeAluno = aluno.getNomeAluno();
@@ -928,15 +958,22 @@ public class AlunoController implements Serializable {
 		if (aluno.getIrmao4() != null) {
 			nomeAluno += ", " + aluno.getIrmao4().getNomeAluno();
 		}
-
 		
 		trocas.put("#TRANSPORTADORUA", aluno.getEndereco() + ", " + aluno.getBairro());
 		trocas.put("#TRANSPORTADOESCOLA", aluno.getEscola().getName());
 		trocas.put("#escola", aluno.getEscola().getName());
 
-		trocas.put("#nascimento", aniversario);
+		if(aniversario != null){
+			trocas.put("#nascimento", aniversario);
+		}else{
+			trocas.put("#nascimento", "");
+		}
 		trocas.put("#CONTRATANTERUA", aluno.getEndereco() + ", " + aluno.getBairro());
-		trocas.put("#idade", (ano-anoNascimento -1)+"");
+		if(anoNascimento>0){
+			trocas.put("#idade", (ano-anoNascimento -1)+"");
+		}else{
+			trocas.put("#idade", "");
+		}
 		trocas.put("BAIRROESCOLA",aluno.getEscola().getBairro() );
 		trocas.put("SERIEALUNO",aluno.getSerie().getName());
 		trocas.put("NOMERESPONSAVEL",aluno.getNomeResponsavel());
@@ -944,7 +981,7 @@ public class AlunoController implements Serializable {
 		trocas.put("MAERESPONSAVEL",aluno.getNomeMaeResponsavel());
 		trocas.put("cpfresponsavel",aluno.getCpfResponsavel());
 		trocas.put("#RG",aluno.getRgResponsavel());
-		trocas.put("naturalidadealuno","Brasileiro(a)");
+		trocas.put("naturalidadealuno","");
 		trocas.put("nascimentoresponsavel"," ");
 		trocas.put("estadocivil"," ");
 		trocas.put("nomeconjugue"," ");
@@ -955,17 +992,43 @@ public class AlunoController implements Serializable {
 		trocas.put("#bairro",aluno.getBairro());
 		trocas.put("#email1",aluno.getContatoEmail1());
 		trocas.put("#email2",aluno.getContatoEmail2());
-		trocas.put("telefoneum",aluno.getContatoTelefone1());
-		trocas.put("contatoum",aluno.getContatoNome1());
-		trocas.put("telefonedois",aluno.getContatoTelefone2());
-		trocas.put("contatodois",aluno.getContatoNome2());
-		trocas.put("telefonetres",aluno.getContatoTelefone3());
-		trocas.put("contatotres",aluno.getContatoNome3());
-		trocas.put("telefonequatro",aluno.getContatoTelefone4());
-		trocas.put("contatoquatro",aluno.getContatoNome4());
-		trocas.put("telefonecinco",aluno.getContatoTelefone5());
-		trocas.put("contatocinco",aluno.getContatoNome5());
-		trocas.put("contatoseis",aluno.getContatoNome5());
+		if(aluno.getContatoTelefone1() != null){
+			trocas.put("telefoneum",!aluno.getContatoTelefone1().equalsIgnoreCase("") ?aluno.getContatoTelefone1():"_______________" );
+			trocas.put("contatoum",!aluno.getContatoNome1().equalsIgnoreCase("") ?aluno.getContatoNome1():"____________" );
+		}else{
+			trocas.put("telefoneum","_______________" );
+			trocas.put("contatoum","____________" );
+		}
+		if(aluno.getContatoTelefone2() != null){
+			trocas.put("telefonedois",!aluno.getContatoTelefone2().equalsIgnoreCase("") ?aluno.getContatoTelefone2():"_______________" );
+			trocas.put("contatodois",!aluno.getContatoNome2().equalsIgnoreCase("") ?aluno.getContatoNome2():"____________" );
+		}else{
+			trocas.put("telefonedois","_______________" );
+			trocas.put("contatodois","____________" );
+		}
+		if(aluno.getContatoTelefone3() != null){
+			trocas.put("telefonetres",!aluno.getContatoTelefone3().equalsIgnoreCase("") ?aluno.getContatoTelefone3():"_______________" );	
+			trocas.put("contatotres",!aluno.getContatoNome3().equalsIgnoreCase("") ?aluno.getContatoNome3():"____________" );
+		}else{
+			trocas.put("telefonetres","_______________" );	
+			trocas.put("contatotres","____________" );
+		}if(aluno.getContatoTelefone4() != null){
+			trocas.put("telefonequatro",!aluno.getContatoTelefone4().equalsIgnoreCase("") ?aluno.getContatoTelefone4():"_______________" );
+			trocas.put("contatoquatro",!aluno.getContatoNome4().equalsIgnoreCase("") ?aluno.getContatoNome4():"____________" );
+		}else{
+			trocas.put("telefonequatro","_______________" );
+			trocas.put("contatoquatro","____________" );
+		}
+		if(aluno.getContatoTelefone5() != null){
+			trocas.put("telefonecinco",!aluno.getContatoTelefone5().equalsIgnoreCase("") ?aluno.getContatoTelefone5():"_______________" );
+			trocas.put("contatocinco",!aluno.getContatoNome5().equalsIgnoreCase("") ?aluno.getContatoNome5():"____________" );
+		}else{
+			trocas.put("telefonecinco","_______________" );
+			trocas.put("contatocinco","____________" );
+
+		}
+		
+		trocas.put("contatoseis",!aluno.getContatoNome5().equalsIgnoreCase("") ?aluno.getContatoNome5():"____________" );
 		trocas.put("#NOMEALUNO", nomeAluno);
 		
 		String periodo1 = "";
@@ -1026,9 +1089,14 @@ public class AlunoController implements Serializable {
 	}
 
 	
+	private double getValor(int mesMatricula, Aluno aluno2) {
+		double valor = tabelaPrecoService.getValor(mesMatricula, aluno2);
+		return valor;
+	}
+
 	private String getMesInicioPagamento(Aluno aluno2) {
 		String mes = "Janeiro";
-		switch (aluno.getNumeroParcelas()) {
+		switch (aluno2.getNumeroParcelas()) {
 		case 12:
 			break;
 
@@ -1138,18 +1206,24 @@ public class AlunoController implements Serializable {
 	}
 	
 	public StreamedContent imprimirFichaRematricula(Aluno aluno) throws IOException {
+		String nomeArquivo = gerarFichaRematricula(aluno);
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" +  nomeArquivo;
+		InputStream stream = new FileInputStream(caminho);
+		return FileDownload.getContentDoc(stream, nomeArquivo);
+	}
+	
+	public String gerarFichaRematricula(Aluno aluno) throws IOException {
 		String nomeArquivo = "";
+		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" +configuracaoService.getConfiguracao().getAnoLetivo());
 		if (aluno != null && aluno.getId() != null) {
-			nomeArquivo = aluno.getCodigo() + aluno.getNomeResponsavel() + "R";
+			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo()+"\\" + aluno.getCodigo() + aluno.getNomeResponsavel() + "R";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloRematricula.docx", montarContratoRematricula(aluno), nomeArquivo);
 			nomeArquivo += ".doc";
 		} else {
 			nomeArquivo = "modeloRematricula.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
-		InputStream stream = new FileInputStream(caminho);
-		return FileDownload.getContentDoc(stream, nomeArquivo);
+		return nomeArquivo;
 	}
 	
 	public StreamedContent imprimirContrato() throws IOException {
@@ -1548,6 +1622,48 @@ public class AlunoController implements Serializable {
 			InputStream stream = new ByteArrayInputStream(arquivoZip);
 			return FileDownload.getContentDoc(stream, "baixa.zip");
 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+	
+	public StreamedContent gerarRematricula_TodosAlunos() {
+		try {
+			Map<String,Object> parametros = new HashMap<>();
+			parametros.put("removido", false);
+			parametros.put("anoLetivo", configuracaoService.getConfiguracao().getAnoLetivo());
+			List<Aluno> todosAlunos = alunoService.findAll(parametros);
+
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" 
+					+configuracaoService.getConfiguracao().getAnoLetivo();
+			CompactadorZip.createDir(caminhoFinalPasta);
+			
+			//todosAlunos.size();
+			//int i=0;i<200; i++
+			for(Aluno al:todosAlunos){
+				//Aluno al = todosAlunos.get(i);
+				if(al.getBairroAluno() != null){
+					String nome = gerarFichaRematricula(al); //todosAlunos.get(i)
+					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nome;
+					InputStream stream = new FileInputStream(caminho);
+					
+					System.out.println(caminho);
+					FileUtils.inputStreamToFile(stream, nome);	
+				}
+			}
+			
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"+"escolartodasREMATRICULAS.zip";
+			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
+			
+			InputStream stream2 =  new FileInputStream(arquivoSaida);
+			return FileDownload.getContentDoc(stream2, "escolartodasREMATRICULAS.zip");
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

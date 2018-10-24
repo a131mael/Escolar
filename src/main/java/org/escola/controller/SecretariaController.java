@@ -1086,7 +1086,7 @@ public class SecretariaController {
 		return null;
 
 	}
-
+	
 	public String remover(Long idcusto) {
 		custoService.remover(idcusto);
 		return "index";
