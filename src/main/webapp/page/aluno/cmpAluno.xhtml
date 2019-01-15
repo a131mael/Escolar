@@ -13,14 +13,13 @@
 			style="font-size: 13px; width:180px" />
 		<p:inputText title="" value="#{parametro.codigo}"
 			style="font-size: 15px; width:280px" disabled="#{disable}">
-			<p:ajax process="@this"/>
 			</p:inputText>
 
 		<h:outputLabel for="name" value="Nome(*): "
 			style="font-size: 13px; width:180px" />
 		<p:inputText title="" value="#{parametro.nomeAluno}"
 			style="font-size: 15px; width:280px" disabled="#{disable}">
-			<p:ajax process="@this"/>
+			<p:ajax process="@this" event="change"/>
 		</p:inputText>
 		
 
@@ -37,7 +36,7 @@
 			style="font-size: 13px; width:180px" />
 		<p:inputText title="" value="#{parametro.enderecoAluno}"
 			style="font-size: 15px; width:280px" disabled="#{disable}">
-			<p:ajax process="@this"/>
+				<p:ajax process="@this" event="change"/>
 		</p:inputText>
 
 		<h:outputLabel value="Escola: " style="font-size: 13px; width:180px" />
@@ -61,8 +60,8 @@
 			style="font-size: 13px; width:180px" />
 		<p:calendar value="#{parametro.dataNascimento}" pattern="dd/MM/yyyy"
 			mask="true" style="font-size: 15px; width:280px"  disabled="#{disable}">
-			<p:ajax process="@this" />
-			</p:calendar>
+				<p:ajax process="@this" event="change"/>
+		</p:calendar>
 
 		<h:outputLabel value="Horário: " style="font-size: 13px; width:180px" />
 		<p:selectOneMenu  style="width: 256px;"

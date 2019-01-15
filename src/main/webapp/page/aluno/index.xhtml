@@ -147,19 +147,19 @@
 					</f:facet>
 
 					<p:column style="width:10%; text-align:center;"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Status ">
 						<table>
 							<tr>
 								<td style="border: none;">
 									<p:panelGrid
-										rendered="#{alunoController.cadastroOk(professorTab.id)}"
+										rendered="#{alunoController.cadastroOk(professorTab)}"
 										styleClass="semborda" style="border:none !important;padding:1px">
 										<img src="../../admin/resources/ico/ok.png" width="390"
 											style="width: 20px; height: 20px;" />
 									</p:panelGrid>
 									<p:panelGrid
-										rendered="#{!alunoController.cadastroOk(professorTab.id)}"
+										rendered="#{!alunoController.cadastroOk(professorTab)}"
 										styleClass="semborda" style="border:none !important;padding:1px">
 										<img src="../../admin/resources/ico/alertRed.png" width="390"
 											style="width: 20px; height: 20px;" />
@@ -169,13 +169,13 @@
 						
 								<td style="border: none;">
 									<p:panelGrid
-										rendered="#{alunoController.cnabEnviado(professorTab.id)}"
+										rendered="#{alunoController.cnabEnviado(professorTab)}"
 										styleClass="semborda" style="border:none !important;padding:1px">
 										<img src="../../admin/resources/ico/cnabEnviado.png" width="390"
 											style="width: 20px; height: 20px;" />
 									</p:panelGrid>
 									<p:panelGrid
-										rendered="#{!alunoController.cnabEnviado(professorTab.id)}"
+										rendered="#{!alunoController.cnabEnviado(professorTab)}"
 										styleClass="semborda" style="border:none !important;padding:1px">
 										<img src="../../admin/resources/ico/enviarCnab.png" width="390"
 											style="width: 20px; height: 20px;" />
@@ -187,14 +187,14 @@
 					</p:column>
 					<p:column style="width:7%; text-align:center;"
 						filterBy="#{professorTab.codigo}"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						sortBy="#{professorTab.codigo}" headerText="Código ">
 						<h:outputText value="#{professorTab.codigo}" />
 					</p:column>
 
 					<p:column filterBy="#{professorTab.nomeAluno}"
 						sortBy="#{professorTab.nomeAluno}" style="text-align:center;"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Nome ">
 						<h:outputText value="#{professorTab.nomeAluno}" />
 					</p:column>
@@ -202,7 +202,7 @@
 					<p:column filterBy="#{professorTab.periodo}"
 						sortBy="#{professorTab.periodo}"
 						style="text-align:center;width:8%"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Periodo "
 						filterOptions="#{CombosEspeciaisMB.periodosSelectIItem}">
 						<h:outputText value="#{professorTab.periodo.name}" />
@@ -211,7 +211,7 @@
 					<p:column filterBy="#{professorTab.carroLevaParaEscola}"
 						sortBy="#{professorTab.carroLevaParaEscola}"
 						style="text-align:center;width:12%"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Leva "
 						filterOptions="#{CombosEspeciaisMB.carrosSelectItem}">
 						<h:outputText value="#{professorTab.carroLevaParaEscola.nome}" />
@@ -223,7 +223,7 @@
 					<p:column filterBy="#{professorTab.carroPegaEscola}"
 						sortBy="#{professorTab.carroPegaEscola}"
 						style="text-align:center;width:12%"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Pega "
 						filterOptions="#{CombosEspeciaisMB.carrosSelectItem}">
 						<h:outputText value="#{professorTab.carroPegaEscola.nome}" />
@@ -235,23 +235,14 @@
 					<p:column filterBy="#{professorTab.escola}"
 						sortBy="#{professorTab.escola.name}"
 						style="text-align:center;width:14%"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
 						headerText="Escola "
 						filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>
 
-
-					<p:column filterBy="#{professorTab.valorMensal}"
-						sortBy="#{professorTab.valorMensal}"
-						style="text-align: center;width:9%;"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}"
-						headerText="Valor mensal ">
-						<h:outputText value="#{professorTab.valorMensal}" />
-					</p:column>
-
 					<p:column style="text-align: center; width:6%"
-						styleClass="#{alunoController.marcarLinha(professorTab.id)}">
+						styleClass="#{alunoController.marcarLinha(professorTab)}">
 						<f:facet name="header">
 							<h:outputText value="Remover" />
 						</f:facet>

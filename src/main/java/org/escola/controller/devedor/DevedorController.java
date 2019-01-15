@@ -39,6 +39,7 @@ import org.escolar.controller.OfficePDFUtil;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.model.Aluno;
 import org.escolar.model.Boleto;
+import org.escolar.model.ContratoAluno;
 import org.escolar.model.Devedor;
 import org.escolar.service.AlunoService;
 import org.escolar.service.DevedorService;
@@ -237,15 +238,14 @@ public class DevedorController implements Serializable {
 	public Double getTotal(Aluno devedor){
 		Double total = 0D;
 		if(devedor  != null){
-			if(devedor.getBoletos() != null && !devedor.getBoletos().isEmpty()){
-				for(Boleto b : devedor.getBoletos()){
+			if(devedor.getContratoVigente() != null &&  !devedor.getContratoVigente().getBoletos().isEmpty()){
+				for(Boleto b : devedor.getContratoVigente().getBoletos()){
 					if(b.getAtrasado() != null && b.getAtrasado()){
 						total += Verificador.getValorFinal(b);
 					}
 				}	
 			}	
 		}
-		
 		
 		return total;
 	}
@@ -268,9 +268,9 @@ public class DevedorController implements Serializable {
 		return "";
 	}
 	
-	public double valorTotal(Aluno aluno){
-		if(aluno != null && aluno.getNumeroParcelas() != null){
-			return aluno.getValorMensal()*aluno.getNumeroParcelas();
+	public double valorTotal(Aluno aluno, ContratoAluno contrato){
+		if(contrato != null && contrato.getNumeroParcelas() != null){
+			return contrato.getValorMensal()*contrato.getNumeroParcelas();
 		}else{
 			return 0;
 		}

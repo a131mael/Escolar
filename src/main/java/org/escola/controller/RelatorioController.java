@@ -237,18 +237,18 @@ public class RelatorioController implements Serializable{
 				if(pega || leva){
 					if(qdadeVolta==0){ //soh vai
 						if(leva){
-							valorCrianca = aluno.getValorMensalComDesconto()/qdadeIda;
+							valorCrianca = aluno.getContratoVigente().getValorMensal()/qdadeIda;
 						}	
 					}else if(qdadeIda==0){ //soh volta
 							if(pega){
-								valorCrianca = aluno.getValorMensalComDesconto()/qdadeVolta;
+								valorCrianca =(aluno.getContratoVigente().getValorMensal()-20)/qdadeVolta;
 							}	
 					}else{ // vai e volta
 						if(pega){
-							valorCrianca = (aluno.getValorMensalComDesconto()/qdadeVolta)/2;
+							valorCrianca = ((aluno.getContratoVigente().getValorMensal()-20)/qdadeVolta)/2;
 						}	
 						if(leva){
-							valorCrianca += (aluno.getValorMensalComDesconto()/qdadeIda)/2;
+							valorCrianca += ((aluno.getContratoVigente().getValorMensal()-20)/qdadeIda)/2;
 						}	
 					}
 					int quantidadeIrmaos = quantidadeIrmaos(aluno);

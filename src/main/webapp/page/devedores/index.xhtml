@@ -54,7 +54,7 @@
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                              resizableColumns="true"
                              rows="1200"
-                             sortBy="#{professorTab.nomeResponsavel}"
+                           	 sortBy="#{professorTab.nomeResponsavel}"
   							 id="tbl" var="professorTab"
 							 value="#{devedorController.lazyDataModel}"
 							  editable="true" editMode="cell"
@@ -88,15 +88,13 @@
                               sortBy="#{professorTab.nomeResponsavel}" 
                               style="text-align:center;"
                               headerText="Nome "
-                              width="20%"
+                              width="15%"
                               styleClass="#{devedorController.marcarLinha(professorTab)}">
  						<h:outputText value="#{professorTab.nomeResponsavel}" />
 						<br />
 						<h:outputText value="#{professorTab.cpfResponsavel}" />
 						<br />
 						<h:outputText value="#{professorTab.nomeAluno}" />
-                        <br />
-                        <h:outputText value="#{professorTab.escola.name}" />
                         <br />
                         <h:outputText value="#{professorTab.irmao1.nomeAluno}" />
                         <br />
@@ -115,68 +113,68 @@
                               sortBy="#{professorTab.cpfResponsavel}" 
                               style="text-align:center;"
                               headerText="Contato "
-                              width="16%">
-                              <p:panelGrid >
-			                        <h:outputText value="#{professorTab.contatoTelefone1}" />
-									<h:outputText value=" - " />
-									<h:outputText value="#{professorTab.contatoNome1}" />
+                              width="25%">
+							<p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneCelularMae}" />
+									<h:outputText value="Celular mae" />
+	                        </p:panelGrid>
+							<p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneResidencialMae}" />
+									<h:outputText value="Resid. mae" />
 	                         </p:panelGrid>
-							<p:panelGrid >
-			                        <h:outputText value="#{professorTab.contatoTelefone2}" />
-									<h:outputText value=" - " />
-									<h:outputText value="#{professorTab.contatoNome2}" />
+	                         <p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneEmpresaTrabalhaMae}" />
+									<h:outputText value="Telefone empr. mae" />
 	                         </p:panelGrid>
-							<p:panelGrid >
-			                        <h:outputText value="#{professorTab.contatoTelefone3}" />
-									<h:outputText value=" - " />
-									<h:outputText value="#{professorTab.contatoNome3}" />
-	                         </p:panelGrid>
-							<p:panelGrid >
-			                        <h:outputText value="#{professorTab.contatoTelefone4}" />
-									<h:outputText value=" - " />
-									<h:outputText value="#{professorTab.contatoNome4}" />
-	                         </p:panelGrid>
-							<p:panelGrid >
-			                        <h:outputText value="#{professorTab.contatoTelefone5}" />
-									<h:outputText value=" - " />
-									<h:outputText value="#{professorTab.contatoNome5}" />
+							<p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneCelularPai}" />
+									<h:outputText value="Celeluar pai" />
 	                         </p:panelGrid>
 							
-						
-								
-						
+							<p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneResidencialPai}" />
+									<h:outputText value="Resid. pai" />
+	                         </p:panelGrid>
+	                         <p:panelGrid columns="2">
+			                        <h:outputText value="#{professorTab.telefoneEmpresaTrabalhaPai}" />
+									<h:outputText value="Telefone empr. pai" />
+	                         </p:panelGrid>
+													
+							
 					</p:column>
 					
 					<p:column style="text-align:center;"
                               headerText="SPC"
                               filterOptions="#{CombosEspeciaisMB.simNaoNull}"
-                              width="7%">
+                              width="4%">
 						<!-- <h:outputText value="#{professorTab.enviadoParaCobrancaCDL eq true?'Sim':'Não'}" /> -->
 					</p:column>
 					
-					<p:column style="text-align:center;" width="50%"
-								styleClass="#{devedorController.marcarLinha(professorTab)}"
+					<p:column style="text-align:center;" width="40%"
                               headerText="Boletos" >
                               
-                              <ui:repeat var="boleto" value="#{professorTab.boletos}" style="border:none">
-                              		<p:panelGrid rendered="#{boleto.atrasado}" columns="5" 
+                              <ui:repeat var="contr" value="#{professorTab.contratos}" style="border:none">
+                              	<ui:repeat var="bole" value="#{contr.boletos}">
+                              	<p:panelGrid rendered="#{bole.atrasado}" columns="5" 
                               					 columnClasses="tamanhoCelula"
                               					 style="border:none; background:none !important; padding:1px">
-	                              		<h:outputText value="#{boleto.nossoNumero}" style="border:none;background:none !important"></h:outputText>
-	                              		<h:outputText value="#{boleto.emissao}" style="border:none">
+	                              		<h:outputText value="#{bole.nossoNumero}" style="border:none;background:none !important"></h:outputText>
+	                              		<h:outputText value="#{bole.emissao}" style="border:none">
 	                              			<f:convertDateTime attern="dd/MM/yyyy" />
 	                              		</h:outputText>
-	                              		<h:outputText value="#{boleto.vencimento}" style="border:none">
+	                              		<h:outputText value="#{bole.vencimento}" style="border:none">
 	                              			<f:convertDateTime attern="dd/MM/yyyy" />
 	                              		</h:outputText>
-	                              		<h:outputText value="#{boleto.valorNominal}" style="border:none">
+	                              		<h:outputText value="#{bole.valorNominal}" style="border:none">
 	                              		    <f:convertNumber minFractionDigits="2" />
 	                              		</h:outputText>
 	                              		
-	                              		<h:outputText value="#{financeiroController.verificaValorFinalBoleto(boleto)}" style="border:none">
+	                              		<h:outputText value="#{financeiroController.verificaValorFinalBoleto(bole)}" style="border:none">
 	                              		    <f:convertNumber minFractionDigits="2" />
 	                              		</h:outputText>
                               		</p:panelGrid>
+                              	</ui:repeat>
+                              		
 	                              
                               </ui:repeat>
                               <p:panelGrid style="width:100%" columns="2">

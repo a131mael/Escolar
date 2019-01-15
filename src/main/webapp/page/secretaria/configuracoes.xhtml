@@ -37,6 +37,24 @@
 				<p:inputText value="#{configuracao.anoRematricula}">
 					<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}"/>
 				</p:inputText>
+				
+				<h:outputText value="Ano Letivo:" />
+				<p:inputText value="#{configuracao.anoLetivo}" disabled="fale">
+					<p:ajax event="change" process="@this"
+						listener="#{configuracaoController.salvar()}" />
+				</p:inputText>
+				
+				<h:outputText value="Gerar cnab do MES :" />
+				<p:inputText value="#{configuracaoController.mesGerarCNAB}">
+					<p:ajax event="blur" process="@this" />
+				</p:inputText>
+				
+				<p:commandButton id="contrato" icon="ui-icon-contact" ajax="false"
+					value="Gerar CNAB DO MES "
+						onclick="PrimeFaces.monitorDownload(start, stop);">
+					<p:fileDownload value="#{configuracaoController.gerarCNABDoMES(configuracaoController.mesGerarCNAB)}" />
+				</p:commandButton>
+				
 			</p:panelGrid>
 			
 

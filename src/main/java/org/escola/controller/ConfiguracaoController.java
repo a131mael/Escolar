@@ -16,17 +16,33 @@
  */
 package org.escola.controller;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Produces;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.escola.util.FileDownload;
+import org.escolar.model.Aluno;
+import org.escolar.model.Boleto;
 import org.escolar.model.Configuracao;
+import org.escolar.model.ContratoAluno;
+import org.escolar.service.AlunoService;
 import org.escolar.service.ConfiguracaoService;
+import org.escolar.util.CompactadorZip;
+import org.escolar.util.FileUtils;
+import org.primefaces.model.StreamedContent;
 
 @Named
 @ViewScoped
@@ -39,8 +55,13 @@ public class ConfiguracaoController implements Serializable {
 	@Named
 	private Configuracao configuracao;
 
+	private int mesGerarCNAB;
+
 	@Inject
 	private ConfiguracaoService configuracaoService;
+
+	@Inject
+	private AlunoService alunoService;
 
 	@PostConstruct
 	private void init() {
@@ -51,6 +72,75 @@ public class ConfiguracaoController implements Serializable {
 		} else {
 			configuracao = confs.get(0);
 		}
+	}
+
+	public StreamedContent gerarCNABDoMES(int mes) {
+		try {
+			Calendar calendario = Calendar.getInstance();
+
+			StringBuilder sb = new StringBuilder();
+			sb.append(calendario.get(Calendar.YEAR));
+			sb.append(calendario.get(Calendar.MONTH));
+			sb.append(calendario.get(Calendar.DAY_OF_MONTH));
+
+			List<Boleto> boletos = configuracaoService.findBoletosMes(mesGerarCNAB, configuracao.getAnoRematricula());
+
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + sb;
+			CompactadorZip.createDir(caminhoFinalPasta);
+
+			for (Boleto b : boletos) {
+				ContratoAluno ca = configuracaoService.findContrato(b.getId()); 
+				
+				if(ca.getCpfResponsavel() != null && !ca.getCpfResponsavel().equalsIgnoreCase("")){
+					if(ca.getNomeResponsavel() != null && !ca.getNomeResponsavel().equalsIgnoreCase("")){
+						if(ca.getEndereco() != null && !ca.getEndereco().equalsIgnoreCase("")){
+							if(ca.getCep() == null || ca.getCep().equalsIgnoreCase("")){
+								ca.setCep("88132700");	
+							}
+							if(ca.getBairro() == null || ca.getBairro().equalsIgnoreCase("")){
+								ca.setBairro("Bela Vista");
+							}
+							if(ca.getCidade() == null || ca.getCidade().equalsIgnoreCase("")){
+								ca.setCidade("Palhoca");
+							}
+							
+							InputStream stream = gerarCNB240(ca, mesGerarCNAB, caminhoFinalPasta);
+							FileUtils.inputStreamToFile(stream, b.getNossoNumero()+"");
+						}
+					}
+				}
+			}
+
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + sb + "CNAB240.zip";
+			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
+
+			InputStream stream2 = new FileInputStream(arquivoSaida);
+			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" +sb+".zip");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public InputStream gerarCNB240(ContratoAluno contrato, int mes, String caminhoArquivo) {
+		try {
+			String sequencialArquivo = configuracaoService.getSequencialArquivo() + "";
+
+			InputStream stream = FileUtils.gerarCNB240(sequencialArquivo, contrato, mes, caminhoArquivo);
+			configuracaoService.incrementaSequencialArquivoCNAB();
+
+			return stream;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public String salvar() {
@@ -68,6 +158,14 @@ public class ConfiguracaoController implements Serializable {
 
 	public void setConfiguracao(Configuracao configuracao) {
 		this.configuracao = configuracao;
+	}
+
+	public int getMesGerarCNAB() {
+		return mesGerarCNAB;
+	}
+
+	public void setMesGerarCNAB(int mesGerarCNAB) {
+		this.mesGerarCNAB = mesGerarCNAB;
 	}
 
 }
