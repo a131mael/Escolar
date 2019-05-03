@@ -215,7 +215,7 @@
 						</h:panelGrid>
 
 					</p:tab>
-					<p:tab title="Contratos">
+					<p:tab title="Contratos" rendered="#{alunoController.alunoCadastrado(aluno)}" >
 						<br/>
 						<h:panelGrid id="panelFerramentas" columns="36" style="margin-left:5px">
 								<p:commandButton id="adicionarNovoContrato" icon="ui-icon-plus" >

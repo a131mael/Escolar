@@ -16,6 +16,7 @@
  */
 package org.escola.controller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import org.escolar.model.Aluno;
 import org.escolar.model.Boleto;
 import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
+import org.escolar.rotinasAutomaticas.CNAB240;
 import org.escolar.service.AlunoService;
 import org.escolar.service.ConfiguracaoService;
 import org.escolar.util.CompactadorZip;
@@ -56,13 +58,18 @@ public class ConfiguracaoController implements Serializable {
 	private Configuracao configuracao;
 
 	private int mesGerarCNAB;
-
+	private int mesGerarCNABCancelamento;
+	
 	@Inject
 	private ConfiguracaoService configuracaoService;
 
 	@Inject
 	private AlunoService alunoService;
 
+	@Inject
+	private CNAB240 cnab240;
+
+	
 	@PostConstruct
 	private void init() {
 		List<Configuracao> confs = configuracaoService.findAll();
@@ -72,6 +79,41 @@ public class ConfiguracaoController implements Serializable {
 		} else {
 			configuracao = confs.get(0);
 		}
+	}
+	
+	public StreamedContent gerarCNABCancelamentoDoMES(int mes) {
+		try {
+			Calendar calendario = Calendar.getInstance();
+
+			StringBuilder sb = new StringBuilder();
+			sb.append(calendario.get(Calendar.YEAR));
+			sb.append(calendario.get(Calendar.MONTH));
+			
+			sb.append(calendario.get(Calendar.DAY_OF_MONTH));
+
+			List<Boleto> boletos = configuracaoService.findBoletosCanceladosMes(mesGerarCNABCancelamento, configuracao.getAnoRematricula());
+
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb+ File.separator;
+			CompactadorZip.createDir(caminhoFinalPasta);
+
+			for (Boleto b : boletos) {
+				gerarCNB240Cancelamento(b, caminhoFinalPasta);
+			}
+
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb + "CNAB240.zip";
+			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
+
+			InputStream stream2 = new FileInputStream(arquivoSaida);
+			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" +sb+".zip");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public StreamedContent gerarCNABDoMES(int mes) {
@@ -85,7 +127,7 @@ public class ConfiguracaoController implements Serializable {
 
 			List<Boleto> boletos = configuracaoService.findBoletosMes(mesGerarCNAB, configuracao.getAnoRematricula());
 
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + sb;
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb;
 			CompactadorZip.createDir(caminhoFinalPasta);
 
 			for (Boleto b : boletos) {
@@ -109,9 +151,10 @@ public class ConfiguracaoController implements Serializable {
 						}
 					}
 				}
+				configuracaoService.mudarStatusParaCNABEnviado(b);
 			}
 
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + sb + "CNAB240.zip";
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb + "CNAB240.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 
 			InputStream stream2 = new FileInputStream(arquivoSaida);
@@ -142,6 +185,15 @@ public class ConfiguracaoController implements Serializable {
 		}
 		return null;
 	}
+	
+	public void gerarCNB240Cancelamento(Boleto b, String caminhoArquivo) {
+		try {
+			cnab240.gerarBaixaBoletosCancelados(b, caminhoArquivo);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public String salvar() {
 		configuracaoService.save(configuracao);
@@ -166,6 +218,14 @@ public class ConfiguracaoController implements Serializable {
 
 	public void setMesGerarCNAB(int mesGerarCNAB) {
 		this.mesGerarCNAB = mesGerarCNAB;
+	}
+
+	public int getMesGerarCNABCancelamento() {
+		return mesGerarCNABCancelamento;
+	}
+
+	public void setMesGerarCNABCancelamento(int mesGerarCNABCancelamento) {
+		this.mesGerarCNABCancelamento = mesGerarCNABCancelamento;
 	}
 
 }

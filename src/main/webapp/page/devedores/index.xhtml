@@ -33,9 +33,25 @@
 				<p:separator style=" height:25px;" rendered="false"/>
 				
 				<p:commandButton  ajax="false" value="Imprimir"
+				rendered="false"
 					onclick="PrimeFaces.monitorDownload(start, stop);">
-					<p:fileDownload value="#{devedorController.imprimirDevedores()}" />
+					<p:fileDownload value="#{devedorController.imprimirDevedores()}" 
+					/>
 				</p:commandButton>
+				
+				<h:panelGrid id="panelFiltros" columns="5" style="margin-top: -5px; margin-left:-5px">
+					<h:outputLabel value="Vencimento inicio: " />
+					<p:calendar id="btInicio" value="#{devedorController.dataInicio}" showOn="button" >
+						<p:ajax event="change" process="@this"/>
+					</p:calendar>
+					<h:outputLabel value="Vencimento fim: " />
+					<p:calendar id="btFim" value="#{devedorController.dataFim}" showOn="button" >
+						<p:ajax event="change" process="@this"/>
+					</p:calendar>
+					
+					<p:commandButton  ajax="false" value="Buscar" action="#{devedorController.buscar()}" >
+					</p:commandButton>
+				</h:panelGrid>
 				
 				</h:panelGrid>
 
@@ -89,24 +105,26 @@
                               style="text-align:center;"
                               headerText="Nome "
                               width="15%"
-                              styleClass="#{devedorController.marcarLinha(professorTab)}">
- 						<h:outputText value="#{professorTab.nomeResponsavel}" />
-						<br />
-						<h:outputText value="#{professorTab.cpfResponsavel}" />
-						<br />
-						<h:outputText value="#{professorTab.nomeAluno}" />
-                        <br />
-                        <h:outputText value="#{professorTab.irmao1.nomeAluno}" />
-                        <br />
-                        <h:outputText value="#{professorTab.irmao2.nomeAluno}" />
-                        <br />
-                        <h:outputText value="#{professorTab.irmao3.nomeAluno}" />
-                        <br />
-                        <h:outputText value="#{professorTab.endereco}" />
-                        <br/>
-                        <h:outputText value="#{professorTab.bairro}" />
-                        <br/>
-                        <h:outputText value="#{professorTab.cep}" />
+                              styleClass="#{devedorController.marcarLinha2(professorTab)}">
+                                <ui:repeat var="contratAlun" value="#{professorTab.contratos}" style="border:none">
+	                                <h:outputText value="#{contratAlun.nomeResponsavel}" rendered="#{contratAlun.atrasado}"/>
+									<p:panelGrid rendered="#{contratAlun.atrasado}">
+										<br/>
+									</p:panelGrid>
+
+									<h:outputText value="#{contratAlun.cpfResponsavel }" rendered="#{contratAlun.atrasado}"/>
+									<br />
+			                     </ui:repeat>
+			                     <br />
+                              	<h:outputText value="#{professorTab.nomeAluno}" />
+		                        <br />
+		                        <h:outputText value="#{professorTab.irmao1.nomeAluno}" />
+		                        <br />
+		                        <h:outputText value="#{professorTab.irmao2.nomeAluno}" />
+		                        <br />
+		                        <h:outputText value="#{professorTab.irmao3.nomeAluno}" />
+		                        <br />
+ 						
 					</p:column>
 
 					<p:column filterBy="#{professorTab.cpfResponsavel}"
@@ -114,46 +132,48 @@
                               style="text-align:center;"
                               headerText="Contato "
                               width="25%">
-							<p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneCelularMae}" />
-									<h:outputText value="Celular mae" />
+							<p:panelGrid columns="2" rendered="#{devedorController.temcontato(professorTab.contatoTelefone1)}">
+			                        <h:outputText value="#{professorTab.contatoNome1}" />
+									<h:outputText value="#{professorTab.contatoTelefone1}" />
 	                        </p:panelGrid>
-							<p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneResidencialMae}" />
-									<h:outputText value="Resid. mae" />
+							<p:panelGrid columns="2" rendered="#{devedorController.temcontato(professorTab.contatoTelefone2)}">
+			                        <h:outputText value="#{professorTab.contatoNome2}" />
+									<h:outputText value="#{professorTab.contatoTelefone2}" />
 	                         </p:panelGrid>
-	                         <p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneEmpresaTrabalhaMae}" />
-									<h:outputText value="Telefone empr. mae" />
+	                         <p:panelGrid columns="2" rendered="#{devedorController.temcontato(professorTab.contatoTelefone3)}">
+			                         <h:outputText value="#{professorTab.contatoNome3}" />
+									<h:outputText value="#{professorTab.contatoTelefone3}" />
 	                         </p:panelGrid>
-							<p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneCelularPai}" />
-									<h:outputText value="Celeluar pai" />
+							<p:panelGrid columns="2" rendered="#{devedorController.temcontato(professorTab.contatoTelefone4)}">
+			                         <h:outputText value="#{professorTab.contatoNome4}" />
+									<h:outputText value="#{professorTab.contatoTelefone4}" />
 	                         </p:panelGrid>
 							
-							<p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneResidencialPai}" />
-									<h:outputText value="Resid. pai" />
+							<p:panelGrid columns="2" rendered="#{devedorController.temcontato(professorTab.contatoTelefone5)}">
+			                        <h:outputText value="#{professorTab.contatoNome5}" />
+									<h:outputText value="#{professorTab.contatoTelefone5}" />
 	                         </p:panelGrid>
-	                         <p:panelGrid columns="2">
-			                        <h:outputText value="#{professorTab.telefoneEmpresaTrabalhaPai}" />
-									<h:outputText value="Telefone empr. pai" />
-	                         </p:panelGrid>
-													
 							
-					</p:column>
-					
-					<p:column style="text-align:center;"
-                              headerText="SPC"
-                              filterOptions="#{CombosEspeciaisMB.simNaoNull}"
-                              width="4%">
-						<!-- <h:outputText value="#{professorTab.enviadoParaCobrancaCDL eq true?'Sim':'Não'}" /> -->
 					</p:column>
 					
 					<p:column style="text-align:center;" width="40%"
                               headerText="Boletos" >
                               
                               <ui:repeat var="contr" value="#{professorTab.contratos}" style="border:none">
+                              	 <h:outputText value="#{contr.nomeResponsavel}" rendered="#{contr.atrasado}"/>
+                              	 <h:outputText value=" " rendered="#{contr.atrasado}"/>
+                              	 <h:outputText value="#{contr.ano}" rendered="#{contr.atrasado}"/>
+                              	
+                              	 <p:commandButton  ajax="false" value="Plan. Protesto" rendered="#{false}" 
+                              						 onclick="PrimeFaces.monitorDownload(start, stop);">
+									<p:fileDownload value="#{devedorController.gerarArquivoProtesto(contr)}" />
+								</p:commandButton>
+								
+								<p:commandButton update="tbl" icon="ui-icon-arrowthick-1-n" rendered="#{contr.atrasado}" 
+												action="#{devedorController.enviarProtesto(contr)}" process="@this">
+										<p:confirm header="Confirmação" message="Enviado para protesto ?" icon="ui-icon-alert" />
+								</p:commandButton>
+                              	 
                               	<ui:repeat var="bole" value="#{contr.boletos}">
                               	<p:panelGrid rendered="#{bole.atrasado}" columns="5" 
                               					 columnClasses="tamanhoCelula"
@@ -224,15 +244,13 @@
 					</p:column>
 
 					
-					<p:column style="text-align: center; width:8%" 
-					width="5%" rendered="false">
+					<p:column style="text-align: center; width:8%" width="5%" rendered="false">
 						<f:facet name="header">
-							<h:outputText value="Rem." />
+							<h:outputText value="Protesto." />
 						</f:facet>
-						
-							<p:commandButton update="tbl" icon="ui-icon-trash" action="#{devedorController.remover(professorTab.id)}" >
-								<p:confirm header="Confirmação" message="Tem certeza que deseja remover ?" icon="ui-icon-alert" />
-							</p:commandButton>
+						<p:commandButton update="tbl" icon="ui-icon-trash" action="#{devedorController.remover(professorTab.id)}" >
+							<p:confirm header="Confirmação" message="Enviado para protesto ?" icon="ui-icon-alert" />
+						</p:commandButton>
 					</p:column>
 
 				</p:dataTable>

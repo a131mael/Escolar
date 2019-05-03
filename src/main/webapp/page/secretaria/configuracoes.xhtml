@@ -32,17 +32,19 @@
 				<p:fileDownload value="#{alunoController.gerarRematricula_TodosAlunos()}" />
 			</p:commandButton>	
 			
-			<p:panelGrid columns="2"> 
+			<p:panelGrid columns="3"> 
 				<h:outputText value="Ano rematrícula:" />
 				<p:inputText value="#{configuracao.anoRematricula}">
 					<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}"/>
 				</p:inputText>
+				<h:outputText value="" />
 				
 				<h:outputText value="Ano Letivo:" />
 				<p:inputText value="#{configuracao.anoLetivo}" disabled="fale">
 					<p:ajax event="change" process="@this"
 						listener="#{configuracaoController.salvar()}" />
 				</p:inputText>
+				<h:outputText value="" />
 				
 				<h:outputText value="Gerar cnab do MES :" />
 				<p:inputText value="#{configuracaoController.mesGerarCNAB}">
@@ -50,9 +52,20 @@
 				</p:inputText>
 				
 				<p:commandButton id="contrato" icon="ui-icon-contact" ajax="false"
-					value="Gerar CNAB DO MES "
+					value="Gerar CNAB "
 						onclick="PrimeFaces.monitorDownload(start, stop);">
 					<p:fileDownload value="#{configuracaoController.gerarCNABDoMES(configuracaoController.mesGerarCNAB)}" />
+				</p:commandButton>
+				
+				<h:outputText value="Gerar CNAB Cancelamento Mes :" />
+				<p:inputText value="#{configuracaoController.mesGerarCNABCancelamento}">
+					<p:ajax event="blur" process="@this" />
+				</p:inputText>
+				
+				<p:commandButton id="cancelados" icon="ui-icon-contact" ajax="false"
+					value="Gerar CNAB Cancelamento  "
+						onclick="PrimeFaces.monitorDownload(start, stop);">
+					<p:fileDownload value="#{configuracaoController.gerarCNABCancelamentoDoMES(configuracaoController.mesGerarCNABCancelamento)}" />
 				</p:commandButton>
 				
 			</p:panelGrid>

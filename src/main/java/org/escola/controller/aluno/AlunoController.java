@@ -935,6 +935,14 @@ public class AlunoController implements Serializable {
 
 		return trocas;
 	}
+	
+	public boolean alunoCadastrado(Aluno al){
+		if(aluno.getId() != null){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	public HashMap<String, String> montarContrato(ContratoAluno contrato) {
 		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));

@@ -225,10 +225,10 @@
     TARGET="rules:#page#public#rotas.xhtml" TITLE="index" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
- <PROCESS-ITEM NAME="rules:#page#devedores#index.xhtml"
-  PATH="/page/devedores/index.xhtml" SHAPE="48,413,0,0" model-entity="JSFProcessGroup">
-  <PROCESS-ITEM ID="rules:#page#devedores#index.xhtml:0" NAME="item"
-   PATH="/page/devedores/index.xhtml" model-entity="JSFProcessItem">
+ <PROCESS-ITEM NAME="rules:#page#devedores#indexNew.xhtml"
+  PATH="/page/devedores/indexNew.xhtml" SHAPE="48,413,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#page#devedores#indexNew.xhtml:0" NAME="item"
+   PATH="/page/devedores/indexNew.xhtml" model-entity="JSFProcessItem">
    <PROCESS-ITEM-OUTPUT
     ID="cadastrar::#page#devedores#cadastrarDevedor.xhtml" NAME="output"
     PATH="/page/devedores/cadastrarDevedor.xhtml"
@@ -240,9 +240,9 @@
   PATH="/page/devedores/cadastrarDevedor.xhtml" SHAPE="192,432,50,25" model-entity="JSFProcessGroup">
   <PROCESS-ITEM ID="rules:#page#devedores#cadastrarDevedor.xhtml:0"
    NAME="item" PATH="/page/devedores/cadastrarDevedor.xhtml" model-entity="JSFProcessItem">
-   <PROCESS-ITEM-OUTPUT ID="index::#page#devedores#index.xhtml"
-    NAME="output" PATH="/page/devedores/index.xhtml"
-    TARGET="rules:#page#devedores#index.xhtml" TITLE="index" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="index::#page#devedores#indexNew.xhtml"
+    NAME="output" PATH="/page/devedores/indexNew.xhtml"
+    TARGET="rules:#page#devedores#indexNew.xhtml" TITLE="index" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#page#aluno#canceladas.xhtml"

@@ -9,7 +9,26 @@
 		<h:form style="width:100%; border:none" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
 		<br />
 
-		<p:chart type="line" model="#{graficosController.lineModel1}" style="height:300px;"/>			
+		<p:chart type="bubble" model="#{graficosController.lineModelAlunosEscola}" style="height:300px;"/>
+		
+		<p:chart type="pie" model="#{graficosController.pieModelAlunosEscola}" style="height:300px;"/>
+		
+		<p:chart type="pie" model="#{graficosController.pieModelAlunosBairro}" style="height:300px;"/>
+		
+		<p:chart type="pie" model="#{graficosController.pieModelAlunosPeriodo}" style="height:300px;"/>
+		
+		<p:chart type="pie" model="#{graficosController.pieModelAlunosTroca}" style="height:300px;"/>
+
+		<h:panelGrid columns="2" width="100%">
+			<h:outputLabel value="Faturamento atual" width="100%"/>
+			<h:outputLabel value="#{graficosController.faturamentoAtual}" width="20%"/>
+			
+			<h:outputLabel value="Quantidade de contratos" width="100%"/>
+			<h:outputLabel value="#{graficosController.quantidadeContratos}" width="20%"/>
+			
+			<h:outputLabel value="Quantidade de alunos" width="100%"/>
+			<h:outputLabel value="#{graficosController.quantidadeAlunos}" width="20%"/>
+		</h:panelGrid>
 
 		</h:form>
 	</ui:define>
