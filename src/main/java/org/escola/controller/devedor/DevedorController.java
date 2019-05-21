@@ -25,8 +25,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,7 +37,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.escola.util.FileDownload;
-import org.escolar.controller.OfficePDFUtil;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.model.Aluno;
@@ -560,7 +557,7 @@ public class DevedorController implements Serializable {
 					modeloArq = "modelo_protesto11.docx";
 					break;
 				case 10:
-					modeloArq = "modelo_protest10.docx";
+					modeloArq = "modelo_protesto10.docx";
 					break;
 				case 9:
 					modeloArq = "modelo_protesto9.docx";
