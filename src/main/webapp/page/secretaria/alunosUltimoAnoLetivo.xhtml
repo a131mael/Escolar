@@ -34,11 +34,13 @@
 				<p:separator style=" height:25px;" />
 				<p:commandButton id="boletim" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" 
 								 icon="ui-icon-bookmark"  
+								 rendered="false"
 								 disabled="#{!alunoController.alunoSelecionado}">
-				z				 <p:fileDownload value="#{alunoController.imprimirContratoAdonai()}" />
+								 <p:fileDownload value="#{alunoController.imprimirContratoAdonai()}" />
 								 </p:commandButton>
 				<p:commandButton id="negativoDebito"  ajax="false" icon="ui-icon-pencil" 
 								 onclick="PrimeFaces.monitorDownload(start, stop);"
+									 rendered="false"
 								  disabled="#{!alunoController.alunoSelecionado}">
 								  	<p:fileDownload value="#{alunoController.imprimirNegativoDebito()}" />
 								  </p:commandButton>
@@ -47,7 +49,8 @@
 						<p:fileDownload value="#{alunoController.imprimirContrato()}" />
 				</p:commandButton>
 				<p:commandButton id="atestadoFrequencia" icon="ui-icon-pencil"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" 
-								 disabled="#{!alunoController.alunoSelecionado}">
+								 disabled="#{!alunoController.alunoSelecionado}"
+								 rendered="false">
 								<p:fileDownload value="#{alunoController.imprimirAtestadoFrequencia()}" />
 				</p:commandButton> 
 			</h:panelGrid>

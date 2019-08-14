@@ -37,17 +37,23 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.escola.util.FileDownload;
+import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
+import org.escolar.enums.Serie;
 import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.model.Aluno;
 import org.escolar.model.Boleto;
+import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
 import org.escolar.model.Devedor;
 import org.escolar.service.AlunoService;
+import org.escolar.service.ConfiguracaoService;
 import org.escolar.service.DevedorService;
+import org.escolar.service.TurmaService;
 import org.escolar.util.ImpressoesUtils;
 import org.escolar.util.Util;
 import org.escolar.util.Verificador;
+import org.primefaces.context.PrimeFacesContext;
 import org.primefaces.event.CellEditEvent;
 import org.primefaces.event.RowEditEvent;
 import org.primefaces.model.LazyDataModel;
@@ -66,6 +72,10 @@ public class DevedorController implements Serializable {
 	@Produces
 	@Named
 	private Devedor devedor;
+	
+	@Produces
+	@Named
+	private Aluno alunoDevedor;
 
 	@Produces
 	@Named
@@ -76,6 +86,16 @@ public class DevedorController implements Serializable {
 
 	@Inject
 	private AlunoService alunoService;
+	
+	@Inject
+	private TurmaService carroService;
+	
+	@Inject
+	private ConfiguracaoService configuracaoService;
+	
+	private LazyDataModel<Aluno> lazyListDataModelAtrasados;
+	
+	private LazyDataModel<Aluno> lazyListDataModelAtrasadosContactados;
 
 	private LazyDataModel<Aluno> lazyListDataModel;
 
@@ -88,11 +108,16 @@ public class DevedorController implements Serializable {
 	private LazyDataModel<Aluno> lazyListDataModelAnoPassado;
 
 	private LazyDataModel<Aluno> lazyListDataModelAnteriores;
-
+	
 	private Date dataInicio;
 
 	private Date dataFim;
+	
+	private Configuracao configuracao;
+	
+	private Double valorTotal = 0D;
 
+	private long total = 0;
 	@Produces
 	@Named
 	private ContratoAluno contratoS;
@@ -117,6 +142,7 @@ public class DevedorController implements Serializable {
 				devedor.setValorTotal(0D);
 			}
 		}
+		configuracao = configuracaoService.getConfiguracao();
 	}
 
 	public StreamedContent imprimirDevedores() throws IOException, DocumentException {
@@ -158,6 +184,145 @@ public class DevedorController implements Serializable {
 
 	}
 
+	public LazyDataModel<Aluno> getLazyDataModelAtrasados() {
+		if (lazyListDataModelAtrasados == null) {
+
+			lazyListDataModelAtrasados = new LazyDataModel<Aluno>() {
+
+				@Override
+				public Aluno getRowData(String rowKey) {
+					return getDevedorService().findById(Long.valueOf(rowKey));
+				}
+
+				@Override
+				public Long getRowKey(Aluno al) {
+					return al.getId();
+				}
+
+				@Override
+				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,Map<String, Object> where) {
+
+					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.putAll(where);
+					if (filtros.containsKey("periodo")) {
+						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
+								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
+					}
+
+					if (filtros.containsKey("enviadoParaCobrancaCDL")) {
+						filtros.put("enviadoParaCobrancaCDL",
+								filtros.get("enviadoParaCobrancaCDL").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+
+					if (filtros.containsKey("contratoTerminado")) {
+						filtros.put("contratoTerminado",
+								filtros.get("contratoTerminado").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+
+					if (filtros.containsKey("enviadoSPC")) {
+						filtros.put("enviadoSPC",
+								filtros.get("enviadoSPC").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+					
+
+					String orderByParam = (order != null) ? order : "id";
+					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
+
+					List<Aluno> ol = getDevedorService().findAtrasados(dataInicio, dataFim,orderByParam,orderParam,first,pageSize,where);
+					
+					if (ol != null && ol.size() > 0) {
+						lazyListDataModelAtrasados.setRowCount((int) getDevedorService().countAtrasados(null));
+						return ol;
+					}
+
+					this.setRowCount((int) getDevedorService().countAtrasados(null));
+					return null;
+
+				}
+			};
+			lazyListDataModelAtrasados.setRowCount((int) getDevedorService().countAtrasados(null));
+
+		}
+
+		return lazyListDataModelAtrasados;
+
+	}
+	
+	public LazyDataModel<Aluno> getLazyDataModelAtrasadosContactados() {
+		if (lazyListDataModelAtrasadosContactados == null) {
+
+			lazyListDataModelAtrasadosContactados = new LazyDataModel<Aluno>() {
+
+				@Override
+				public Aluno getRowData(String rowKey) {
+					return getDevedorService().findById(Long.valueOf(rowKey));
+				}
+
+				@Override
+				public Long getRowKey(Aluno al) {
+					return al.getId();
+				}
+
+				@Override
+				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,Map<String, Object> where) {
+
+					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.putAll(where);
+					if (filtros.containsKey("periodo")) {
+						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
+								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
+					}
+
+					if (filtros.containsKey("enviadoParaCobrancaCDL")) {
+						filtros.put("enviadoParaCobrancaCDL",
+								filtros.get("enviadoParaCobrancaCDL").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+
+					if (filtros.containsKey("contratoTerminado")) {
+						filtros.put("contratoTerminado",
+								filtros.get("contratoTerminado").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+
+					if (filtros.containsKey("enviadoSPC")) {
+						filtros.put("enviadoSPC",
+								filtros.get("enviadoSPC").equals("Não") ? Boolean.FALSE : Boolean.TRUE);
+					}
+					
+
+					String orderByParam = (order != null) ? order : "id";
+					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
+
+					List<Aluno> ol = getDevedorService().findAtrasadosContactado(dataInicio, dataFim,orderByParam,orderParam,first,pageSize,where);
+					
+					if (ol != null && ol.size() > 0) {
+						lazyListDataModelAtrasadosContactados.setRowCount((int) getDevedorService().countAtrasados(null));
+						return ol;
+					}
+
+					this.setRowCount((int) getDevedorService().countAtrasados(null));
+					return null;
+
+				}
+			};
+			lazyListDataModelAtrasadosContactados.setRowCount((int) getDevedorService().countAtrasados(null));
+
+		}
+
+		return lazyListDataModelAtrasadosContactados;
+
+	}
+
+	private Double sumAll(List<Aluno> alunos) {
+		Double total = 0D;
+		for (Aluno a : alunos) {
+
+			total += a.getContratoVigente().getValorMensal();
+		}
+		return total;
+	}
+	
 	public LazyDataModel<Aluno> getLazyDataModel() {
 		if (lazyListDataModel == null) {
 
@@ -486,6 +651,21 @@ public class DevedorController implements Serializable {
 		return "cadastrar";
 	}
 
+	public String visualizar(Long idprof) {
+		alunoDevedor = alunoService.findById(idprof);
+		Util.addAtributoSessao("aluno", alunoDevedor);
+		return "cadastrar";
+	}
+
+	public void contactado(Aluno aluno) {
+		aluno.setDataContato(new Date());
+		aluno.setContactado(true);
+		aluno.setQuantidadeContatos(alunoDevedor.getQuantidadeContatos()+1);
+		alunoService.saveContactado(alunoDevedor);
+		
+	}
+
+	
 	public Double getTotal(Aluno devedor) {
 		Double total = 0D;
 		if (devedor != null) {
@@ -812,6 +992,10 @@ public class DevedorController implements Serializable {
 		return cor;
 	}
 
+	public void protestar(Aluno al) {
+		devedorService.enviarParaProtesto(al);
+	}
+	
 	public void enviarProtesto(ContratoAluno ca) {
 		devedorService.enviarParaProtesto(ca);
 	}
@@ -929,6 +1113,14 @@ public class DevedorController implements Serializable {
 
 	public void setContratoS(ContratoAluno contratoS) {
 		this.contratoS = contratoS;
+	}
+
+	public Aluno getAlunoDevedor() {
+		return alunoDevedor;
+	}
+
+	public void setAlunoDevedor(Aluno alunoDevedor) {
+		this.alunoDevedor = alunoDevedor;
 	}
 
 }

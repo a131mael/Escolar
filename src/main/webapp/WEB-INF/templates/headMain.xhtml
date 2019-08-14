@@ -22,10 +22,16 @@
 			<p:menuitem value="Todas" url="../aluno/index.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 		
+		<p:menuitem value="Todas Root" url="../aluno/indexRoot.jsf"	icon="ui-icon-pencil" 
+					rendered="#{authController.hasPermission(authController.mestre)}"/>
+		
 			<p:menuitem value="Todas" url="../aluno/indexFinanceiro.jsf" icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.financeiro)}"/>
 		
 			<p:menuitem value="Canceladas" url="../aluno/canceladas.jsf"	icon="ui-icon-pencil" 
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+		
+			<p:menuitem value="Atrasadas" url="../financeiro/atrasados.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 		
 			<p:menuitem value="Rotas" url="../public/rotas.jsf"	icon="ui-icon-pencil" 
@@ -102,8 +108,9 @@
 				<p:menuitem value="Ex-Alunos" url="../secretaria/exAlunos.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 				
-				<p:menuitem value="Alunos 2017" url="../secretaria/alunosUltimoAnoLetivo.jsf" icon="ui-icon-close" 
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+				<p:menuitem value="Alunos ano passado"
+					url="../secretaria/alunosUltimoAnoLetivo.jsf" icon="ui-icon-close"
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}" />
 				
 				<p:menuitem value="Documentos" url="../secretaria/documentos.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>

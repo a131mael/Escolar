@@ -53,6 +53,7 @@ import org.aaf.financeiro.util.OfficeUtil;
 import org.aaf.financeiro.util.constantes.Constante;
 import org.apache.shiro.SecurityUtils;
 import org.escola.util.FileDownload;
+import org.escola.validator.CPFValidator;
 import org.escolar.controller.OfficeDOCUtil;
 import org.escolar.controller.OfficePDFUtil;
 import org.escolar.enums.BimestreEnum;
@@ -144,11 +145,13 @@ public class AlunoController implements Serializable {
 	private BimestreEnum bimestreSel;
 	@Named
 	private DisciplinaEnum disciplinaSel;
-
+	
 	private LazyDataModel<Aluno> lazyListDataModel;
+	
+	private LazyDataModel<Aluno> lazyListDataModelRoot;
 
 	private LazyDataModel<Aluno> lazyListDataModelCanceladas;
-
+	
 	private LazyDataModel<Boleto> lazyListDataModelBoletos;
 
 	private LazyDataModel<Aluno> lazyListDataModelExAlunos;
@@ -521,6 +524,169 @@ public class AlunoController implements Serializable {
 		}
 
 		return lazyListDataModel;
+
+	}
+	
+	public LazyDataModel<Aluno> getLazyDataModelRoot() {
+		if (lazyListDataModelRoot == null) {
+
+			lazyListDataModelRoot = new LazyDataModel<Aluno>() {
+
+				@Override
+				public Aluno getRowData(String rowKey) {
+					return alunoService.findById(Long.valueOf(rowKey));
+				}
+
+				@Override
+				public Object getRowKey(Aluno al) {
+					return al.getId();
+				}
+
+				@Override
+				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,
+						Map<String, Object> where) {
+
+					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.putAll(where);
+					if (filtros.containsKey("nomeAluno")) {
+						filtros.put("nomeAluno", ((String) filtros.get("nomeAluno")).toUpperCase());
+					}
+
+					filtros.put("removido", false);
+					if (filtros.containsKey("periodo")) {
+						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
+								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
+					}
+
+					if (filtros.containsKey("carroLevaParaEscola")) {
+						String carro = filtros.get("carroLevaParaEscola").toString();
+						filtros.put("carroLevaParaEscola", carroService.findByName(carro));
+					}
+
+					if (filtros.containsKey("carroPegaEscola")) {
+						String carro = filtros.get("carroPegaEscola").toString();
+						filtros.put("carroPegaEscola", carroService.findByName(carro));
+					}
+
+					if (filtros.containsKey("escola")) {
+						String escolaSelecionada = filtros.get("escola").toString();
+						if (escolaSelecionada.equals(EscolaEnum.ADONAI.name())) {
+							filtros.put("escola", EscolaEnum.ADONAI);
+						} else if (escolaSelecionada.equals(EscolaEnum.CEMA.name())) {
+							filtros.put("escola", EscolaEnum.CEMA);
+						} else if (escolaSelecionada.equals(EscolaEnum.CETEK.name())) {
+							filtros.put("escola", EscolaEnum.CETEK);
+						} else if (escolaSelecionada.equals(EscolaEnum.DOM_JAIME.name())) {
+							filtros.put("escola", EscolaEnum.DOM_JAIME);
+						} else if (escolaSelecionada.equals(EscolaEnum.ELCANA.name())) {
+							filtros.put("escola", EscolaEnum.ELCANA);
+						} else if (escolaSelecionada.equals(EscolaEnum.ELCANANINHA.name())) {
+							filtros.put("escola", EscolaEnum.ELCANANINHA);
+						} else if (escolaSelecionada.equals(EscolaEnum.EVANDRA_SUELI.name())) {
+							filtros.put("escola", EscolaEnum.EVANDRA_SUELI);
+						} else if (escolaSelecionada.equals(EscolaEnum.INES_MARTA.name())) {
+							filtros.put("escola", EscolaEnum.INES_MARTA);
+						} else if (escolaSelecionada.equals(EscolaEnum.INOVACAO.name())) {
+							filtros.put("escola", EscolaEnum.INOVACAO);
+						} else if (escolaSelecionada.equals(EscolaEnum.ITERACAO.name())) {
+							filtros.put("escola", EscolaEnum.ITERACAO);
+						} else if (escolaSelecionada.equals(EscolaEnum.JOAO_SILVEIRA.name())) {
+							filtros.put("escola", EscolaEnum.JOAO_SILVEIRA);
+						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_DO_CARMO.name())) {
+							filtros.put("escola", EscolaEnum.MARIA_DO_CARMO);
+						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_JOSE_MEDEIROS.name())) {
+							filtros.put("escola", EscolaEnum.MARIA_JOSE_MEDEIROS);
+						} else if (escolaSelecionada.equals(EscolaEnum.ZILAR_ROSAR.name())) {
+							filtros.put("escola", EscolaEnum.ZILAR_ROSAR);
+						} else if (escolaSelecionada.equals(EscolaEnum.VOVO_MARIA.name())) {
+							filtros.put("escola", EscolaEnum.VOVO_MARIA);
+						} else if (escolaSelecionada.equals(EscolaEnum.VOO_LIVRE.name())) {
+							filtros.put("escola", EscolaEnum.VOO_LIVRE);
+						} else if (escolaSelecionada.equals(EscolaEnum.VIVENCIA.name())) {
+							filtros.put("escola", EscolaEnum.VIVENCIA);
+						} else if (escolaSelecionada.equals(EscolaEnum.VENCESLAU.name())) {
+							filtros.put("escola", EscolaEnum.VENCESLAU);
+						} else if (escolaSelecionada.equals(EscolaEnum.RODA_PIAO.name())) {
+							filtros.put("escola", EscolaEnum.RODA_PIAO);
+						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
+							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
+						} else if (escolaSelecionada.equals(EscolaEnum.MODELO.name())) {
+							filtros.put("escola", EscolaEnum.MODELO);
+						} else if (escolaSelecionada.equals(EscolaEnum.MULLER.name())) {
+							filtros.put("escola", EscolaEnum.MULLER);
+						} else if (escolaSelecionada.equals(EscolaEnum.MULTIPLA_ESCOLHA.name())) {
+							filtros.put("escola", EscolaEnum.MULTIPLA_ESCOLHA);
+						} else if (escolaSelecionada.equals(EscolaEnum.N_S_FATIMA.name())) {
+							filtros.put("escola", EscolaEnum.N_S_FATIMA);
+						} else if (escolaSelecionada.equals(EscolaEnum.NOVA_ESPERANCA.name())) {
+							filtros.put("escola", EscolaEnum.NOVA_ESPERANCA);
+						} else if (escolaSelecionada.equals(EscolaEnum.PARAISO_DO_AMOR.name())) {
+							filtros.put("escola", EscolaEnum.PARAISO_DO_AMOR);
+						} else if (escolaSelecionada.equals(EscolaEnum.PROF_GUILHERME.name())) {
+							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
+						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
+							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
+						}
+
+					}
+
+					if (filtros.containsKey("serie")) {
+						if (filtros.get("serie").equals(Serie.JARDIM_I.toString())) {
+							filtros.put("serie", Serie.JARDIM_I);
+						} else if (filtros.get("serie").equals(Serie.JARDIM_II.toString())) {
+							filtros.put("serie", Serie.JARDIM_II);
+						} else if (filtros.get("serie").equals(Serie.MATERNAL.toString())) {
+							filtros.put("serie", Serie.MATERNAL);
+						} else if (filtros.get("serie").equals(Serie.PRE.toString())) {
+							filtros.put("serie", Serie.PRE);
+						} else if (filtros.get("serie").equals(Serie.PRIMEIRO_ANO.toString())) {
+							filtros.put("serie", Serie.PRIMEIRO_ANO);
+						} else if (filtros.get("serie").equals(Serie.SEGUNDO_ANO.toString())) {
+							filtros.put("serie", Serie.SEGUNDO_ANO);
+						} else if (filtros.get("serie").equals(Serie.TERCEIRO_ANO.toString())) {
+							filtros.put("serie", Serie.TERCEIRO_ANO);
+						} else if (filtros.get("serie").equals(Serie.QUARTO_ANO.toString())) {
+							filtros.put("serie", Serie.QUARTO_ANO);
+						} else if (filtros.get("serie").equals(Serie.QUINTO_ANO.toString())) {
+							filtros.put("serie", Serie.QUINTO_ANO);
+						}
+
+					}
+
+					String orderByParam = (order != null) ? order : "id";
+					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
+
+					List<Aluno> ol = alunoService.find(first, pageSize, orderByParam, orderParam, filtros);
+					// valorTotal = sumAll(ol);
+					if (ol != null && ol.size() > 0) {
+						long count = alunoService.count(filtros);
+						lazyListDataModelRoot.setRowCount((int) count);
+						total = count;
+
+						// FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+						// RequestContext.getCurrentInstance().update("tbl:total");
+
+						return ol;
+					}
+					long count = alunoService.count(filtros);
+					total = count;
+					// FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+					// RequestContext.getCurrentInstance().update("tbl:total");
+					this.setRowCount((int) count);
+					return null;
+
+				}
+			};
+			long count = alunoService.count(null);
+			total = count;
+			// FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("tbl:total");
+			// RequestContext.getCurrentInstance().update("tbl:total");
+			lazyListDataModelRoot.setRowCount((int) count);
+
+		}
+
+		return lazyListDataModelRoot;
 
 	}
 
@@ -1364,7 +1530,7 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "modeloNegativoDebito2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
@@ -1384,23 +1550,23 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "MODELO1-1.doc";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
 	public StreamedContent imprimirFichaRematricula(Aluno aluno, ContratoAluno contrato) throws IOException {
 		String nomeArquivo = gerarFichaRematricula(aluno, contrato);
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
 	public String gerarFichaRematricula(Aluno aluno, ContratoAluno contrato) throws IOException {
 		String nomeArquivo = "";
-		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"	+ configuracaoService.getConfiguracao().getAnoLetivo());
+		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator	+ configuracaoService.getConfiguracao().getAnoLetivo());
 		if (aluno != null && aluno.getId() != null) {
-			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + "\\" + aluno.getCodigo()	+ contrato.getNomeResponsavel() + "R";
+			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + File.separator + aluno.getCodigo()	+ contrato.getNomeResponsavel() + "R";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloRematricula.docx",
 					montarContratoRematricula(aluno, contrato), nomeArquivo);
 			nomeArquivo += ".doc";
@@ -1462,7 +1628,7 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "modeloAtestadoVaga2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
@@ -1911,7 +2077,7 @@ public class AlunoController implements Serializable {
 			parametros.put("anoLetivo", configuracaoService.getConfiguracao().getAnoLetivo());
 			List<Aluno> todosAlunos = alunoService.findAll(parametros);
 
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
 					+ configuracaoService.getConfiguracao().getAnoLetivo();
 			CompactadorZip.createDir(caminhoFinalPasta);
 
@@ -1921,7 +2087,7 @@ public class AlunoController implements Serializable {
 				// Aluno al = todosAlunos.get(i);
 				if (al.getBairroAluno() != null) {
 					String nome = gerarFichaRematricula(al, gerarContrato(al, true)); // todosAlunos.get(i)
-					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"
+					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
 							+ nome;
 					InputStream stream = new FileInputStream(caminho);
 
@@ -1930,7 +2096,7 @@ public class AlunoController implements Serializable {
 				}
 			}
 
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\"
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
 					+ "escolartodasREMATRICULAS.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 
@@ -2131,12 +2297,14 @@ public class AlunoController implements Serializable {
 	}
 
 	public void gerarBoletos(ContratoAluno contrato) {
-		ContratoAluno cont = alunoService.criarBoletos(contrato.getAluno(), contrato.getAno(),
-				contrato.getNumeroParcelas(), contrato);
-		contrato = cont;
-		Util.addAtributoSessao("contrato", contrato);
-		Util.addAtributoSessao("aluno", contrato.getAluno());
-		this.aluno = contrato.getAluno();
+		if(CPFValidator.isCPF(contrato.getCpfResponsavel())){
+			ContratoAluno cont = alunoService.criarBoletos(contrato.getAluno(), contrato.getAno(),
+					contrato.getNumeroParcelas(), contrato);
+			contrato = cont;
+			Util.addAtributoSessao("contrato", contrato);
+			Util.addAtributoSessao("aluno", contrato.getAluno());
+			this.aluno = contrato.getAluno();
+		}
 	}
 	
 	public StreamedContent gerarBoleto(ContratoAluno contrato) {
@@ -2184,7 +2352,7 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "modeloContrato2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}

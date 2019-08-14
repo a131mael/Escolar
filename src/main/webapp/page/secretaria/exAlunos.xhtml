@@ -36,7 +36,7 @@
 				<p:separator style=" height:25px;" />
 				<p:commandButton id="negativoDebito"  ajax="false" icon="ui-icon-pencil" 
 								 onclick="PrimeFaces.monitorDownload(start, stop);"
-	   						     disabled="#{!alunoController.alunoSelecionado}">
+	   						     disabled="#{!alunoController.alunoSelecionado}" rendered="false">
 								 <p:fileDownload value="#{alunoController.imprimirNegativoDebito()}" />
 	 		  </p:commandButton>
 				<p:commandButton id="contrato" icon="ui-icon-pencil"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
