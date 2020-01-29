@@ -35,6 +35,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.Column;
 
 import org.escola.util.FileDownload;
 import org.escolar.enums.EscolaEnum;
@@ -116,6 +117,9 @@ public class DevedorController implements Serializable {
 	private Configuracao configuracao;
 	
 	private Double valorTotal = 0D;
+	
+	@Column
+	private String observacaoAtrasado;
 
 	private long total = 0;
 	@Produces
@@ -1121,6 +1125,14 @@ public class DevedorController implements Serializable {
 
 	public void setAlunoDevedor(Aluno alunoDevedor) {
 		this.alunoDevedor = alunoDevedor;
+	}
+
+	public String getObservacaoAtrasado() {
+		return observacaoAtrasado;
+	}
+
+	public void setObservacaoAtrasado(String observacaoAtrasado) {
+		this.observacaoAtrasado = observacaoAtrasado;
 	}
 
 }

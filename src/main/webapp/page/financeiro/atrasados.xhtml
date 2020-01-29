@@ -36,7 +36,7 @@
 					paginatorPosition="bottom"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					resizableColumns="true" rows="20"
+					resizableColumns="true" rows="100"
 					rowsPerPageTemplate="20,50,100,200,300" id="tbl" var="professorTab"
 					value="#{devedorController.lazyDataModelAtrasados}"
 					sortBy="#{professorTab.quantidadeMesAtrasado}">
@@ -163,11 +163,11 @@
 							<h:outputText value="Contato/Promessa" style="font-weight:bold;font-size:11px"/>
 						</f:facet>
 						<h:outputText value="#{professorTab.dataContato}" >
-							<f:convertDateTime pattern="dd-mm-yyyy" />
+							<f:convertDateTime pattern="dd-MM-yyyy" />
 						</h:outputText>
 						<br/>
 						<h:outputText value="#{professorTab.dataPrometeuPagar}" >
-							<f:convertDateTime pattern="dd-mm-yyyy" />
+							<f:convertDateTime pattern="dd-MM-yyyy" />
 						</h:outputText>
 					</p:column>
 					
@@ -198,20 +198,19 @@
 						</f:facet>
 
 						<p:commandButton icon="ui-icon-check" id="entrouCOntato"
-							 oncomplete="PF('confirmacaoAtrasado').show();"
-							process="@this"
-							update="myDialog">
+							 			 oncomplete="PF('confirmacaoAtrasado').show();"
+										 process="@this"
+										 update="myDialog">
 							<f:setPropertyActionListener value="#{professorTab}" target="#{devedorController.alunoDevedor}" />
 						</p:commandButton>
 						
 						<p:tooltip for="entrouCOntato" value="Conseguiu entrar em contato ? " trackMouse="false" />						
 						
-						<p:commandButton update="tblContac" icon="ui-icon-arrowthick-1-e" alt="Protestar aluno"
-							id="protesto"
-							action="#{devedorController.protestar(professorTab)}">
-							<p:confirm header="Confirmation"
-								message="Você deseja realmente protestar - #{professorTab.nomeResponsavel} ?"
-								icon="ui-icon-alert" />
+						<p:commandButton icon="ui-icon-arrowthick-1-e" alt="Protestar aluno" id="protesto" process="@this"
+							actionListener="#{devedorController.protestar(professorTab)}">
+							<p:confirm header="Confirmation" message="Você deseja realmente protestar - #{professorTab.nomeResponsavel} ?" 
+									  icon="ui-icon-alert" >
+						   </p:confirm>
 						</p:commandButton>
 						<p:tooltip for="protesto" value="PROTESTAR !!!" trackMouse="false" />
 					</p:column>
@@ -270,7 +269,6 @@
 							<p:dataExporter type="xml" target="tblContac" fileName="cars" />
 						</h:commandLink>
 					</f:facet>
-					
 					
 					<p:column style="text-align: center; width:2.5%"
 							  styleClass="#{devedorController.marcarLinha2(professorTab)}" rendered="true">
@@ -369,11 +367,11 @@
 							<h:outputText value="Contato/Promessa" style="font-weight:bold;font-size:11px"/>
 						</f:facet>
 						<h:outputText value="#{professorTab.dataContato}" >
-							<f:convertDateTime pattern="dd-mm-yyyy" />
+							<f:convertDateTime pattern="dd-MM-yyyy" />
 						</h:outputText>
 						<br/>
 						<h:outputText value="#{professorTab.dataPrometeuPagar}" >
-							<f:convertDateTime pattern="dd-mm-yyyy" />
+							<f:convertDateTime pattern="dd-MM-yyyy" />
 						</h:outputText>
 					</p:column>
 					
@@ -385,8 +383,6 @@
 						<h:outputText value="#{professorTab.observacaoAtrasado}" />
 					</p:column>
 					
-					
-					
 					<p:column style="text-align: center;width:4%;"
 						styleClass="#{devedorController.marcarLinha2(professorTab)}">
 						<f:facet name="header">
@@ -396,29 +392,22 @@
 						</h:outputText>
 					</p:column>
 
-					<p:column style="text-align: center; width:5%"
-							  styleClass="#{devedorController.marcarLinha2(professorTab)}" rendered="true">
-
+					<p:column style="text-align: center; width:5%" styleClass="#{devedorController.marcarLinha2(professorTab)}" rendered="true">
 						<f:facet name="header">
 							<h:outputText value="Ações" style="font-weight:bold;font-size:11px"/>
 						</f:facet>
 
-						<p:commandButton icon="ui-icon-check" id="entrouCOntato"
-							 oncomplete="PF('confirmacaoAtrasado').show();"
-							process="@this"
-							update="myDialog">
+						<p:commandButton icon="ui-icon-check" id="entrouCOntato" oncomplete="PF('confirmacaoAtrasado').show();" process="@this" update="myDialog">
 							<f:setPropertyActionListener value="#{professorTab}" target="#{devedorController.alunoDevedor}" />
 						</p:commandButton>
-						
-						
 						<p:tooltip for="entrouCOntato" value="Conseguiu entrar em contato ? " trackMouse="false" />						
+
 						
-						<p:commandButton update="tblContac" icon="ui-icon-arrowthick-1-e" alt="Protestar aluno"
-							id="protesto"
-							action="#{devedorController.protestar(professorTab)}">
-							<p:confirm header="Confirmation"
-								message="Você deseja realmente protestar - #{professorTab.nomeResponsavel} ?"
-								icon="ui-icon-alert" />
+						<p:commandButton icon="ui-icon-arrowthick-1-e" alt="Protestar aluno"  id="protesto" process="@this"
+										actionListener="#{devedorController.protestar(professorTab)}">
+							<p:confirm header="Confirmation" message="Você deseja realmente protestar - #{professorTab.nomeResponsavel} ?" 
+									  icon="ui-icon-alert" >
+						   </p:confirm>
 						</p:commandButton>
 						<p:tooltip for="protesto" value="PROTESTAR !!!" trackMouse="false" />
 					</p:column>
@@ -427,24 +416,20 @@
 
 			</h:panelGrid>
 			
-			
 			<h:panelGrid id="panelTotal" columns="17"
 				style="margin-top: -30px; margin-left:-20px">
 				<h:outputLabel value="Qtdade: " />
 				<h:outputText id="total" value="#{alunoController.total}" />
 				<h:outputLabel value="Valor Total: " />
 				<h:outputText id="valor" value="#{alunoController.valorTotal}" />
-
 			</h:panelGrid>
 
 			<p:confirmDialog global="true">
-				<p:commandButton value="Sim" type="button"
-					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-				<p:commandButton value="Nao" type="button"
-					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Nao" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
 			</p:confirmDialog>
-			
-			<p:dialog header="Confirmação" 
+
+	<p:dialog header="Confirmação" 
 					widgetVar="confirmacaoAtrasado"
 					 id="myDialog" 
 					modal="true" height="260">
@@ -478,8 +463,9 @@
 					
 					</p:panelGrid>
 				    					
-			</p:dialog> 
+			</p:dialog>
 
 		</h:form>
+		 
 	</ui:define>
 </ui:composition>

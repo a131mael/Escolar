@@ -51,13 +51,14 @@
 
 
 		<p:menuitem value="Avaliações" url="../avaliacao/index.jsf"	icon="ui-icon-close" 
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.getMotorista())}"/>
+					rendered="false"
+					/>
 		
 		<p:menuitem value="Relatórios" url="../relatorio/index.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 
 		<p:menuitem value="Calendario" url="../calendario/index.jsf" icon="ui-icon-close" 
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.getMotorista())}"/>
+					rendered="false"/>
 
 		<p:submenu label="Financeiro" >
 				
@@ -72,7 +73,7 @@
 				
 				<p:menuitem value="Previsao e Pago"
 					url="../financeiro/previsaoEPago.jsf" icon="ui-icon-close"
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro)}" />
+					rendered="false" />
 				
 				<p:menuitem value="Devedores"
 					url="../devedores/index.jsf" icon="ui-icon-close"

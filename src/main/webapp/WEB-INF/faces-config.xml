@@ -35,8 +35,7 @@
    <redirect/>
   </navigation-case>
   <navigation-case>
-   <from-outcome>
-	Financeiro</from-outcome>
+   <from-outcome>Financeiro</from-outcome>
    <to-view-id>/page/secretaria/index.xhtml</to-view-id>
    <redirect/>
   </navigation-case>

@@ -390,7 +390,7 @@ public class AlunoController implements Serializable {
 						filtros.put("nomeAluno", ((String) filtros.get("nomeAluno")).toUpperCase());
 					}
 
-					filtros.put("removido", false);
+					filtros.put("ffffffff", false);
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -1296,6 +1296,9 @@ public class AlunoController implements Serializable {
 		if (aluno.getIrmao4() != null) {
 			nomeAluno += ", " + aluno.getIrmao4().getNomeAluno();
 		}
+		String enderecocrianca = aluno.getEnderecoAluno();
+		
+		trocas.put("enderecocrianca", enderecocrianca);
 
 		trocas.put("#TRANSPORTADORUA", contrato.getEndereco() + ", " + contrato.getBairro());
 		trocas.put("#TRANSPORTADOESCOLA", aluno.getEscola().getName());
@@ -1326,6 +1329,7 @@ public class AlunoController implements Serializable {
 		trocas.put("enderecoresponsavel", contrato.getEndereco());
 		trocas.put("cepresponsavel", contrato.getCep());
 		trocas.put("cidaderesponsavel", contrato.getCidade());
+		trocas.put("cidaderesp", contrato.getCidade());
 		trocas.put("#numero", " ");
 		trocas.put("#bairro", contrato.getBairro());
 		trocas.put("#email1", aluno.getContatoEmail1());
@@ -1371,14 +1375,15 @@ public class AlunoController implements Serializable {
 					: "_______________");
 			trocas.put("contatocinco",
 					!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
+			
+			trocas.put("contatoseis",!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
 		} else {
 			trocas.put("telefonecinco", "_______________");
 			trocas.put("contatocinco", "____________");
-
+			
+			trocas.put("contatoseis","____________");
 		}
 
-		trocas.put("contatoseis",
-				!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
 		trocas.put("#NOMEALUNO", nomeAluno);
 
 		String periodo1 = "";
@@ -1445,56 +1450,59 @@ public class AlunoController implements Serializable {
 
 	private String getMesInicioPagamento(Aluno aluno2, ContratoAluno contrato) {
 		String mes = "Janeiro";
-		switch (contrato.getNumeroParcelas()) {
-		case 12:
-			break;
-
-		case 11:
-			mes = "Fevereiro";
-			break;
-
-		case 10:
-			mes = "Março";
-			break;
-
-		case 9:
-			mes = "Abril";
-			break;
-
-		case 8:
-			mes = "Maio";
-			break;
-
-		case 7:
-			mes = "Junho";
-			break;
-
-		case 6:
-			mes = "Julho";
-			break;
-
-		case 5:
-			mes = "Agosto";
-			break;
-
-		case 4:
-			mes = "Setembro";
-			break;
-
-		case 3:
-			mes = "Outubro";
-			break;
-
-		case 2:
-			mes = "Novembro";
-			break;
-
-		case 1:
-			mes = "Dezembro";
-			break;
-
-		default:
-			break;
+		if(contrato != null && contrato.getNumeroParcelas() != null){
+			
+			switch (contrato.getNumeroParcelas()) {
+			case 12:
+				break;
+				
+			case 11:
+				mes = "Fevereiro";
+				break;
+				
+			case 10:
+				mes = "Março";
+				break;
+				
+			case 9:
+				mes = "Abril";
+				break;
+				
+			case 8:
+				mes = "Maio";
+				break;
+				
+			case 7:
+				mes = "Junho";
+				break;
+				
+			case 6:
+				mes = "Julho";
+				break;
+				
+			case 5:
+				mes = "Agosto";
+				break;
+				
+			case 4:
+				mes = "Setembro";
+				break;
+				
+			case 3:
+				mes = "Outubro";
+				break;
+				
+			case 2:
+				mes = "Novembro";
+				break;
+				
+			case 1:
+				mes = "Dezembro";
+				break;
+				
+			default:
+				break;
+			}
 		}
 		return mes;
 	}
@@ -2052,6 +2060,7 @@ public class AlunoController implements Serializable {
 		double valor = getValor(1, aluno);
 		contrato.setAnuidade(valor * 12);
 		contrato.setValorMensal(valor);
+		contrato.setNumeroParcelas(12);
 
 		if (temContrato) {
 			contrato.setBairro(ultimoContrato.getBairro());
@@ -2064,7 +2073,8 @@ public class AlunoController implements Serializable {
 			contrato.setEndereco(ultimoContrato.getEndereco());
 			contrato.setNomeMaeResponsavel(ultimoContrato.getNomeMaeResponsavel());
 			contrato.setNomePaiResponsavel(ultimoContrato.getNomePaiResponsavel());
-			contrato.setNumeroParcelas(12);
+			contrato.setNumeroParcelas(ultimoContrato.getNumeroParcelas());
+			contrato.setNomeResponsavel(ultimoContrato.getNomeResponsavel());
 		}
 
 		return contrato;
@@ -2091,8 +2101,8 @@ public class AlunoController implements Serializable {
 							+ nome;
 					InputStream stream = new FileInputStream(caminho);
 
-					System.out.println(caminho);
-					FileUtils.inputStreamToFile(stream, nome);
+					//	System.out.println(caminho);
+					//FileUtils.inputStreamToFile(stream, nome);
 				}
 			}
 
