@@ -298,6 +298,17 @@
 
 					</p:tab>
 					
+					
+					
+					<p:tab id="localizacao" title="Localizacao">
+						<h:panelGrid id="panelLocalizacao" columns="1" border="0">
+							<ui:include src="cmpAlunoLocalizacao.xhtml">
+		    					<ui:param name="parametro" value="#{aluno}" />
+		    					<ui:param name="visible" value="#{true}" />
+							</ui:include>
+						</h:panelGrid>
+					</p:tab>
+					
 					<p:tab title="Observações">
 						<h:panelGrid columns="2" border="0">
 							<h:outputLabel value="Observações Secretaria: "
@@ -311,6 +322,11 @@
 
 			<h:commandButton id="voltarButtom" immediate="true"
 				action="#{alunoController.voltar()}" value="Voltar" />
+				
+				<h:outputText value=" " />
+				
+			<h:commandButton id="voltarButtomDash" immediate="true"
+				action="#{alunoController.voltarDash()}" value="Voltar Dashboard" />
 
 			<p:commandButton id="salvarButtom"
 				style="margin-left:690px !important"

@@ -10,7 +10,8 @@
 
 			<h:panelGrid columns="8" style="margin-top: -30px;">
 				<h:commandButton action="#{turmaController.adicionarNovo()}" value="Adicionar" 
-				rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+				rendered="#{authController.hasPermission(authController.administrador
+							,authController.secretaria,authController.dono)}"/>
 			</h:panelGrid>
 
 			<h:panelGrid width="90%" style="border: none !important">

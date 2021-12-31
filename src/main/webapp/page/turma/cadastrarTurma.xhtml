@@ -17,15 +17,20 @@
 						<h:outputLabel for="nome" value="Nome: " />
 						<h:inputText id="nome" value="#{turma.nome}"
 							style="font-size: 15px; width:280px"
-							disabled="#{!authController.hasPermission(authController.administrador,authController.secretaria)}" />
+							disabled="#{!authController.hasPermission(authController.administrador
+										,authController.secretaria
+										,authController.dono)}" />
 
 
 						<h:outputLabel for="pickList" value="Funcionários:"
-							rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}" />
+							rendered="#{authController.hasPermission(authController.administrador
+																	,authController.secretaria
+																	,authController.dono)}" />
 						<p:pickList id="pickList" value="#{turmaController.professores}"
 							var="plProfessor" itemValue="#{plProfessor}"
 							converter="converterProfessor"
-							rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+							rendered="#{authController.hasPermission(authController.administrador,authController.secretaria
+																	,authController.dono)}">
 
 							<f:facet name="sourceCaption">Todos Professores</f:facet>
 							<f:facet name="targetCaption">Professores desta turma</f:facet>

@@ -22,7 +22,8 @@
 		</p:dialog>
 
 		<h:form prependId="false" style="width:100%; border:none "
-			rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+			rendered="#{authController.hasPermission(authController.administrador
+									,authController.secretaria,authController.dono)}">
 
 			<h:panelGrid id="panelFerramentas" columns="7"
 				style="margin-top: -30px; margin-left:-20px; width:1200px!important;"  >

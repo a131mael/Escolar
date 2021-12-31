@@ -22,7 +22,8 @@
 						<h:outputLabel for="nome" value="Nome: " style="font-size: 13px; width:100px" />
 						<h:inputText id="nome" value="#{custo.nome}"
 							style="font-size: 15px; width:220px"
-							disabled="#{!authController.hasPermission(authController.administrador,authController.secretaria)}" />
+							disabled="#{!authController.hasPermission(authController.administrador
+							,authController.secretaria,authController.dono)}" />
 							
 							<h:outputLabel value="Data: "
 								style="font-size: 13px; width:100px" />

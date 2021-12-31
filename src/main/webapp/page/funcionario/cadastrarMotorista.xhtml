@@ -6,7 +6,8 @@
 	template="/WEB-INF/templates/templateADM.xhtml">
 
 	<ui:define name="content"
-		rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+		rendered="#{authController.hasPermission(authController.administrador
+		,authController.secretaria,authController.dono)}">
 		<h:form style="width:100%; border:none">
 
 			<h:panelGrid columns="0" width="100%;" styleClass="alinharTopo"
@@ -44,7 +45,7 @@
 							<h:outputLabel value="Salário: "
 								style="font-size: 13px; width:180px" />
 							<p:inputText value="#{professor.salario}"
-								rendered="#{authController.hasPermission(authController.administrador)}"
+								rendered="#{authController.hasPermission(authController.administrador,authController.dono)}"
 								style="font-size: 15px; width:275px">
 							</p:inputText>
 							

@@ -22,7 +22,9 @@
 		</p:dialog>
 
 		<h:form prependId="false" style="width:100%; border:none"
-			rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+			rendered="#{authController.hasPermission(authController.administrador
+													,authController.secretaria
+													,authController.dono)}">
 
 			<h:panelGrid id="panelFerramentas" columns="17"
 				style="margin-top: -30px; margin-left:-20px">
@@ -33,9 +35,11 @@
 				<p:tooltip for="boleto" value="Boleto" position="top" />
 				<p:tooltip for="cnab" value="CNAB240" position="top" />
 				<p:tooltip for="gerarBoleto" value="GERAR BOLETOS" position="top" />
+				<p:tooltip for="restaurar" value="Restaurar" position="top" />
 
 				<p:commandButton id="adicionar" icon="ui-icon-plus"
-					action="#{alunoController.adicionarNovo()}" />
+					action="#{alunoController.adicionarNovo()}"
+					rendered="#{false}" />
 				<p:commandButton id="editar" icon="ui-icon-pencil"
 					action="#{alunoController.editar()}" alt="Editar"
 					disabled="#{!alunoController.alunoSelecionado}" />
@@ -52,14 +56,15 @@
 					<p:fileDownload value="#{alunoController.gerarBoleto()}" />
 				</p:commandButton>
 
-				<p:commandButton id="cnab" icon="ui-icon-transfer-e-w" ajax="false"
+				<p:commandButton id="cnab" icon="ui-icon-transfer-e-w" 
+					ajax="false" rendered="#{false}"
 					onclick="PrimeFaces.monitorDownload(start, stop);"
 					disabled="#{!alunoController.alunoSelecionado}">
 					<p:fileDownload value="#{alunoController.gerarCNB240()}" />
 				</p:commandButton>
 				<p:commandButton id="gerarBoleto"
 					action="#{alunoController.gerarBoletoModel()}" alt="GerarBoleto"
-					rendered="#{true}" />
+					rendered="#{false}" />
 
 				<p:commandButton id="restaurar" icon="ui-icon-transfer-e-w"
 					action="#{alunoController.restaurarCancelado()}" alt="Restaurar Cancelado"

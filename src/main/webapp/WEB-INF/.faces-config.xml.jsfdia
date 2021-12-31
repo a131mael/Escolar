@@ -20,6 +20,15 @@
    <PROCESS-ITEM-OUTPUT ID="Financeiro::#page#secretaria#index.xhtml"
     NAME="output4" PATH="/page/secretaria/index.xhtml"
     TARGET="rules:#page#secretaria#index.xhtml" TITLE="Financeiro" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="Dono::#page#secretaria#index.xhtml"
+    NAME="output5" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="Dono" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="Usuario::#page#secretaria#index.xhtml"
+    NAME="output6" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="Usuario" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="Filial::#page#secretaria#index.xhtml"
+    NAME="output7" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="Filial" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#page#index.xhtml" PATH="/page/index.xhtml"
@@ -49,6 +58,21 @@
     PATH="/page/calendario/index.xhtml"
     TARGET="rules:#page#calendario#index.xhtml" TITLE="listagemEventos" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#page#secretaria#index.xhtml:1" NAME="item1"
+   PATH="/page/secretaria/index.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT
+    ID="listagemAlunosAtrasadosQuantidade::#page#secretaria#devedoresSelecionadosQuantidade.xhtml"
+    NAME="output"
+    PATH="/page/secretaria/devedoresSelecionadosQuantidade.xhtml"
+    TARGET="rules:#page#secretaria#devedoresSelecionadosQuantidade.xhtml"
+    TITLE="listagemAlunosAtrasadosQuantidade" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT
+    ID="listagemAlunosAtrasadosMes::#page#secretaria#devedoresSelecionadosMes.xhtml"
+    NAME="output1"
+    PATH="/page/secretaria/devedoresSelecionadosMes.xhtml"
+    TARGET="rules:#page#secretaria#devedoresSelecionadosMes.xhtml"
+    TITLE="listagemAlunosAtrasadosMes" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#page#aluno#cadastrarAluno.xhtml"
   PATH="/page/aluno/cadastrarAluno.xhtml" SHAPE="496,192,50,57" model-entity="JSFProcessGroup">
@@ -68,6 +92,12 @@
    <PROCESS-ITEM-OUTPUT ID="remover::#page#aluno#removerContrato.xhtml"
     NAME="output3" PATH="/page/aluno/removerContrato.xhtml"
     TARGET="rules:#page#aluno#removerContrato.xhtml" TITLE="remover" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+  <PROCESS-ITEM ID="rules:#page#aluno#cadastrarAluno.xhtml:1"
+   NAME="item1" PATH="/page/aluno/cadastrarAluno.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="dashboard::#page#secretaria#index.xhtml"
+    NAME="output" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="dashboard" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
  <PROCESS-ITEM NAME="rules:#page#aluno#index.xhtml"
@@ -311,6 +341,37 @@
    <PROCESS-ITEM-OUTPUT ID="remover::#page#aluno#removerAluno.xhtml"
     NAME="output1" PATH="/page/aluno/removerAluno.xhtml"
     TARGET="rules:#page#aluno#removerAluno.xhtml" TITLE="remover" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM
+  NAME="rules:#page#secretaria#devedoresSelecionadosQuantidade.xhtml"
+  PATH="/page/secretaria/devedoresSelecionadosQuantidade.xhtml"
+  SHAPE="256,913,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM
+   ID="rules:#page#secretaria#devedoresSelecionadosQuantidade.xhtml:0"
+   NAME="item"
+   PATH="/page/secretaria/devedoresSelecionadosQuantidade.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="cadastrar::#page#aluno#cadastrarAluno.xhtml"
+    NAME="output" PATH="/page/aluno/cadastrarAluno.xhtml"
+    TARGET="rules:#page#aluno#cadastrarAluno.xhtml" TITLE="cadastrar" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="dashboard::#page#secretaria#index.xhtml"
+    NAME="output1" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="dashboard" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM
+  NAME="rules:#page#secretaria#devedoresSelecionadosMes.xhtml"
+  PATH="/page/secretaria/devedoresSelecionadosMes.xhtml"
+  SHAPE="256,913,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM
+   ID="rules:#page#secretaria#devedoresSelecionadosMes.xhtml:0"
+   NAME="item" PATH="/page/secretaria/devedoresSelecionadosMes.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="cadastrar::#page#aluno#cadastrarAluno.xhtml"
+    NAME="output" PATH="/page/aluno/cadastrarAluno.xhtml"
+    TARGET="rules:#page#aluno#cadastrarAluno.xhtml" TITLE="cadastrar" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="dashboard::#page#secretaria#index.xhtml"
+    NAME="output1" PATH="/page/secretaria/index.xhtml"
+    TARGET="rules:#page#secretaria#index.xhtml" TITLE="dashboard" model-entity="JSFProcessItemOutput"/>
   </PROCESS-ITEM>
  </PROCESS-ITEM>
 </PROCESS>

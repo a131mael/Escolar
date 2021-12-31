@@ -21,9 +21,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,7 +44,15 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 
+import org.aaf.escolar.nfs.ItemNFS;
+import org.aaf.escolar.nfs.ListaItensNFS;
+import org.aaf.escolar.nfs.NF;
+import org.aaf.escolar.nfs.NFSeDTO;
+import org.aaf.escolar.nfs.PrestadorNFS;
+import org.aaf.escolar.nfs.TomadorNFS;
 import org.aaf.financeiro.model.Boleto;
 import org.aaf.financeiro.model.Pagador;
 import org.aaf.financeiro.sicoob.util.CNAB240_REMESSA_SICOOB;
@@ -51,7 +61,17 @@ import org.aaf.financeiro.sicoob.util.CNAB240_SICOOB;
 import org.aaf.financeiro.util.ImportadorArquivo;
 import org.aaf.financeiro.util.OfficeUtil;
 import org.aaf.financeiro.util.constantes.Constante;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.shiro.SecurityUtils;
+import org.escola.util.Contants;
 import org.escola.util.FileDownload;
 import org.escola.validator.CPFValidator;
 import org.escolar.controller.OfficeDOCUtil;
@@ -145,13 +165,13 @@ public class AlunoController implements Serializable {
 	private BimestreEnum bimestreSel;
 	@Named
 	private DisciplinaEnum disciplinaSel;
-	
+
 	private LazyDataModel<Aluno> lazyListDataModel;
-	
+
 	private LazyDataModel<Aluno> lazyListDataModelRoot;
 
 	private LazyDataModel<Aluno> lazyListDataModelCanceladas;
-	
+
 	private LazyDataModel<Boleto> lazyListDataModelBoletos;
 
 	private LazyDataModel<Aluno> lazyListDataModelExAlunos;
@@ -169,7 +189,8 @@ public class AlunoController implements Serializable {
 			Object obj = Util.getAtributoSessao("aluno");
 			if (obj != null) {
 				aluno = (Aluno) obj;
-				if (aluno.getIrmao1() != null && (aluno.getIrmao1().getRemovido() == null || !aluno.getIrmao1().getRemovido())) {
+				if (aluno.getIrmao1() != null
+						&& (aluno.getIrmao1().getRemovido() == null || !aluno.getIrmao1().getRemovido())) {
 					irmao1 = true;
 				}
 				if (aluno.getIrmao2() != null
@@ -390,7 +411,7 @@ public class AlunoController implements Serializable {
 						filtros.put("nomeAluno", ((String) filtros.get("nomeAluno")).toUpperCase());
 					}
 
-					filtros.put("ffffffff", false);
+					filtros.put("removido", false);
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -526,7 +547,7 @@ public class AlunoController implements Serializable {
 		return lazyListDataModel;
 
 	}
-	
+
 	public LazyDataModel<Aluno> getLazyDataModelRoot() {
 		if (lazyListDataModelRoot == null) {
 
@@ -553,7 +574,6 @@ public class AlunoController implements Serializable {
 						filtros.put("nomeAluno", ((String) filtros.get("nomeAluno")).toUpperCase());
 					}
 
-					filtros.put("removido", false);
 					if (filtros.containsKey("periodo")) {
 						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
 								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
@@ -628,6 +648,15 @@ public class AlunoController implements Serializable {
 						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
 							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
 						}
+						else if (escolaSelecionada.equals(EscolaEnum.RAIZES.name())) {
+							filtros.put("escola", EscolaEnum.RAIZES);
+						}
+						else if (escolaSelecionada.equals(EscolaEnum.SESC.name())) {
+							filtros.put("escola", EscolaEnum.SESC);
+						}
+						else if (escolaSelecionada.equals(EscolaEnum.EDUCARE.name())) {
+							filtros.put("escola", EscolaEnum.EDUCARE);
+						}
 
 					}
 
@@ -652,6 +681,15 @@ public class AlunoController implements Serializable {
 							filtros.put("serie", Serie.QUINTO_ANO);
 						}
 
+					}
+					
+					if (filtros.containsKey("anoLetivo")) {
+						try{
+							filtros.put("anoLetivo", Integer.parseInt((String) filtros.get("anoLetivo")));
+						}catch(Exception e){
+							
+						}
+						
 					}
 
 					String orderByParam = (order != null) ? order : "id";
@@ -738,9 +776,14 @@ public class AlunoController implements Serializable {
 
 	private Double sumAll(List<Aluno> alunos) {
 		Double total = 0D;
-		for (Aluno a : alunos) {
+		try {
+			for (Aluno a : alunos) {
 
-			total += a.getContratoVigente().getValorMensal();
+				total += a.getContratoVigente().getValorMensal();
+			}
+
+		} catch (Exception e) {
+
 		}
 		return total;
 	}
@@ -1102,10 +1145,20 @@ public class AlunoController implements Serializable {
 		return trocas;
 	}
 	
-	public boolean alunoCadastrado(Aluno al){
-		if(aluno.getId() != null){
+	public String getNomeResponsavelDevedor(Aluno al){
+		String nomeResponsavelDev = "";
+		for(ContratoAluno ca: al.getContratos()){
+			nomeResponsavelDev += ca.getNomeResponsavel();
+			nomeResponsavelDev += "// \n";
+		}
+		return nomeResponsavelDev;
+		
+	}
+
+	public boolean alunoCadastrado(Aluno al) {
+		if (aluno.getId() != null) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
@@ -1118,7 +1171,7 @@ public class AlunoController implements Serializable {
 
 		DateFormat fomatadorData = DateFormat.getDateInstance(DateFormat.DEFAULT, new Locale("pt", "BR"));
 		String aniversario = "";
-		if(aluno.getDataNascimento() != null){
+		if (aluno.getDataNascimento() != null) {
 			aniversario = fomatadorData.format(aluno.getDataNascimento());
 		}
 
@@ -1136,7 +1189,8 @@ public class AlunoController implements Serializable {
 		trocas.put("#CONTRATANTERG", contrato.getRgResponsavel());
 		trocas.put("#CONTRATANTECPF", contrato.getCpfResponsavel());
 
-		if (contrato.getAluno().getEnderecoAluno() != null && !contrato.getAluno().getEnderecoAluno().equalsIgnoreCase("")) {
+		if (contrato.getAluno().getEnderecoAluno() != null
+				&& !contrato.getAluno().getEnderecoAluno().equalsIgnoreCase("")) {
 			trocas.put("#TRANSPORTADOALUNORUA", contrato.getAluno().getEnderecoAluno());
 		} else {
 			trocas.put("#TRANSPORTADOALUNORUA", contrato.getEndereco() + ", " + contrato.getBairro());
@@ -1168,13 +1222,15 @@ public class AlunoController implements Serializable {
 		trocas.put("#CONTRATANTERUA", contrato.getEndereco() + ", " + contrato.getBairro());
 
 		String periodo1 = "";
-		if (contrato.getAluno().getPeriodo().equals(PerioddoEnum.INTEGRAL) || contrato.getAluno().getPeriodo().equals(PerioddoEnum.MANHA)) {
+		if (contrato.getAluno().getPeriodo().equals(PerioddoEnum.INTEGRAL)
+				|| contrato.getAluno().getPeriodo().equals(PerioddoEnum.MANHA)) {
 			periodo1 = "06:30";
 		} else {
 			periodo1 = "11:30";
 		}
 		String periodo2 = "";
-		if (contrato.getAluno().getPeriodo().equals(PerioddoEnum.INTEGRAL) || contrato.getAluno().getPeriodo().equals(PerioddoEnum.TARDE)) {
+		if (contrato.getAluno().getPeriodo().equals(PerioddoEnum.INTEGRAL)
+				|| contrato.getAluno().getPeriodo().equals(PerioddoEnum.TARDE)) {
 			periodo2 = "19:30";
 		} else {
 			periodo2 = "13:30";
@@ -1190,7 +1246,7 @@ public class AlunoController implements Serializable {
 		// BigDecimal(contrato.getParcelas()))));
 		// trocas.put("#DADOSGERAISTOTAL", valorTotal.toString());
 		trocas.put("#DADOSGERAISTOTAL", String.valueOf(valorTotal(contrato.getAluno()))); // TODO
-																			// ver
+		// ver
 		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
 		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(contrato.getAluno()))));
 		trocas.put("#DADOSGERAISQTADEPARCELAS", contrato.getNumeroParcelas() + "");
@@ -1202,7 +1258,7 @@ public class AlunoController implements Serializable {
 		String idaEVolta = "CLAUSULA 6ª – O CONTRATANTE compromete-se a deixar o TRANSPORTADO pronto e aguardando pelo CONTRATADO no endereço e hora combinada, ou seja, na rua  #CONTRATANTERUA   as #DADOSGERAISHORARIO1,  não tolerando qualquer tipo de atraso ou mudança de endereço.";
 		idaEVolta = idaEVolta.replace("#DADOSGERAISHORARIO1", periodo1);
 		idaEVolta = idaEVolta.replace("#CONTRATANTERUA", contrato.getEndereco());
-				
+
 		String ida = "CLAUSULA 6ª - O CONTRATADO SO SE RESPONSABILIZARA PELO TRANSPORTE DE IDA PARA A ESCOLA, O TRANSPORTE DE VOLTA DA ESCOLA È DE RESPONSABILIDADE DO CONTRATANTE.";
 		String volta = "CLAUSULA 6ªB – O CONTRATADO SO SE RESPONSABILIZARA PELO TRANSPORTE DE VOLTA DA ESCOLA, O TRANSPORTE DE IDA PARA A ESCOLA È DE RESPONSABILIDADE DO CONTRATANTE.";
 
@@ -1223,12 +1279,12 @@ public class AlunoController implements Serializable {
 			trocas.put("#TIPOCONTRATO", idaEVolta);
 			break;
 		}
-		
+
 		return trocas;
 	}
 
-	
 	public HashMap<String, String> montarContratoRematricula(Aluno aluno, ContratoAluno contrato) {
+
 		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));
 		String dataExtenso = formatador.format(new Date());
 		Calendar dataLim = Calendar.getInstance();
@@ -1269,7 +1325,7 @@ public class AlunoController implements Serializable {
 			trocas.put("finalmensagem",
 					"Informamos que a rematrícula do seu filho(a) está condicionada quitação total das parcelas em aberto até 31/12/"
 							+ ano
-							+ ". Para acertar os valores em aberto favor entrar em contato com o financeiro através dos telefones 3242-4194 ou 9 8837-5270.");
+							+ ". Para acertar os valores em aberto favor entrar em contato com o financeiro através dos telefones 3242-4194 ou 9 8489 4221(whatsapp).");
 		} else {
 			trocas.put("atencaodevedor", "");
 			trocas.put("devedormensagem", "");
@@ -1279,9 +1335,9 @@ public class AlunoController implements Serializable {
 		trocas.put("cidaderesp", "");
 		trocas.put("ruaaluno", aluno.getEnderecoAluno());
 		trocas.put("BAIRROALUNO", aluno.getBairroAluno().getName());
-		trocas.put("valorjaneiro", getValor(1, aluno) + "");
-		trocas.put("valorfevereiro", getValor(2, aluno) + "");
-		trocas.put("valormarco", getValor(3, aluno) + "");
+		trocas.put("valorjaneiro", getValor(1, aluno, ano) + "");
+		trocas.put("valorfevereiro", getValor(2, aluno, ano) + "");
+		trocas.put("valormarco", getValor(3, aluno, ano) + "");
 
 		String nomeAluno = aluno.getNomeAluno();
 		if (aluno.getIrmao1() != null) {
@@ -1297,7 +1353,7 @@ public class AlunoController implements Serializable {
 			nomeAluno += ", " + aluno.getIrmao4().getNomeAluno();
 		}
 		String enderecocrianca = aluno.getEnderecoAluno();
-		
+
 		trocas.put("enderecocrianca", enderecocrianca);
 
 		trocas.put("#TRANSPORTADORUA", contrato.getEndereco() + ", " + contrato.getBairro());
@@ -1375,13 +1431,14 @@ public class AlunoController implements Serializable {
 					: "_______________");
 			trocas.put("contatocinco",
 					!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
-			
-			trocas.put("contatoseis",!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
+
+			trocas.put("contatoseis",
+					!aluno.getContatoNome5().equalsIgnoreCase("") ? aluno.getContatoNome5() : "____________");
 		} else {
 			trocas.put("telefonecinco", "_______________");
 			trocas.put("contatocinco", "____________");
-			
-			trocas.put("contatoseis","____________");
+
+			trocas.put("contatoseis", "____________");
 		}
 
 		trocas.put("#NOMEALUNO", nomeAluno);
@@ -1443,63 +1500,63 @@ public class AlunoController implements Serializable {
 		return trocas;
 	}
 
-	private double getValor(int mesMatricula, Aluno aluno2) {
-		double valor = tabelaPrecoService.getValor(mesMatricula, aluno2);
+	private double getValor(int mesMatricula, Aluno aluno2, int anoRematricula) {
+		double valor = tabelaPrecoService.getValor(mesMatricula, aluno2, anoRematricula);
 		return valor;
 	}
 
 	private String getMesInicioPagamento(Aluno aluno2, ContratoAluno contrato) {
 		String mes = "Janeiro";
-		if(contrato != null && contrato.getNumeroParcelas() != null){
-			
+		if (contrato != null && contrato.getNumeroParcelas() != null) {
+
 			switch (contrato.getNumeroParcelas()) {
 			case 12:
 				break;
-				
+
 			case 11:
 				mes = "Fevereiro";
 				break;
-				
+
 			case 10:
 				mes = "Março";
 				break;
-				
+
 			case 9:
 				mes = "Abril";
 				break;
-				
+
 			case 8:
 				mes = "Maio";
 				break;
-				
+
 			case 7:
 				mes = "Junho";
 				break;
-				
+
 			case 6:
 				mes = "Julho";
 				break;
-				
+
 			case 5:
 				mes = "Agosto";
 				break;
-				
+
 			case 4:
 				mes = "Setembro";
 				break;
-				
+
 			case 3:
 				mes = "Outubro";
 				break;
-				
+
 			case 2:
 				mes = "Novembro";
 				break;
-				
+
 			case 1:
 				mes = "Dezembro";
 				break;
-				
+
 			default:
 				break;
 			}
@@ -1538,7 +1595,8 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "modeloNegativoDebito2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
+				+ nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
@@ -1558,23 +1616,27 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "MODELO1-1.doc";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
+				+ nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
 	public StreamedContent imprimirFichaRematricula(Aluno aluno, ContratoAluno contrato) throws IOException {
 		String nomeArquivo = gerarFichaRematricula(aluno, contrato);
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
+				+ nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
 
 	public String gerarFichaRematricula(Aluno aluno, ContratoAluno contrato) throws IOException {
 		String nomeArquivo = "";
-		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator	+ configuracaoService.getConfiguracao().getAnoLetivo());
+		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+				+ File.separator + configuracaoService.getConfiguracao().getAnoLetivo());
 		if (aluno != null && aluno.getId() != null) {
-			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + File.separator + aluno.getCodigo()	+ contrato.getNomeResponsavel() + "R";
+			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + File.separator + aluno.getCodigo()
+					+ contrato.getNomeResponsavel() + "R";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloRematricula.docx",
 					montarContratoRematricula(aluno, contrato), nomeArquivo);
 			nomeArquivo += ".doc";
@@ -1636,7 +1698,8 @@ public class AlunoController implements Serializable {
 			nomeArquivo = "modeloAtestadoVaga2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
+				+ nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
@@ -1658,10 +1721,10 @@ public class AlunoController implements Serializable {
 		}
 		return "index";
 	}
-	
+
 	public void salvar(ContratoAluno contrato) {
 		contrato = alunoService.saveContrato(contrato);
-		
+
 		Util.addAtributoSessao("contrato", contrato);
 		Util.addAtributoSessao("aluno", contrato.getAluno());
 		this.aluno = contrato.getAluno();
@@ -1673,6 +1736,10 @@ public class AlunoController implements Serializable {
 			return "indexFinanceiro";
 		}
 		return "index";
+	}
+
+	public String voltarDash() {
+		return "dashboard";
 	}
 
 	public String editar(Long idprof) {
@@ -1894,6 +1961,157 @@ public class AlunoController implements Serializable {
 		alunoService.gerarBoletos();
 	}
 
+	public void gerarNFSe() {
+		gerarNFSe(aluno);
+	}
+	
+	public void gerarNFSe(Aluno aluno) {
+		try {
+			JAXBContext contextObj;
+			contextObj = JAXBContext.newInstance(NFSeDTO.class);
+
+			Marshaller marshallerObj = contextObj.createMarshaller();
+			marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+			String nomeArquivo = System.currentTimeMillis() + "__"
+					+ aluno.getContratoVigente().getNomeResponsavel().replace(" ", "") + ".xml";
+			String caminho = File.separator + "home" + File.separator + "servidor" + File.separator + "nfs"
+					+ File.separator + "adonai" + File.separator + nomeArquivo;
+			marshallerObj.marshal(getNFSeDTO(aluno), new FileOutputStream(caminho));
+
+			if (enviarNFS(caminho, Contants.login, Contants.senha)) {
+				ContratoAluno contrato = aluno.getContratoVigente(configuracao.getAnoLetivo());
+				org.escolar.model.Boleto boletoMesAtual = getBoletoMesAtual(contrato);
+				alunoService.setNfsEnviada(boletoMesAtual.getId());
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+						"NOTA GERADA do ALUNO " + aluno.getNomeAluno()));
+
+			} else {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info",
+						"NÃO GEROU A NOTA " + aluno.getNomeAluno()));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", "NÃO GEROU A NOTA " + aluno.getNomeAluno()));
+		}
+	}
+
+	public void perdoarDivida(org.escolar.model.Boleto boleto) {
+		try {
+
+			boleto.setDividaPerdoada(true);
+			financeiroService.save(boleto);
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", "Divida foi perdoada"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", "Erro ao perdoar"));
+		}
+	}
+
+	private NFSeDTO getNFSeDTO(Aluno aluno) {
+		try {
+			ContratoAluno contrato = aluno.getContratoVigente(configuracao.getAnoLetivo());
+			org.escolar.model.Boleto boletoMesAtual = getBoletoMesAtual(contrato);
+			String valor = String.valueOf(boletoMesAtual.getValorNominal() - 20);
+			valor = valor.replace(".0", ",00");
+
+			NF nf = new NF();
+			nf.setValor_total(valor);
+			PrestadorNFS prestador = new PrestadorNFS();
+
+			TomadorNFS tomador = new TomadorNFS();
+			tomador.setCpfcnpj(contrato.getCpfResponsavel());
+			tomador.setBairro(contrato.getBairro());
+			tomador.setCep(contrato.getCep().replaceAll("-", "").replaceAll(" ", ""));
+			tomador.setCidade(contrato.getCidade());
+			tomador.setEmail(aluno.getContatoEmail1());
+			tomador.setNome_razao_social(contrato.getNomeResponsavel());
+			tomador.setLogradouro(contrato.getEndereco());
+
+			ListaItensNFS listaItem = new ListaItensNFS();
+			listaItem.setValor_tributavel(valor);
+			listaItem.setUnidade_valor_unitario(valor);
+			ItemNFS item = new ItemNFS();
+			item.setLista(listaItem);
+			NFSeDTO nfs = new NFSeDTO();
+
+			nfs.setPrestador(prestador);
+			nfs.setTomador(tomador);
+			nfs.setNf(nf);
+			nfs.setItens(item);
+
+			nfs.setTeste(null);
+
+			return nfs;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static synchronized boolean enviarNFS(String localNomeNotaGerada, String login, String senha) {
+		System.out.println("ENVIANDO NOTAS FISCAIS  ........");
+
+		try {
+			DefaultHttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(Contants.URL);
+			File file = new File(localNomeNotaGerada);
+			MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+			ContentBody cbFile = new FileBody(file);
+			mpEntity.addPart("f1", cbFile);
+			mpEntity.addPart("login", new StringBody(login));
+			mpEntity.addPart("senha", new StringBody(senha));
+			mpEntity.addPart("cidade", new StringBody("8223"));
+			httppost.setEntity(mpEntity);
+			System.out.println("executing request " + httppost.getRequestLine());
+			System.out.println("Now uploading your file into uploadbox.com");
+			HttpResponse response = httpclient.execute(httppost);
+			System.out.println(response.getStatusLine().getStatusCode());
+			if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300) {
+				return true;
+			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public org.escolar.model.Boleto getBoletoMesAtual(ContratoAluno contrato) {
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.DAY_OF_MONTH, c.getActualMinimum(Calendar.DAY_OF_MONTH));
+		Date primeiro = c.getTime();
+
+		Calendar c2 = Calendar.getInstance();
+		c2.set(Calendar.DAY_OF_MONTH, c.getActualMaximum(Calendar.DAY_OF_MONTH));
+		Date ultimo = c2.getTime();
+
+		List<org.escolar.model.Boleto> boletos = contrato.getBoletos();
+		for (org.escolar.model.Boleto b : boletos) {
+			if (b.getVencimento().before(ultimo)) {
+				if (b.getVencimento().after(primeiro)) {
+					return b;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+
 	public boolean podeGerarBoleto(ContratoAluno contrato) {
 		if (contrato.getBoletos() == null || contrato.getBoletos().isEmpty()) {
 			return true;
@@ -1901,19 +2119,19 @@ public class AlunoController implements Serializable {
 			return false;
 		}
 	}
+
 	public boolean podeImprimir(ContratoAluno contrato) {
 		if (contrato.getAluno() != null) {
-			if(contrato.getAluno().getId() != null){
-					if(contrato.getAluno().getId() > 0 ){
-						return true;
-					}
+			if (contrato.getAluno().getId() != null) {
+				if (contrato.getAluno().getId() > 0) {
+					return true;
+				}
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
 	public StreamedContent gerarBoleto() {
 		try {
 
@@ -1971,7 +2189,7 @@ public class AlunoController implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public StreamedContent gerarCNB240(ContratoAluno contrato) {
 		try {
 			String sequencialArquivo = configuracaoService.getSequencialArquivo() + "";
@@ -2052,12 +2270,14 @@ public class AlunoController implements Serializable {
 		boolean temContrato = ultimoContrato != null ? true : false;
 
 		contrato.setAluno(aluno);
+		double valor = 0;
 		if (rematricula) {
 			contrato.setAno(configuracao.getAnoRematricula());
+			valor = getValor(1, aluno, configuracao.getAnoRematricula());
 		} else {
 			contrato.setAno((short) configuracao.getAnoLetivo());
+			valor = getValor(1, aluno, configuracao.getAnoLetivo());
 		}
-		double valor = getValor(1, aluno);
 		contrato.setAnuidade(valor * 12);
 		contrato.setValorMensal(valor);
 		contrato.setNumeroParcelas(12);
@@ -2087,8 +2307,8 @@ public class AlunoController implements Serializable {
 			parametros.put("anoLetivo", configuracaoService.getConfiguracao().getAnoLetivo());
 			List<Aluno> todosAlunos = alunoService.findAll(parametros);
 
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
-					+ configuracaoService.getConfiguracao().getAnoLetivo();
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + configuracaoService.getConfiguracao().getAnoLetivo();
 			CompactadorZip.createDir(caminhoFinalPasta);
 
 			// todosAlunos.size();
@@ -2097,17 +2317,17 @@ public class AlunoController implements Serializable {
 				// Aluno al = todosAlunos.get(i);
 				if (al.getBairroAluno() != null) {
 					String nome = gerarFichaRematricula(al, gerarContrato(al, true)); // todosAlunos.get(i)
-					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
-							+ nome;
+					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+							+ File.separator + nome;
 					InputStream stream = new FileInputStream(caminho);
 
-					//	System.out.println(caminho);
-					//FileUtils.inputStreamToFile(stream, nome);
+					// System.out.println(caminho);
+					// FileUtils.inputStreamToFile(stream, nome);
 				}
 			}
 
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
-					+ "escolartodasREMATRICULAS.zip";
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + "escolartodasREMATRICULAS.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 
 			InputStream stream2 = new FileInputStream(arquivoSaida);
@@ -2159,42 +2379,51 @@ public class AlunoController implements Serializable {
 		return Verificador.getStatus(boleto);
 	}
 
-	/*public String marcarLinha(Long idAluno) {
-		String cor = "";
-		if (idAluno == null) {
-			return "";
-		}
-		Aluno a = alunoService.findById(idAluno);
-		if (!todosDadosContratoValidos(a, a.getUltimoContrato())) {
-			cor = "marcarLinhaVermelho";
-		} else if (a.getRematricular() != null && a.getRematricular()) {
-			cor = "marcarLinhaVerde";
-		} else if (!cpfInvalido(a.getUltimoContrato())) {
-			cor = "marcarLinhaAmarelo";
-		} else {
-			boolean estaNaTurma = alunoService.estaEmUmaTUrma(idAluno);
-			if (!estaNaTurma) {
-				cor = "marcarLinha";
-			}
-		}
-		return cor;
-	}*/
-	
+	/*
+	 * public String marcarLinha(Long idAluno) { String cor = ""; if (idAluno ==
+	 * null) { return ""; } Aluno a = alunoService.findById(idAluno); if
+	 * (!todosDadosContratoValidos(a, a.getUltimoContrato())) { cor =
+	 * "marcarLinhaVermelho"; } else if (a.getRematricular() != null &&
+	 * a.getRematricular()) { cor = "marcarLinhaVerde"; } else if
+	 * (!cpfInvalido(a.getUltimoContrato())) { cor = "marcarLinhaAmarelo"; }
+	 * else { boolean estaNaTurma = alunoService.estaEmUmaTUrma(idAluno); if
+	 * (!estaNaTurma) { cor = "marcarLinha"; } } return cor; }
+	 */
+
 	public String marcarLinha(Aluno a) {
 		String cor = "";
-		if(a != null){
+		if (a != null) {
 			if (a.getRematricular() != null && a.getRematricular()) {
 				cor = "marcarLinhaVerde";
 			} else {
-				//TODO VER
-			//	boolean estaNaTurma = alunoService.estaEmUmaTUrma(a.getId());
-			//	if (!estaNaTurma) {
-			//		cor = "marcarLinha";
-			//	}
-			}	
+				// TODO VER
+				// boolean estaNaTurma = alunoService.estaEmUmaTUrma(a.getId());
+				// if (!estaNaTurma) {
+				// cor = "marcarLinha";
+				// }
+			}
+			if(a.getRemovido() != null && a.getRemovido()){
+				cor = "marcarLinhaVermelho";
+				return cor;
+			}
+			
+			if(!possuiContratoAbertoAnoAtual(a)){
+				cor = "marcarLinhaVermelho";
+				return cor;
+			}
 		}
-		
+
 		return cor;
+	}
+
+	private boolean possuiContratoAbertoAnoAtual(Aluno aluno) {
+		for (ContratoAluno contrato : aluno.getContratos()) {
+			if ((contrato.getCancelado() == null || !contrato.getCancelado()) 
+				&& contrato.getAno() == Short.parseShort(String.valueOf(configuracao.getAnoLetivo()))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isCnabEnvado() {
@@ -2300,14 +2529,14 @@ public class AlunoController implements Serializable {
 			} else if (contrato.getValorMensal() == 0 || contrato.getValorMensal() > 1000
 					|| contrato.getValorMensal() < 150) {
 				todoDadosContratoValidos = false;
-			} 
+			}
 		}
 
 		return todoDadosContratoValidos;
 	}
 
 	public void gerarBoletos(ContratoAluno contrato) {
-		if(CPFValidator.isCPF(contrato.getCpfResponsavel())){
+		if (CPFValidator.isCPF(contrato.getCpfResponsavel())) {
 			ContratoAluno cont = alunoService.criarBoletos(contrato.getAluno(), contrato.getAno(),
 					contrato.getNumeroParcelas(), contrato);
 			contrato = cont;
@@ -2316,22 +2545,22 @@ public class AlunoController implements Serializable {
 			this.aluno = contrato.getAluno();
 		}
 	}
-	
+
 	public StreamedContent gerarBoleto(ContratoAluno contrato) {
 		try {
 
 			CNAB240_SICOOB cnab = new CNAB240_SICOOB(1);
 
-			String nomeArquivo = contrato.getAluno().getCodigo() + contrato.getAluno().getContratoVigente().getNomeResponsavel().replace(" ", "")
-					+ ".pdf";
+			String nomeArquivo = contrato.getAluno().getCodigo()
+					+ contrato.getAluno().getContratoVigente().getNomeResponsavel().replace(" ", "") + ".pdf";
 
 			Pagador pagador = new Pagador();
 			pagador.setBairro(contrato.getBairro());
 			pagador.setCep(contrato.getCep());
-			pagador.setCidade(contrato.getCidade() != null ? contrato.getCidade(): "PALHOCA");
+			pagador.setCidade(contrato.getCidade() != null ? contrato.getCidade() : "PALHOCA");
 			pagador.setCpfCNPJ(contrato.getCpfResponsavel());
 			pagador.setEndereco(contrato.getEndereco());
-			pagador.setNome(contrato.getNomeResponsavel() +"  ("  + contrato.getAluno().getNomeAluno() + ")");
+			pagador.setNome(contrato.getNomeResponsavel() + "  (" + contrato.getAluno().getNomeAluno() + ")");
 			pagador.setNossoNumero(contrato.getNumero());
 			pagador.setUF("SC");
 			pagador.setBoletos(Formatador.getBoletosFinanceiro(getBoletosParaPagar(contrato)));
@@ -2351,23 +2580,23 @@ public class AlunoController implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public StreamedContent imprimirContrato(ContratoAluno contrato) throws IOException {
 		String nomeArquivo = "";
 		if (contrato != null && contrato.getId() != null) {
 			nomeArquivo = contrato.getAluno().getId() + "g";
-			ImpressoesUtils.imprimirInformacoesAluno("MODELO1-2.doc", montarContrato(contrato),nomeArquivo);
+			ImpressoesUtils.imprimirInformacoesAluno("MODELO1-2.doc", montarContrato(contrato), nomeArquivo);
 			nomeArquivo += ".doc";
 		} else {
 			nomeArquivo = "modeloContrato2017.docx";
 		}
 
-		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + nomeArquivo;
+		String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator
+				+ nomeArquivo;
 		InputStream stream = new FileInputStream(caminho);
 		return FileDownload.getContentDoc(stream, nomeArquivo);
 	}
-	
-	
+
 	public List<org.escolar.model.Boleto> getBoletosParaPagar(ContratoAluno contrato) {
 		List<org.escolar.model.Boleto> boletosParaPagar = new ArrayList<>();
 		if (contrato.getBoletos() != null) {
@@ -2378,18 +2607,16 @@ public class AlunoController implements Serializable {
 				}
 			}
 		}
-		
+
 		return Util.inverterArray(boletosParaPagar);
 	}
-
-
 
 	public String cancelar(ContratoAluno contrato) {
 		Util.addAtributoSessao("contrato", contrato);
 		Util.addAtributoSessao("aluno", aluno);
 		return "remover";
 	}
-	
+
 	public ContratoAluno getContrato() {
 		Object obj = Util.getAtributoSessao("contrato");
 		ContratoAluno contrato = null;
@@ -2398,7 +2625,7 @@ public class AlunoController implements Serializable {
 		}
 		return contrato;
 	}
-	
+
 	public String removerContrato(ContratoAluno contrat) {
 
 		for (org.escolar.model.Boleto b : contrat.getBoletos()) {
@@ -2413,11 +2640,10 @@ public class AlunoController implements Serializable {
 		this.aluno = al;
 		// Util.removeAtributoSessao("aluno");
 		// Util.removeAtributoSessao("contrato");
-		//alunoService.removerContrato(contrat);
+		// alunoService.removerContrato(contrat);
 
 		return "ok";
 	}
-
 
 	public String getTituloContrato(ContratoAluno contrato) {
 		if (contrato != null) {
@@ -2435,7 +2661,8 @@ public class AlunoController implements Serializable {
 				} else {
 					cancelado = "        Ativo ";
 				}
-			}			return " -  " + contrato.getNumero() + " -  " + cancelado;
+			}
+			return " -  " + contrato.getNumero() + " -  " + cancelado + " ANO LETIVO : " + contrato.getAno();
 		}
 		return "";
 	}
@@ -2522,17 +2749,13 @@ public class AlunoController implements Serializable {
 		return true;
 	}
 
-	
 	public boolean cadastroOk(Aluno a) {
-		/*if (a.getContratoVigente() != null) {
-			if (!Verificador.isCPF(a.getContratoVigente().getCpfResponsavel())) {
-				return false;
-			} else if (!todosDadosContratoValidos(a, a.getContratoVigente())) {
-				return false;
-			}
-		} else {
-			return false;
-		}*/
+		/*
+		 * if (a.getContratoVigente() != null) { if
+		 * (!Verificador.isCPF(a.getContratoVigente().getCpfResponsavel())) {
+		 * return false; } else if (!todosDadosContratoValidos(a,
+		 * a.getContratoVigente())) { return false; } } else { return false; }
+		 */
 
 		return true;
 	}
@@ -2546,20 +2769,20 @@ public class AlunoController implements Serializable {
 			return false;
 		}
 	}
-	
+
 	public boolean cnabEnviado(Aluno a) {
 
-		/*if (a.getContratoVigente() != null && a.getContratoVigente().getCnabEnviado()) {
-			return true;
-		} else {
-			return false;
-		}*/
+		/*
+		 * if (a.getContratoVigente() != null &&
+		 * a.getContratoVigente().getCnabEnviado()) { return true; } else {
+		 * return false; }
+		 */
 		return false;
 	}
 
 	public List<org.escolar.model.Boleto> getBoletosParaPagarC(ContratoAluno contrato) {
 		List<org.escolar.model.Boleto> boletosParaPagar = new ArrayList<>();
-		
+
 		if (contrato != null && contrato.getBoletos() != null) {
 			for (org.escolar.model.Boleto b : contrato.getBoletos()) {
 				if ((!Verificador.getStatusEnum(b).equals(StatusBoletoEnum.PAGO))
@@ -2568,10 +2791,10 @@ public class AlunoController implements Serializable {
 				}
 			}
 		}
-		
+
 		return Util.inverterArray(boletosParaPagar);
 	}
-	
+
 	public long getTotal() {
 		return total;
 	}

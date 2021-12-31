@@ -307,6 +307,18 @@ public class AuthController implements Serializable {
 		return TipoMembro.MESTRE;
 	}
 	
+	public TipoMembro getDono() {
+		return TipoMembro.DONO;
+	}
+	
+	public TipoMembro getFilial() {
+		return TipoMembro.FILIAL;
+	}
+	
+	public TipoMembro getUsuario() {
+		return TipoMembro.USUARIO;
+	}
+	
 	public Carro getCarro1(){
 		return carroService.findById(Constant.idCarro1);
 	}

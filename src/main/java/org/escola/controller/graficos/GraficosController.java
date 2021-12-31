@@ -317,6 +317,10 @@ public class GraficosController implements Serializable {
 		Calendar c = Calendar.getInstance();
 		return String.valueOf(financeiroService.getPrevisto(c.get(Calendar.MONTH)+1));
 	}
+	
+	public String getFaturamentoAtual(Long mes) {
+		return String.valueOf(financeiroService.getPrevisto(mes.intValue()));
+	}
 
 	public void setFaturamentoAtual(String faturamentoAtual) {
 		this.faturamentoAtual = faturamentoAtual;

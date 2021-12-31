@@ -6,8 +6,141 @@
 	template="/WEB-INF/templates/templateADM.xhtml">
 
 	<ui:define name="content">
-		<h:form style="width:100%; border:none" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+		<h:form style="width:100%; border:none" 
+		rendered="#{authController.hasPermission(authController.administrador
+		,authController.secretaria,authController.dono)}">
+		
 		<br />
+		
+		<h:panelGrid columns="3" width="100%">
+		
+			<p:panel header="Quantidade de boletros atrasados por quantidade" >
+			<p:panelGrid columns="2" width="100%" >
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(1)}"  value="1 Mês Atrasado" />
+				<h:commandLink action="#{relatorioController.rotaQuantidade(1)}"  value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(1)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(2)}" value="2 Meses Atrasado" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(2)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(2)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(3)}" value="3 Meses Atrasados" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(3)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(3)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(4)}" value="4 Meses Atrasados" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(4)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(4)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(5)}" value="5 Meses Atrasados" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(5)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(5)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(6)}" value="6 Meses Atrasados" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(6)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(6)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(7)}" value="Mais de 6 Meses Atrasados" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(7)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(7)}" width="20%"/>
+			
+				<h:outputText value="Total de Boletos em atraso" width="80%"/>
+				<h:outputText value="#{relatorioController.getQuantidadeBoletosAtrasados()}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaQuantidade(0)}" value="Total de Crianças em atraso" width="80%"/>
+				<h:commandLink action="#{relatorioController.rotaQuantidade(0)}" value="#{relatorioController.getQuantidadeAtrasadosPorQuantidade(0)}" width="20%"/>
+				
+				<h:outputText value="Valor Total Atrasado" width="80%"/>
+				<h:outputText value="#{relatorioController.getValorTotalBoletosAtrasados()}" width="20%">
+					<f:convertNumber currencySymbol = "R$" type = "currency" />
+				</h:outputText>
+			
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+			</p:panelGrid>
+		
+		
+			</p:panel>
+			
+		<p:panel header="Quantidade de boletros atrasados por mes e o total" >
+			<p:panelGrid columns="3" width="100%" >
+				<h:commandLink action="#{relatorioController.rotaMes(1)}" value="Janeiro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(1)}" value="#{relatorioController.getTotalCriancasDevendo(1)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(1)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(1)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(2)}" value="Fevereiro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(2)}" value="#{relatorioController.getTotalCriancasDevendo(2)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(2)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(2)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(3)}" value="Março" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(3)}" value="#{relatorioController.getTotalCriancasDevendo(3)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(3)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(3)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(4)}" value="Abril" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(4)}" value="#{relatorioController.getTotalCriancasDevendo(4)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(4)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(4)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(5)}" value="Maio" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(5)}" value="#{relatorioController.getTotalCriancasDevendo(5)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(5)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(5)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(6)}" value="Junho" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(6)}" value="#{relatorioController.getTotalCriancasDevendo(6)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(6)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(6)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(7)}" value="Julho" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(7)}" value="#{relatorioController.getTotalCriancasDevendo(7)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(7)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(7)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(8)}" value="Agosto" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(8)}" value="#{relatorioController.getTotalCriancasDevendo(8)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(8)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(8)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(9)}" value="Setembro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(9)}" value="#{relatorioController.getTotalCriancasDevendo(9)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(9)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(9)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(10)}" value="Outubro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(10)}" value="#{relatorioController.getTotalCriancasDevendo(10)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(10)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(10)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(11)}" value="Novembro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(11)}" value="#{relatorioController.getTotalCriancasDevendo(11)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(11)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(11)}" width="20%"/>
+				
+				<h:commandLink action="#{relatorioController.rotaMes(12)}" value="Dezembro" width="100%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(12)}" value="#{relatorioController.getTotalCriancasDevendo(12)}" width="20%"/>
+				<h:commandLink action="#{relatorioController.rotaMes(12)}" value="#{relatorioController.getValorBoletosAtrasadosPorMes(12)}" width="20%"/>
+			</p:panelGrid>
+		</p:panel>
+		
+		
+		<p:panel header="Lista Negra" >
+			<p:panelGrid columns="2" width="100%" >
+			<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+				<h:outputText value="-" />
+				<h:outputText value=" " />
+			</p:panelGrid>
+			</p:panel>
+
+	</h:panelGrid>	
 
 		<p:chart type="bubble" model="#{graficosController.lineModelAlunosEscola}" style="height:300px;"/>
 		
@@ -22,6 +155,42 @@
 		<h:panelGrid columns="2" width="100%">
 			<h:outputLabel value="Faturamento atual" width="100%"/>
 			<h:outputLabel value="#{graficosController.faturamentoAtual}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Janeiro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(1)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Fevereiro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(2)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Março" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(3)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Abril" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(4)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Maio" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(5)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Junho" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(6)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Julho" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(7)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Agosto" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(8)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Setembro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(9)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Outubro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(10)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Novembro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(11)}" width="20%"/>
+			
+			<h:outputLabel value="Faturamento Dezembro" width="100%"/>
+			<h:outputLabel value="#{graficosController.getFaturamentoAtual(12)}" width="20%"/>
 			
 			<h:outputLabel value="Quantidade de contratos" width="100%"/>
 			<h:outputLabel value="#{graficosController.quantidadeContratos}" width="20%"/>

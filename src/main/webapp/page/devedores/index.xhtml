@@ -22,7 +22,10 @@
 		</p:dialog>
 	
 		<h:form prependId="false" style="width:100%; border:none" 
-				rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro)}">
+				rendered="#{authController.hasPermission(authController.administrador
+														,authController.secretaria
+														,authController.financeiro
+														,authController.dono)}">
 
 			<h:panelGrid id="panelFerramentas" columns="17" style="margin-top: -30px; margin-left:-20px">
 				<p:tooltip  for="adicionar" value="Adicionar um novo Devedor" position="top" rendered="false"/> 

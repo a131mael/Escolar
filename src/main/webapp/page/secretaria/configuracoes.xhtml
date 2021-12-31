@@ -7,7 +7,8 @@
 
 	<ui:define name="content">
 		<h:form style="width:100%; border:none; height:100%"
-			rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+			rendered="#{authController.hasPermission(authController.administrador
+						,authController.secretaria,authController.dono)}">
 
 			<p:growl id="messages" showDetail="true" />
 			
@@ -73,6 +74,14 @@
 				<p:commandButton icon="ui-icon-contact" ajax="false" value="Gerar Protestos "
 						onclick="PrimeFaces.monitorDownload(start, stop);">
 					<p:fileDownload value="#{configuracaoController.gerarProtestos()}" />
+				</p:commandButton>
+				
+				<h:outputText value="Gerar NFSE DO Mes Atual :" />
+				<p:inputText value="#{configuracao.valorNotas}" disabled="fale">
+					<p:ajax event="change" process="@this"	 />
+				</p:inputText>
+				<p:commandButton icon="ui-icon-contact" ajax="false" value="Gerar Notas Fiscais Mes Atual "
+					action="#{configuracaoController.gerarNFSEDoMesAtual()}">
 				</p:commandButton>
 				
 				

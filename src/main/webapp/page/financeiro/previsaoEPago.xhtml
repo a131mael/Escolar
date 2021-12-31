@@ -21,12 +21,15 @@
     		<p:graphicImage name="/gfx/preloader.gif" width="100" height="15"/>
 		</p:dialog>
 	
-		<h:form prependId="false" style="width:100%; border:none" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro)}">
+		<h:form prependId="false" style="width:100%; border:none" rendered="#{authController.hasPermission(authController.administrador
+																											,authController.secretaria
+																											,authController.financeiro
+																											,authController.dono)}">
 
 			<p:tabView id="tabView">
 				<p:tab id="tabAluno" title="Jan">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{0}" />
+    					<ui:param name="parametroMes" value="#{1}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
 					</ui:include>
@@ -34,7 +37,7 @@
 				</p:tab>
 				<p:tab title="Fev">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{1}" />
+    					<ui:param name="parametroMes" value="#{2}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -42,7 +45,7 @@
 				</p:tab>
 				<p:tab title="Mar">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{2}" />
+    					<ui:param name="parametroMes" value="#{3}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -50,7 +53,7 @@
 				</p:tab>
 				<p:tab title="Abr">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{3}" />
+    					<ui:param name="parametroMes" value="#{4}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -58,7 +61,7 @@
 				</p:tab>
 				<p:tab title="Maio">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{4}" />
+    					<ui:param name="parametroMes" value="#{5}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -66,7 +69,7 @@
 				</p:tab>
 				<p:tab title="Jun">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{5}" />
+    					<ui:param name="parametroMes" value="#{6}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -74,7 +77,7 @@
 				</p:tab>
 				<p:tab title="Julho">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{6}" />
+    					<ui:param name="parametroMes" value="#{7}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -82,7 +85,7 @@
 				</p:tab>
 				<p:tab title="Agosto">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{7}" />
+    					<ui:param name="parametroMes" value="#{8}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -90,7 +93,7 @@
 				</p:tab>
 				<p:tab title="Set">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{8}" />
+    					<ui:param name="parametroMes" value="#{9}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -98,7 +101,7 @@
 				</p:tab>
 				<p:tab title="Out">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{9}" />
+    					<ui:param name="parametroMes" value="#{10}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -106,7 +109,7 @@
 				</p:tab>
 				<p:tab title="Nov">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{10}" />
+    					<ui:param name="parametroMes" value="#{11}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					
@@ -114,7 +117,7 @@
 				</p:tab>
 				<p:tab title="Dez">
 					<ui:include src="cmpPrevistoPago.xhtml">
-    					<ui:param name="parametroMes" value="#{11}" />
+    					<ui:param name="parametroMes" value="#{12}" />
     					<ui:param name="visible" value="#{true}" />
     					<ui:param name="parametroController" value="#{financeiroController}" />
     					

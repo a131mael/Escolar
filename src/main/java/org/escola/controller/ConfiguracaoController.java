@@ -37,6 +37,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.escola.controller.aluno.AlunoController;
 import org.escola.util.FileDownload;
 import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.model.Aluno;
@@ -46,6 +47,7 @@ import org.escolar.model.ContratoAluno;
 import org.escolar.rotinasAutomaticas.CNAB240;
 import org.escolar.service.AlunoService;
 import org.escolar.service.ConfiguracaoService;
+import org.escolar.service.RelatorioService;
 import org.escolar.util.CompactadorZip;
 import org.escolar.util.FileUtils;
 import org.escolar.util.ImpressoesUtils;
@@ -66,7 +68,7 @@ public class ConfiguracaoController implements Serializable {
 
 	private int mesGerarCNAB;
 	private int mesGerarCNABCancelamento;
-	
+
 	@Inject
 	private ConfiguracaoService configuracaoService;
 
@@ -76,7 +78,12 @@ public class ConfiguracaoController implements Serializable {
 	@Inject
 	private CNAB240 cnab240;
 
+	@Inject
+	private AlunoController alunoController;
 	
+	@Inject
+	private RelatorioService relatorioService;
+
 	@PostConstruct
 	private void init() {
 		List<Configuracao> confs = configuracaoService.findAll();
@@ -87,7 +94,7 @@ public class ConfiguracaoController implements Serializable {
 			configuracao = confs.get(0);
 		}
 	}
-	
+
 	public StreamedContent gerarCNABCancelamentoDoMES(int mes) {
 		try {
 			Calendar calendario = Calendar.getInstance();
@@ -95,23 +102,26 @@ public class ConfiguracaoController implements Serializable {
 			StringBuilder sb = new StringBuilder();
 			sb.append(calendario.get(Calendar.YEAR));
 			sb.append(calendario.get(Calendar.MONTH));
-			
+
 			sb.append(calendario.get(Calendar.DAY_OF_MONTH));
 
-			List<Boleto> boletos = configuracaoService.findBoletosCanceladosMes(mesGerarCNABCancelamento, configuracao.getAnoRematricula());
+			List<Boleto> boletos = configuracaoService.findBoletosCanceladosMes(mesGerarCNABCancelamento,
+					configuracao.getAnoRematricula());
 
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb+ File.separator;
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb + File.separator;
 			CompactadorZip.createDir(caminhoFinalPasta);
 
 			for (Boleto b : boletos) {
 				gerarCNB240Cancelamento(b, caminhoFinalPasta);
 			}
 
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb + "CNAB240.zip";
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb + "CNAB240.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 
 			InputStream stream2 = new FileInputStream(arquivoSaida);
-			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" +sb+".zip");
+			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" + sb + ".zip");
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -132,40 +142,42 @@ public class ConfiguracaoController implements Serializable {
 			sb.append(calendario.get(Calendar.MONTH));
 			sb.append(calendario.get(Calendar.DAY_OF_MONTH));
 
-			List<Boleto> boletos = configuracaoService.findBoletosMes(mesGerarCNAB, configuracao.getAnoRematricula());
+			List<Boleto> boletos = configuracaoService.findBoletosMes(mesGerarCNAB, configuracao.getAnoLetivo());
 
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb;
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb;
 			CompactadorZip.createDir(caminhoFinalPasta);
 
 			for (Boleto b : boletos) {
-				ContratoAluno ca = configuracaoService.findContrato(b.getId()); 
-				
-				if(ca.getCpfResponsavel() != null && !ca.getCpfResponsavel().equalsIgnoreCase("")){
-					if(ca.getNomeResponsavel() != null && !ca.getNomeResponsavel().equalsIgnoreCase("")){
-						if(ca.getEndereco() != null && !ca.getEndereco().equalsIgnoreCase("")){
-							if(ca.getCep() == null || ca.getCep().equalsIgnoreCase("")){
-								ca.setCep("88132700");	
+				ContratoAluno ca = configuracaoService.findContrato(b.getId());
+
+				if (ca.getCpfResponsavel() != null && !ca.getCpfResponsavel().equalsIgnoreCase("")) {
+					if (ca.getNomeResponsavel() != null && !ca.getNomeResponsavel().equalsIgnoreCase("")) {
+						if (ca.getEndereco() != null && !ca.getEndereco().equalsIgnoreCase("")) {
+							if (ca.getCep() == null || ca.getCep().equalsIgnoreCase("")) {
+								ca.setCep("88132700");
 							}
-							if(ca.getBairro() == null || ca.getBairro().equalsIgnoreCase("")){
+							if (ca.getBairro() == null || ca.getBairro().equalsIgnoreCase("")) {
 								ca.setBairro("Bela Vista");
 							}
-							if(ca.getCidade() == null || ca.getCidade().equalsIgnoreCase("")){
+							if (ca.getCidade() == null || ca.getCidade().equalsIgnoreCase("")) {
 								ca.setCidade("Palhoca");
 							}
-							
+
 							InputStream stream = gerarCNB240(ca, mesGerarCNAB, caminhoFinalPasta);
-							FileUtils.inputStreamToFile(stream, b.getNossoNumero()+"");
+							FileUtils.inputStreamToFile(stream, b.getNossoNumero() + "");
 						}
 					}
 				}
 				configuracaoService.mudarStatusParaCNABEnviado(b);
 			}
 
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb + "CNAB240.zip";
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb + "CNAB240.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 
 			InputStream stream2 = new FileInputStream(arquivoSaida);
-			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" +sb+".zip");
+			return FileDownload.getContentDoc(stream2, "escolarCNABSdoMes" + sb + ".zip");
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -192,7 +204,7 @@ public class ConfiguracaoController implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public StreamedContent gerarProtestos() {
 		try {
 			Calendar calendario = Calendar.getInstance();
@@ -206,37 +218,39 @@ public class ConfiguracaoController implements Serializable {
 			List<ContratoAluno> contratos = configuracaoService.findContratosProtestados(false);
 
 			System.out.println("X2 :" + contratos.size());
-			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb;
+			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb;
 			CompactadorZip.createDir(caminhoFinalPasta);
 			System.out.println("X3 :" + caminhoFinalPasta);
 			for (ContratoAluno ca : contratos) {
-				
-				if(ca.getCpfResponsavel() != null && !ca.getCpfResponsavel().equalsIgnoreCase("")){
-					if(ca.getNomeResponsavel() != null && !ca.getNomeResponsavel().equalsIgnoreCase("")){
-						if(ca.getEndereco() != null && !ca.getEndereco().equalsIgnoreCase("")){
-							if(ca.getCep() == null || ca.getCep().equalsIgnoreCase("")){
-								ca.setCep("88132700");	
+
+				if (ca.getCpfResponsavel() != null && !ca.getCpfResponsavel().equalsIgnoreCase("")) {
+					if (ca.getNomeResponsavel() != null && !ca.getNomeResponsavel().equalsIgnoreCase("")) {
+						if (ca.getEndereco() != null && !ca.getEndereco().equalsIgnoreCase("")) {
+							if (ca.getCep() == null || ca.getCep().equalsIgnoreCase("")) {
+								ca.setCep("88132700");
 							}
-							if(ca.getBairro() == null || ca.getBairro().equalsIgnoreCase("")){
+							if (ca.getBairro() == null || ca.getBairro().equalsIgnoreCase("")) {
 								ca.setBairro("Bela Vista");
 							}
-							if(ca.getCidade() == null || ca.getCidade().equalsIgnoreCase("")){
+							if (ca.getCidade() == null || ca.getCidade().equalsIgnoreCase("")) {
 								ca.setCidade("Palhoca");
 							}
 							System.out.println("X4 :");
-							gerarArquivoProtesto(ca,sb.toString());
-							
+							gerarArquivoProtesto(ca, sb.toString());
+
 						}
 					}
 				}
 				configuracaoService.mudarStatusParaProtestoEnviadoPorEmail(ca);
 			}
 			System.out.println("X7 :");
-			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + File.separator + sb + "escolarPROTESTOS.zip";
+			String arquivoSaida = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+					+ File.separator + sb + "escolarPROTESTOS.zip";
 			CompactadorZip.compactarParaZip(arquivoSaida, caminhoFinalPasta);
 			System.out.println("X8 :+ arquivoSaida");
 			InputStream stream2 = new FileInputStream(arquivoSaida);
-			return FileDownload.getContentDoc(stream2, "escolarPROTESTOS" +sb+".zip");
+			return FileDownload.getContentDoc(stream2, "escolarPROTESTOS" + sb + ".zip");
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -247,11 +261,58 @@ public class ConfiguracaoController implements Serializable {
 		}
 		return null;
 	}
-	
+
+	public void gerarNFSEDoMesAtual() {
+		Calendar c = Calendar.getInstance();
+		double limitNota = configuracao.getValorNotas();
+		double totalGerado = relatorioService.getTotalNotasEmitidas(c.get(Calendar.MONTH)+1);
+		List<Aluno> todosAlunos = alunoService.findAlunoDoAnoLetivoComLzyContrato();
+		for (Aluno al : todosAlunos) {
+			if (totalGerado < limitNota) {
+				if (!notaMesAtualGerada(al)) {
+					if (boletoMesPago(al)) {
+						totalGerado += al.getContratoVigente(configuracao.getAnoLetivo()).getValorMensal();
+						alunoController.gerarNFSe(al);
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	private boolean notaMesAtualGerada(Aluno al) {
+		ContratoAluno contratoatual = al.getContratoVigente(configuracao.getAnoLetivo());
+		if(contratoatual == null){
+			return false;
+		}
+		Boleto boletoMesAual = alunoController.getBoletoMesAtual(contratoatual);
+		if(boletoMesAual == null){
+			return true;
+		}
+		Boolean notaGerada = boletoMesAual.getNfsEnviada();
+		return (notaGerada != null && notaGerada) ?true:false;
+	}
+
+	private boolean boletoMesPago(Aluno al) {
+		ContratoAluno contratoatual = al.getContratoVigente(configuracao.getAnoLetivo());
+		if(contratoatual == null){
+			return false;
+		}
+		Boleto boletoMes = alunoController.getBoletoMesAtual(contratoatual);
+		if(boletoMes == null || boletoMes.getValorPago() == null){
+			return false;
+		}
+		if (boletoMes.getValorPago() > 200) {
+			return true;
+		}
+		return false;
+	}
+
 	public void gerarArquivoProtesto(ContratoAluno ca, String nomeArquivo) {
-		//String nomeArquivo = "";
+		// String nomeArquivo = "";
 		if (ca != null && ca.getId() != null) {
-			nomeArquivo += File.separator ;
+			nomeArquivo += File.separator;
 			nomeArquivo += ca.getId() + "Z";
 			String modeloArq = "modelo_protesto.docx";
 			try {
@@ -310,17 +371,16 @@ public class ConfiguracaoController implements Serializable {
 			nomeArquivo = "modelo_protesto.docx";
 		}
 
-		/*String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/") + "\\" + nomeArquivo;
-		InputStream stream = null;
-		try {
-			stream = new FileInputStream(caminho);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		/*
+		 * String caminho =
+		 * FacesContext.getCurrentInstance().getExternalContext().getRealPath(
+		 * "/") + "\\" + nomeArquivo; InputStream stream = null; try { stream =
+		 * new FileInputStream(caminho); } catch (FileNotFoundException e) { //
+		 * TODO Auto-generated catch block e.printStackTrace(); }
+		 */
 
 	}
-	
+
 	public HashMap<String, String> montarArquivoProtesto(ContratoAluno contratoAluno) {
 		DateFormat formatador = DateFormat.getDateInstance(DateFormat.DATE_FIELD, new Locale("pt", "BR"));
 		String dataExtenso = formatador.format(new Date());
@@ -348,10 +408,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("vlcoritow", verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -363,10 +425,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("vlcorriele", verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -378,26 +442,30 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("vlcoriten", verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
 				}
 				trocas.put("stsdez", situacao);
-			} 
+			}
 			if (i == 9) {
 				trocas.put("dataVenc" + i, formatador.format(contratoAluno.getBoletos().get(i - 1).getVencimento()));
 				trocas.put("valorOrig" + i, contratoAluno.getBoletos().get(i - 1).getValorNominal() + "");
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -410,10 +478,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -426,10 +496,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -442,10 +514,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -458,10 +532,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -474,10 +550,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -490,10 +568,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -506,10 +586,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -522,10 +604,12 @@ public class ConfiguracaoController implements Serializable {
 				trocas.put("valorCorri" + i, verificaValorFinalBoleto(contratoAluno.getBoletos().get(i - 1)));
 				String situacao = "ABERTO";
 				if (Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.PAGO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.CANCELADO)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.A_VENCER)
-						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1)).equals(StatusBoletoEnum.VENCE_HOJE)
-						) {
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.CANCELADO)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.A_VENCER)
+						|| Verificador.getStatusEnum(contratoAluno.getBoletos().get(i - 1))
+								.equals(StatusBoletoEnum.VENCE_HOJE)) {
 					situacao = "QUITADO";
 				} else {
 					totalAberto += Verificador.getValorFinal(contratoAluno.getBoletos().get(i - 1));
@@ -538,11 +622,11 @@ public class ConfiguracaoController implements Serializable {
 
 		return trocas;
 	}
-	
+
 	public String verificaValorFinalBoleto(Boleto boleto) {
 		return Util.formatarDouble2Decimais(Verificador.getValorFinal(boleto));
 	}
-	
+
 	public void gerarCNB240Cancelamento(Boleto b, String caminhoArquivo) {
 		try {
 			cnab240.gerarBaixaBoletosCancelados(b, caminhoArquivo);
@@ -583,6 +667,14 @@ public class ConfiguracaoController implements Serializable {
 
 	public void setMesGerarCNABCancelamento(int mesGerarCNABCancelamento) {
 		this.mesGerarCNABCancelamento = mesGerarCNABCancelamento;
+	}
+
+	public AlunoController getAlunoController() {
+		return alunoController;
+	}
+
+	public void setAlunoController(AlunoController alunoController) {
+		this.alunoController = alunoController;
 	}
 
 }
