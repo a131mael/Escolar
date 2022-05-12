@@ -1,0 +1,217 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/default2.xhtml">
+
+
+	<ui:define name="content">
+		<h:form id="form" style="width:100%; border:none">
+			<div
+				style="background-color: #e5e5e5; padding: 15px; text-align: center;">
+				<h1>Tefamel - Favo de Mel Transporte Escolar</h1>
+			</div>
+
+				<p:wizard flowListener="#{pedidoMatriculaController.onFlowProcess}">
+					<p:tab id="personal" title="Dados da Criança">
+						<p:panel header="Dados da Criança" style="font-size: 15px;" >
+							<h:outputLabel value="Nome(*): "	style="font-size: 11px; width:80px" />
+							<p:inputText id="nomealuno" value="#{contratoAlun.aluno.nomeAluno}" title="" style="font-size: 11px; width:180px">
+								<p:ajax process="@this" event="change" required="true" requiredMessage="Nome é obrigatório"/>
+							</p:inputText>
+							<p:message for="nomealuno" />
+
+							<h:outputLabel value="Bairro: "	style="font-size: 11px; width:80px" />
+							<p:selectOneMenu style="width: 180px;" value="#{contratoAlun.aluno.bairro}">
+								<f:selectItems	value="#{CombosEspeciaisMB.getBairroSelectIItem()}"
+									var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}"
+									disabled="#{disable}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							<br />
+
+							<h:outputLabel value="Rua(*): "	style="font-size: 11px; width:80px" />
+							<p:inputText title="" style="font-size: 11px; width:180px" value="#{contratoAlun.aluno.endereco}">
+								<p:ajax process="@this" event="change" />
+							</p:inputText>
+							<br />
+
+							<h:outputLabel value="Numero(*): "	style="font-size: 11px; width:80px" />
+							<p:inputText title="" style="font-size: 11px; width:180px" >
+								<p:ajax process="@this" event="change" />
+							</p:inputText>
+							<br />
+							<h:outputLabel value="Complemento(*): "
+								style="font-size: 11px; width:80px" />
+							<p:inputText title="" style="font-size: 11px; width:180px">
+								<p:ajax process="@this" event="change" />
+							</p:inputText>
+							<br/>
+							
+							<h:outputLabel value="Escola: "	style="font-size: 11px; width:80px" />
+							<p:selectOneMenu style="width: 256px;" value="#{contratoAlun.aluno.escola}">
+								<f:selectItems id="escolaaluno" value="#{CombosEspeciaisMB.getEscolas()}"
+									var="country" itemLabel="#{country.name}" itemValue="#{country}" 
+									disabled="#{disable}"/>
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							<p:message for="escolaaluno" />
+							
+							
+							<h:outputLabel value="Série :"	style="font-size: 11px; width:80px" />
+							<p:selectOneMenu style="width: 180px;" value="#{contratoAlun.aluno.serie}">
+								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
+									var="country" itemLabel="#{country.name}	"
+									itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							<br/>
+							<h:outputLabel value="Nascimento: "	style="font-size: 11px; width:80px" />
+						<p:calendar value="#{contratoAlun.aluno.dataNascimento}" pattern="dd/MM/yyyy" mask="true"	style="font-size: 15px; width:280px" >
+							<p:ajax process="@this" event="change"/>
+						</p:calendar>
+
+						</p:panel>
+					</p:tab>
+				
+				<p:tab id="tabresponsavel" title="Responsável financeiro">
+				<p:panel header="Dados do responsável financeiro" style="font-size: 15px;">
+						<h:outputLabel value="Nome Responsável: "	style="font-size: 11px; width:110px" />
+						<p:inputText id="nomeresps" value="#{contratoAlun.nomeResponsavel}"
+							style="font-size: 11px; width:180px" required="true" requiredMessage="Nome responsável obrigatório"/>
+						<p:message for="nomeresps" />
+						<h:outputLabel value="Nome MAE Responsável: "	style="font-size: 9px; width:110px" />
+						<p:inputText id="nomemaeres" value="#{contratoAlun.nomeMaeResponsavel}"
+							style="font-size: 11px; width:180px" required="true" requiredMessage="Nome da mãe do responsável obrigatório"/>
+						<p:message for="nomemaeres" />
+	
+						<h:outputLabel value="CPF Responsável: "	style="font-size: 11px; width:106px" />
+						<h:panelGrid columns="2">
+							<p:inputText id="inputcpf" value="#{contratoAlun.cpfResponsavel}"
+								style="font-size: 11px; width:180px"
+								validatorMessage="CPF INVÁLIDO.">
+								<f:validator for="inputcpf"
+									validatorId="org.escola.validator.CPFValidator" />
+							</p:inputText>
+							<p:message for="inputcpf" />
+						</h:panelGrid>
+					<br />
+
+						<h1>Endereço do responsável financeiro</h1>
+	
+						<h:outputLabel value="CEP: " style="font-size: 11px; width:80px" />
+						<p:inputMask id="cpf" value="#{contratoAlun.cep}" mask="99 999-999"
+							style="font-size: 11px; width:160px" required="true" requiredMessage="CEP é obrigatório"/>
+							<p:message for="cpf" />
+						<h:outputLabel value="Cidade: "
+							style="font-size: 11px; width:80px" />
+						<p:inputText id="cidad" value="#{contratoAlun.cidade}"
+							style="font-size: 11px; width:160px" required="true" requiredMessage="Cidade é obrigatório"/>
+						<p:message for="cidad" />
+	
+						<h:outputLabel value="Bairro: "
+							style="font-size: 11px; width:80px" />
+						<p:inputText id="bairroresp" value="#{contratoAlun.bairro}"
+							style="font-size: 11px; width:160px" required="true" requiredMessage="Bairro é obrigatório"/>
+						<p:message for="bairroresp" />
+	
+						<h:outputLabel value="Rua(*): "	style="font-size: 11px; width:80px" />
+						<p:inputText id="ruaresp" title="" style="font-size: 11px; width:180px" required="true" requiredMessage="Rua é obrigatório">
+							<p:ajax process="@this" event="change" />
+						</p:inputText>
+						<p:message for="ruaresp" />
+
+						<h:outputLabel value="Numero(*): "
+							style="font-size: 11px; width:80px" />
+						<p:inputText id="numeroresp" title="" style="font-size: 11px; width:180px" required="true" requiredMessage="Numero é obrigatório">
+							<p:ajax process="@this" event="change" />
+						</p:inputText>
+						<p:message for="numeroresp" />
+						<h:outputLabel value="Complemento(*): "
+							style="font-size: 11px; width:80px" />
+						<p:inputText title="" style="font-size: 11px; width:180px">
+							<p:ajax process="@this" event="change" />
+						</p:inputText>
+						<br/>
+
+					</p:panel>
+					
+					
+				</p:tab>
+				<p:tab id="tabcom" title="Contatos">
+						<p:panel header="Contatos" style="font-size: 15px;">
+					
+						<h:outputLabel value="Email: " style="font-size: 11px; width:80px" />
+						<h:inputText title="" value="#{contratoAlun.aluno.contatoEmail1}"
+							style="font-size: 11px; width:180px" />
+	
+						<br />
+						<h:outputLabel value="Email: " style="font-size: 11px; width:80px" />
+						<h:inputText title="" value="#{contratoAlun.aluno.contatoEmail2}"
+							style="font-size: 11px; width:180px" />
+						<br />
+	
+						<h:outputLabel value="Telefone: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText id="telefone1con" title="" value="#{contratoAlun.aluno.contatoTelefone1}"
+							style="font-size: 11px; width:110px " required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
+	
+						<h:outputLabel value="Falar com: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome1}"
+							style="font-size: 11px; width:110px" required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
+							<p:message for="telefone1con" />
+						<h:outputLabel value="Telefone: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText title="" value="#{aluno.contatoTelefone2}"
+							style="font-size: 11px; width:110px" />
+	
+						<h:outputLabel value="Falar com: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome2}"
+							style="font-size: 11px; width:110px" />
+						<br />
+						<h:outputLabel value="Telefone: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText title="" value="#{contratoAlun.aluno.contatoTelefone3}"
+							style="font-size: 11px; width:110px" />
+	
+						<h:outputLabel value="Falar com: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome3}"
+							style="font-size: 11px; width:110px" />
+						<br />
+						<h:outputLabel value="Telefone: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText value="#{contratoAlun.aluno.contatoTelefone4}"
+							style="font-size: 11px; width:110px" />
+	
+						<h:outputLabel value="Falar com: "
+							style="font-size: 11px; width:80px ;float:none !important" />
+						<p:inputText value="#{contratoAlun.aluno.contatoNome4}"
+							style="font-size: 11px; width:110px" />
+						
+						<br/>
+						<p:commandButton value="ENVIAR"	style="float:right; ;background: #e2f336;font-size: 15px">
+							<p:ajax process="@this"	listener="#{pedidoMatriculaController.enviar()}" />
+						</p:commandButton>
+						<br/>
+						<br/>
+							
+					</p:panel>
+					
+				</p:tab>
+						
+			</p:wizard>
+
+
+			<div style="background-color: #e5e5e5; text-align: center; padding: 10px; margin-top: 7px;">©
+				copyright www.tefamel.com
+			</div>
+
+		</h:form>
+	</ui:define>
+
+
+</ui:composition>

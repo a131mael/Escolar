@@ -17,12 +17,14 @@
 package org.escola.controller;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.inject.Produces;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,7 +34,13 @@ import org.escolar.enums.Serie;
 import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.model.Aluno;
 import org.escolar.model.Boleto;
+import org.escolar.model.Configuracao;
+import org.escolar.model.Funcionario;
+import org.escolar.model.Member;
+import org.escolar.model.extrato.ItemExtrato;
 import org.escolar.service.AlunoService;
+import org.escolar.service.ConfiguracaoService;
+import org.escolar.service.ExtratoBancarioService;
 import org.escolar.service.FinanceiroService;
 import org.escolar.util.Formatador;
 import org.escolar.util.Util;
@@ -48,12 +56,20 @@ public class FinanceiroController implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	@Inject
+	private ConfiguracaoService configuracaoService;
+	
+	@Inject
 	private FinanceiroService financeiroService;
 	
 	@Inject
 	private AlunoService alunoService;
+	
+	@Inject
+	private ExtratoBancarioService extratoBancarioService;
 
 	private LazyDataModel<Boleto> lazyListDataModel;
+	
+	private LazyDataModel<ItemExtrato> lazyListDataModelExtrato;
 		
 	private List<Aluno> alunosEcontrados;
 	
@@ -67,9 +83,163 @@ public class FinanceiroController implements Serializable{
 
 	@Named
 	private Aluno alunoBaixaSelecionado;
+	
+	@Named
+	private ItemExtrato itemExtrato;
+	
+	@Produces
+	@Named
+	private ItemExtrato extratoBancario;
+	
+	private Integer anoSelecionado;
+	
+	private Integer mesSelecionado;
+	
+	private Configuracao configuracao;
 
 	@PostConstruct
 	private void init() {
+		setConfiguracao(configuracaoService.getConfiguracao());
+		
+		Object obj2 = Util.getAtributoSessao("anoSelecionado");
+		if (obj2 != null) {
+			anoSelecionado = (Integer) obj2;
+		}else{
+			anoSelecionado = getConfiguracao().getAnoLetivo();
+		}
+		
+		Object obj3 = Util.getAtributoSessao("mesSelecionado");
+		if (obj3 != null) {
+			setMesSelecionado((Integer) obj3);
+		}else{
+			setMesSelecionado(getMesAtual());
+		}
+		
+		if(extratoBancario == null){
+			Object objectSessao = Util.getAtributoSessao("extratoBancario");
+			if(objectSessao != null){
+				extratoBancario = (ItemExtrato) objectSessao;
+				Util.removeAtributoSessao("extratoBancario");
+			}else{
+				extratoBancario = new ItemExtrato();
+			}
+		}
+	}
+
+	private Integer getMesAtual() {
+		Calendar c = Calendar.getInstance();
+		return c.get(Calendar.MONTH);
+	}
+	
+	public void dividirExtrato(){
+		ItemExtrato filho = new ItemExtrato();
+		List<ItemExtrato> filhos = extratoBancario.getItensFilhos();
+		if(filhos != null && filhos.size()>0){
+		
+			String codigo = filhos.get(filhos.size()-1).getCodigoEntrada();
+			String finalCodigo = codigo.substring(codigo.length()-2);
+			int proximo = Integer.parseInt(finalCodigo);
+			proximo++;
+			filho.setCodigoEntrada(extratoBancario.getCodigoEntrada()+"0"+proximo);
+		}else{
+			filho.setCodigoEntrada(extratoBancario.getCodigoEntrada()+"01");
+		}
+		filho.setAno(extratoBancario.getAno());
+		filho.setMes(extratoBancario.getMes());
+		filho.setDataEvento(extratoBancario.getDataEvento());
+		filho.setPai(false);
+		filho.setTipoEntrada(extratoBancario.getTipoEntrada());
+		filho.setTipoEntradaSaida(extratoBancario.getTipoEntradaSaida());
+		filho.setValor(0d);
+		extratoBancario.setPai(true);
+		extratoBancario.addFilho(filho);
+	}
+	
+	public String pintarPai(ItemExtrato item){
+		if(item.isPai()){
+			return "backgroundVerde";
+		}
+		return "";
+	}
+	
+	public String editarExtrato(Long id){
+		extratoBancario = financeiroService.findItemExtratoByID(id);
+		Util.addAtributoSessao("extratoBancario", extratoBancario);
+		return "editarExtrato";
+	}
+	
+	public void removerExtrato(){
+		extratoBancarioService.removerExtrato(extratoBancario);
+	}
+	
+	public String editarExtrato() {
+		return editarExtrato(extratoBancario.getId()); 
+	}
+	
+	public String adicionarExtrato(){
+		return "editarExtrato";
+	}
+	
+	public String saveExtrato(ItemExtrato item){
+		extratoBancarioService.save(item);
+		return "indexExtrato";
+	}
+	
+	public String saveExtrato() {
+		extratoBancarioService.save(extratoBancario);
+		return "indexExtrato";
+	}
+
+	public LazyDataModel<ItemExtrato> getLazyDataModelExtrato() {
+		if (lazyListDataModelExtrato == null) {
+
+			lazyListDataModelExtrato = new LazyDataModel<ItemExtrato>() {
+
+				@Override
+				public ItemExtrato getRowData(String rowKey) {
+					return financeiroService.findItemExtratoByID(Long.valueOf(rowKey));
+				}
+
+				@Override
+				public Object getRowKey(ItemExtrato al) {
+					return al.getId();
+				}
+
+				@Override
+				public List<ItemExtrato> load(int first, int pageSize, String order, SortOrder so,	Map<String, Object> where) {
+
+					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.putAll(where);
+					filtros.put("removido", false);
+					filtros.put("mes", mesSelecionado+1);
+					filtros.put("ano", anoSelecionado);
+
+					String orderByParam = (order != null) ? order : "id";
+					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
+
+					List<ItemExtrato> ol = financeiroService.findItemExtrato(first, pageSize, orderByParam, orderParam, filtros);
+
+					if (ol != null && ol.size() > 0) {
+						lazyListDataModelExtrato.setRowCount((int) financeiroService.countExtratosMes(filtros));
+						return ol;
+					}
+					return null;
+				}
+			};
+
+			Map<String, Object> filtros = new HashMap<String, Object>();
+
+			filtros.put("removido", false);
+			filtros.put("mes", mesSelecionado+1);
+			filtros.put("ano", anoSelecionado);
+
+			lazyListDataModelExtrato.setRowCount((int) financeiroService.countExtratosMes(filtros));
+
+		}
+
+		return lazyListDataModelExtrato;
+
 	}
 	
 	public void buscarAluno(String nome, String nomeResponsavel,String cpf, String numeroDocumento){
@@ -111,6 +281,27 @@ public class FinanceiroController implements Serializable{
 		*/
 		return cor;
 	}
+	
+	public String marcarLinhaExtrato(ItemExtrato a) {
+		String cor = "";
+		if(a == null){
+			return "";
+		}
+		
+		if(a.getAtualizado() != null && a.getAtualizado()){
+			cor = "marcarLinhaVerde";
+		}else{
+			cor = "marcarLinha";
+		}
+		
+		/*cor = "marcarLinhaVermelho";
+		cor = "marcarLinhaVerde";
+		cor = "marcarLinhaAmarelo";
+		cor = "marcarLinha"
+		*/
+		return cor;
+	}
+	
 	
 	public boolean isBoletoPago(Boleto boleto){
 		return Verificador.getStatusEnum(boleto).equals(StatusBoletoEnum.PAGO) || isRemovido(boleto);
@@ -210,7 +401,12 @@ public class FinanceiroController implements Serializable{
 		return lazyListDataModel;
 
 	}
-
+	
+	public String verAluno(long id) {
+			Aluno aluno = alunoService.findById(id);
+			Util.addAtributoSessao("aluno", aluno);
+		return "veraluno";
+	}
 	
 	public double getPrevisto(int mes){
 		return financeiroService.getPrevisto(mes);
@@ -271,6 +467,48 @@ public class FinanceiroController implements Serializable{
 
 	public void setnDocumento(String nDocumento) {
 		this.nDocumento = nDocumento;
+	}
+
+	public ItemExtrato getItemExtrato() {
+		return itemExtrato;
+	}
+
+	public void setItemExtrato(ItemExtrato itemExtrato) {
+		this.itemExtrato = itemExtrato;
+	}
+
+	public Integer getAnoSelecionado() {
+		return anoSelecionado;
+	}
+
+	public void setAnoSelecionado(Integer anoSelecionado) {
+		Util.addAtributoSessao("anoSelecionado", anoSelecionado);
+		this.anoSelecionado = anoSelecionado;
+	}
+
+	public Integer getMesSelecionado() {
+		return mesSelecionado;
+	}
+
+	public void setMesSelecionado(Integer mesSelecionado) {
+		Util.addAtributoSessao("mesSelecionado", mesSelecionado);
+		this.mesSelecionado = mesSelecionado;
+	}
+
+	public Configuracao getConfiguracao() {
+		return configuracao;
+	}
+
+	public void setConfiguracao(Configuracao configuracao) {
+		this.configuracao = configuracao;
+	}
+
+	public ItemExtrato getExtratoBancario() {
+		return extratoBancario;
+	}
+
+	public void setExtratoBancario(ItemExtrato extratoBancario) {
+		this.extratoBancario = extratoBancario;
 	}
 	
 }

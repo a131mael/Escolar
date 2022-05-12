@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	
+	<h:panelGrid columns="2" border="0" rendered="#{visible}" >
+		<h:outputLabel value="Codigo(*): "
+			style="font-size: 13px; width:180px" />
+		<p:inputText title="" value="#{parametro.codigo}"
+			style="font-size: 15px; width:280px" disabled="#{disable}">
+			</p:inputText>
+
+		<h:outputLabel for="name" value="Nome(*): "
+			style="font-size: 13px; width:180px" />
+		<p:inputText title="" value="#{parametro.nomeAluno}"
+			style="font-size: 15px; width:280px" disabled="#{disable}">
+			<p:ajax process="@this" event="change"/>
+		</p:inputText>
+		
+
+		<h:outputLabel value="Bairro: " style="font-size: 13px; width:180px" />
+		<p:selectOneMenu style="width: 256px;" value="#{parametro.bairroAluno}">
+			<f:selectItems value="#{CombosEspeciaisMB.getBairroSelectIItem()}"
+				var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}" 
+				disabled="#{disable}"/>
+			<p:ajax event="change" process="@this" />
+		</p:selectOneMenu>
+				
+		
+		<h:outputLabel for="name" value="Rua(*): "
+			style="font-size: 13px; width:180px" />
+		<p:inputText title="" value="#{parametro.enderecoAluno}"
+			style="font-size: 15px; width:280px" disabled="#{disable}">
+				<p:ajax process="@this" event="change"/>
+		</p:inputText>
+
+		<h:outputLabel value="Escola: " style="font-size: 13px; width:180px" />
+		<p:selectOneMenu style="width: 256px;" value="#{parametro.escola}">
+			<f:selectItems value="#{CombosEspeciaisMB.getEscolas()}"
+				var="country" itemLabel="#{country.name}" itemValue="#{country}" 
+				disabled="#{disable}"/>
+			<p:ajax event="change" process="@this" />
+		</p:selectOneMenu>
+
+		<h:outputLabel value="Série " style="font-size: 13px; width:180px" />
+		<p:selectOneMenu style="width: 256px;"
+			value="#{parametro.serie}">
+			<f:selectItems value="#{CombosEspeciaisMB.getSeries()}" var="country"
+				itemLabel="#{country.name}" itemValue="#{country}" 
+				disabled="#{disable}"/>
+			<p:ajax event="change" process="@this" />
+		</p:selectOneMenu>
+
+		<h:outputLabel value="Nascimento: "
+			style="font-size: 13px; width:180px" />
+		<p:calendar value="#{parametro.dataNascimento}" pattern="dd/MM/yyyy"
+			mask="true" style="font-size: 15px; width:280px"  disabled="#{disable}">
+				<p:ajax process="@this" event="change"/>
+		</p:calendar>
+
+		<h:outputLabel value="Horário: " style="font-size: 13px; width:180px" />
+		<p:selectOneMenu  style="width: 256px;"
+			value="#{parametro.periodo}">
+			<f:selectItems value="#{CombosEspeciaisMB.getPeriodos()}"
+				var="country" itemLabel="#{country.name}" itemValue="#{country}" 
+				disabled="#{disable}"/>
+			<p:ajax event="change" process="@this" />
+		</p:selectOneMenu>
+		
+		
+		<h:outputLabel value="Tipo: " style="font-size: 13px; width:180px" />
+		<h:selectOneRadio value="#{parametro.idaVolta}" style="width:100%">
+			<f:selectItem itemValue="0" itemLabel="Ida e Volta" />
+			<f:selectItem itemValue="1" itemLabel="Somente IDA" />
+			<f:selectItem itemValue="2" itemLabel="Somente Volta" />
+
+			<p:ajax process="form:tabs" update="form:tabs:panelCars,form:tabs" />
+		</h:selectOneRadio>
+
+		<h:outputLabel  value="Troca na ida: "
+			style="font-size: 13px; width:180px"
+			rendered="#{parametro.idaVolta eq 0 or parametro.idaVolta eq 1}" />
+		<h:selectBooleanCheckbox  value="#{parametro.trocaIDA}"
+			rendered="#{parametro.idaVolta eq 0 or parametro.idaVolta eq 1}">
+			<p:ajax process="@this" update="form:tabs:panelCars" />
+		</h:selectBooleanCheckbox>
+
+		<h:outputLabel  value="Troca na volta: "
+			style="font-size: 13px; width:180px"
+			rendered="#{parametro.idaVolta eq 0 or parametro.idaVolta eq 2}" />
+		<h:selectBooleanCheckbox 
+			value="#{parametro.trocaVolta}"
+			rendered="#{parametro.idaVolta eq 0 or parametro.idaVolta eq 2}">
+			<p:ajax process="@this" update="form:tabs:panelCars" />
+		</h:selectBooleanCheckbox>
+
+
+		
+	</h:panelGrid>
+	<h:panelGrid border="0" rendered="#{visible}" width="100%">
+		<hr/>
+	</h:panelGrid>
+
+</ui:composition>

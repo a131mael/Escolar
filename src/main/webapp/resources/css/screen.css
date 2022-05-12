@@ -31,18 +31,39 @@ body {
   border-left: 5px solid #8c8f91;
   border-right: 5px solid #8c8f91;
   border-bottom: 25px solid #8c8f91;
-  width: 1065px; /* subtract 40px from banner width for padding */
+  width: 100%; /* subtract 40px from banner width for padding */
   background: #FFFFFF;
   background-image: url(#{request.contextPath}/resources/gfx/headerbkg.png);
   background-repeat: repeat-x;
   padding-top: 30px;
   box-shadow: 3px 3px 15px #d5d5d5;
 }
+#container2 {
+  margin: 0 auto;
+  padding: 0 20px 10px 20px;
+  border-top: 5px solid #000000;
+  border-left: 5px solid #8c8f91;
+  border-right: 5px solid #8c8f91;
+  border-bottom: 25px solid #8c8f91;
+  width: 100%; /* subtract 40px from banner width for padding */
+  background: #FFFFFF;
+  background-image: url(#{request.contextPath}/resources/gfx/headerbkg.png);
+  background-repeat: repeat-x;
+  padding-top: 30px;
+  box-shadow: 3px 3px 15px #d5d5d5;
+}
+
 #content {
   float: left;
   width: 1000px;
   margin: 20px;
 }
+#content2 {
+  float: left;
+  width: 640px;
+  margin: 5px;
+}
+
 #aside {
   font-size: 0.6em;
   width: 275px;
@@ -102,7 +123,7 @@ span.invalid {
 }
 form {
   padding: 1em;
-  font: 70%/1 sans-serif;
+  font: 110%/1 sans-serif;
   width: 375px;
   border: 1px solid #D5D5D5;
 }
@@ -133,6 +154,19 @@ input {
   background-color:#E6E7E8;
   clear:both;
   width: 550px;
+}
+
+.ui-selectonemenu .ui-selectonemenu-trigger {
+    border-right: 0;
+    border-top: 0;
+    border-bottom: 0;
+    cursor: pointer;
+    width: 31px !important;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+     padding: 0 3px; 
 }
 
 .simpletablestyle img {

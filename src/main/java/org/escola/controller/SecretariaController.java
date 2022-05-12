@@ -22,11 +22,13 @@ import javax.inject.Named;
 
 import org.escola.util.FileDownload;
 import org.escolar.model.Aluno;
+import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
 import org.escolar.model.Custo;
 import org.escolar.service.AlunoService;
 import org.escolar.service.ConfiguracaoService;
 import org.escolar.service.CustoService;
+import org.escolar.util.CombosEspeciaisMB;
 import org.escolar.util.CompactadorZip;
 import org.escolar.util.Constant;
 import org.escolar.util.FileUtils;
@@ -63,6 +65,12 @@ public class SecretariaController {
 	
 	@Inject
 	private ClienteWebServiceSPC clienteSPC;
+	
+	private Configuracao configuracao;
+	
+	private Integer anoSelecionado;
+	
+	private Integer mesSelecionado;
 
 	private LazyDataModel<Custo> lazyListDataModel;
 	private LazyDataModel<Custo> lazyListDataModelJan;
@@ -84,6 +92,8 @@ public class SecretariaController {
 
 	@PostConstruct
 	private void init() {
+		setConfiguracao(configuracaoService.getConfiguracao());
+		
 		if (getCusto() == null) {
 			setCusto(new Custo());
 		}
@@ -102,7 +112,25 @@ public class SecretariaController {
 		dashboardModelManha.addColumn(column1);
 		dashboardModelManha.addColumn(column2);
 		dashboardModelManha.addColumn(column3);
+		
+		Object obj2 = Util.getAtributoSessao("anoSelecionado");
+		if (obj2 != null) {
+			anoSelecionado = (Integer) obj2;
+		}else{
+			anoSelecionado = getConfiguracao().getAnoLetivo();
+		}
+		
+		Object obj3 = Util.getAtributoSessao("mesSelecionado");
+		if (obj3 != null) {
+			setMesSelecionado((Integer) obj3);
+		}else{
+			setMesSelecionado(getMesAtual());
+		}
+	}
 
+	private Integer getMesAtual() {
+		Calendar c = Calendar.getInstance();
+		return c.get(Calendar.MONTH);
 	}
 
 	public void handleReorder(DashboardReorderEvent event) {
@@ -1027,6 +1055,37 @@ public class SecretariaController {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
 
+					List<Date> datasEntre = new ArrayList<>();
+					Calendar c = Calendar.getInstance();
+					c.set(Calendar.HOUR_OF_DAY, 0);
+					c.set(Calendar.MINUTE, 0);
+					c.set(Calendar.SECOND, 0);
+					c.set(Calendar.MILLISECOND, 0);
+					if(mesSelecionado > -1){
+						c.set(Calendar.MONTH, mesSelecionado);
+					}else{
+						c.set(Calendar.MONTH, Calendar.JANUARY);
+					}
+					c.set(Calendar.DAY_OF_MONTH, 1);
+					c.set(Calendar.YEAR, anoSelecionado);
+					datasEntre.add(c.getTime());
+
+					Calendar c2 = Calendar.getInstance();
+					c2.set(Calendar.HOUR_OF_DAY, 23);
+					c2.set(Calendar.MINUTE, 59);
+					c2.set(Calendar.SECOND, 59);
+					c2.set(Calendar.MILLISECOND, 999);
+					if(mesSelecionado > -1){
+						c2.set(Calendar.MONTH, mesSelecionado);
+					}else{
+						c2.set(Calendar.MONTH, Calendar.JANUARY);
+					}
+					c2.set(Calendar.DAY_OF_MONTH, CombosEspeciaisMB.getUltimaDiaMes(mesSelecionado));
+					c2.set(Calendar.YEAR, anoSelecionado);
+					datasEntre.add(c2.getTime());
+
+					filtros.put("dateBetween", datasEntre);
+					
 					filtros.putAll(where);
 
 					String orderByParam = (order != null) ? order : "id";
@@ -1147,6 +1206,32 @@ public class SecretariaController {
 
 	public void setCusto(Custo custo) {
 		this.custo = custo;
+	}
+
+	public Integer getAnoSelecionado() {
+		return anoSelecionado;
+	}
+
+	public void setAnoSelecionado(Integer anoSelecionado) {
+		this.anoSelecionado = anoSelecionado;
+		Util.addAtributoSessao("anoSelecionado", anoSelecionado);
+	}
+
+	public Configuracao getConfiguracao() {
+		return configuracao;
+	}
+
+	public void setConfiguracao(Configuracao configuracao) {
+		this.configuracao = configuracao;
+	}
+
+	public Integer getMesSelecionado() {
+		return mesSelecionado;
+	}
+
+	public void setMesSelecionado(Integer mesSelecionado) {
+		Util.addAtributoSessao("mesSelecionado", mesSelecionado);
+		this.mesSelecionado = mesSelecionado;
 	}
 
 }

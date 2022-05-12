@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+
+	<h:panelGrid columns="1" border="0" rendered="#{visible}">
+			<h:outputText value="**** Promessas de Pagamento *** "	style="width:50%;font-size:19px;color: red;"/>
+			<hr/>
+			<h:panelGrid columns="6" border="0" rendered="#{visible}" width="100%">
+		
+				<h:outputLabel value="Data cadastro da Promessa " 
+				style="font-size: 13px; width:180px;  padding-top: 8px"	 />
+				<p:calendar pattern="dd/MM/yyyy" value="#{alunoController.promessaNova.dataCadastroPromessa}" mask="true" style="font-size: 15px; width:280px"  disabled="#{disable}">
+					<p:ajax process="@this" event="change"/>
+				</p:calendar>
+				
+				<h:outputLabel value="Prometeu pagar em : " style="font-size: 13px; width:180px; padding-top: 8px"	 />
+				<p:calendar pattern="dd/MM/yyyy"  mask="true" value="#{alunoController.promessaNova.dataPromessaPagamento}" style="font-size: 15px; width:280px"  disabled="#{disable}">
+					<p:ajax process="@this" event="change"/>
+				</p:calendar>
+				
+				<h:outputLabel value="Descrição " style="font-size: 13px; width:180px; padding-top: 8px" />
+			    <p:inputTextarea value="#{alunoController.promessaNova.descricao}" />
+							
+				<h:commandButton id="adicionarPromessa" style="margin-left:6px !important;"
+							action="#{alunoController.adicionarPromessa(parametro)}"
+							 value="Adicionar Promessa" />
+				
+			</h:panelGrid>
+			<hr/>
+	</h:panelGrid>
+	
+	<br/><br/>
+	<h:panelGrid columns="1" border="0" >
+				<h:panelGrid width="98%">
+					<p:dataTable currentPageReportTemplate="Exibindo: {startRecord}-{endRecord} de {totalRecords} Registros"
+	                             emptyMessage="#Nenhum registro encontrado"
+	                             filterEvent="enter" 
+	                             lazy="true" 
+	                             liveResize="true"
+	                             styleClass="tabela"
+	                             pageLinks="5"
+	                             paginator="true"
+	                             paginatorPosition="bottom"                                         
+	                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
+	                                         {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+	                             resizableColumns="true"
+	                             rows="20"
+	  							 id="tbl" var="promessaTab"
+	  							 sortBy="#{promessaTab.dataCadastroPromessa}"
+								 value="#{alunoController.getPromessasContrato(parametro)}"
+									editable="true" editMode="cell" >
+								 
+	   					
+						<p:column style="width:7%; text-align:center;" headerText="Data cadastro">
+							<h:outputText value="#{promessaTab.dataCadastroPromessa}" >
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+							</h:outputText>
+						</p:column>
+	
+						
+						<p:column style="width:17%; text-align:center;" headerText="Data prometeu pagar" >
+							<h:outputText value="#{promessaTab.dataPromessaPagamento}" >
+							 		<f:convertDateTime pattern="dd/MM/yyyy" />
+							</h:outputText>
+						</p:column>
+	
+	
+						<p:column style="width:47%; text-align:center;" headerText="observacao">
+							<h:outputText value="#{promessaTab.descricao}" />
+						</p:column>
+						
+						<p:column style="width:7%; text-align:center;" headerText="Resolvido ?">
+								<h:outputText value="Aberto" rendered="#{promessaTab.ativo}" />
+								<h:outputText value="Resolvido" rendered="#{not promessaTab.ativo}" />
+						</p:column>
+						
+						<p:column style="width:7%; text-align:center;" headerText="Resolver" >
+							<p:commandButton update="tbl" icon="ui-icon-arrowthick-1-s"	 global="false"
+								action="#{alunoController.removerPromessa(promessaTab)}" rendered="#{promessaTab.ativo}">
+								<p:confirm header="Confirmation"	message="Deseja resolver a promessa? " 	icon="ui-icon-arrowthick-1-s" />
+								<p:ajax event="click" listener="#{alunoController.removerPromessa(promessaTab)}" global="false"/>
+							</p:commandButton>
+						</p:column>
+					
+						
+					</p:dataTable>
+
+				</h:panelGrid>
+			
+			
+	
+			</h:panelGrid>
+	
+</ui:composition>

@@ -85,6 +85,7 @@ public class ProfessorController extends AuthController implements Serializable{
 	
 	public String salvar(){
 		professor.setInicio(null);
+		professor.setAtivo(true);
 		professorService.save(professor);
 		return "index";
 	}

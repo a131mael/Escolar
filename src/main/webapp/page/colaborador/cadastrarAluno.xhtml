@@ -1,0 +1,176 @@
+ <ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content"
+		rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}">
+		<h:form id="form" style="width:100%; border:none">
+
+			<h:panelGrid id="panelPrincipal" columns="0" width="100%;" styleClass="alinharTopo"
+				style="margin-top: -30px;width:92%">
+
+				<p:tabView id="tabs">
+					<p:tab id="dadosALunoTab" title="Dados do aluno">
+					
+					<h:panelGrid id="panelIrmaos" columns="1" border="0">
+					
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno}" />
+	    					<ui:param name="visible" value="#{true}" />
+						</ui:include>
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao1}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao1}" />
+						</ui:include>
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao2}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao2}" />
+						</ui:include>
+						
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao3}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao3}" />
+						</ui:include>
+						
+						
+						<ui:include src="cmpAluno.xhtml">
+	    					<ui:param name="parametro" value="#{aluno.irmao4}" />
+	    					<ui:param name="visible" value="#{alunoController.irmao4}" />
+						</ui:include>
+					
+					</h:panelGrid>
+					
+					</p:tab>
+					
+					<p:tab id="carro" title="Carro">
+						<h:panelGrid id="panelCars" columns="1" border="0">
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno}" />
+		    					<ui:param name="visible" value="#{true}" />
+							</ui:include>
+							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao1}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao1}" />
+							</ui:include>
+							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao2}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao2}" />
+							</ui:include>
+							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao3}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao3}" />
+							</ui:include>
+							
+							<ui:include src="cmpAlunoCarro.xhtml">
+		    					<ui:param name="parametro" value="#{aluno.irmao4}" />
+		    					<ui:param name="visible" value="#{alunoController.irmao4}" />
+							</ui:include>
+						</h:panelGrid>
+					</p:tab>
+
+
+					
+					
+					
+					<p:tab title="Contatos" >
+						<h:panelGrid columns="2" border="0">
+
+							<h:outputLabel value="Email: "
+								style="font-size: 13px; width:180px" />
+							<h:inputText title="" value="#{aluno.contatoEmail1}"
+								style="font-size: 15px; width:280px" />
+
+							<h:outputLabel value="Email: "
+								style="font-size: 13px; width:180px" />
+							<h:inputText title="" value="#{aluno.contatoEmail2}"
+								style="font-size: 15px; width:280px" />
+						</h:panelGrid>
+						<h:panelGrid columns="4" border="0">
+							<h:outputLabel value="Telefone: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoTelefone1}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Falar com: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoNome1}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Telefone: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoTelefone2}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Falar com: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoNome2}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Telefone: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoTelefone3}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Falar com: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoNome3}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Telefone: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoTelefone4}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Falar com: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoNome4}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Telefone: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoTelefone5}"
+								style="font-size: 15px; width:280px" />
+								
+								<h:outputLabel value="Falar com: "
+								style="font-size: 13px; width:80px" />
+							<h:inputText title="" value="#{aluno.contatoNome5}"
+								style="font-size: 15px; width:280px" />
+						</h:panelGrid>
+
+					</p:tab>
+				
+					
+					<p:tab title="Observações">
+						<h:panelGrid columns="2" border="0">
+							<h:outputLabel value="Observações Secretaria: "
+								style="font-size: 13px; width:180px" />
+							<p:inputTextarea value="#{aluno.observacaoSecretaria}" />
+						</h:panelGrid>
+					</p:tab>
+				</p:tabView>
+
+			</h:panelGrid>
+
+			<h:commandButton id="voltarButtom" immediate="true"
+				action="#{alunoController.voltar()}" value="Voltar" />
+				
+				<h:outputText value=" " />
+				
+		
+			<p:commandButton id="salvarButtom"
+				style="margin-left:690px !important"
+				action="#{alunoController.salvar()}" 
+				value="Salvar" />
+
+		</h:form>
+	</ui:define>
+</ui:composition>

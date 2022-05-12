@@ -18,6 +18,25 @@
 							action="#{secretariaController.remover()}">
 							<p:ajax process="@this"/>
 						</p:commandButton>
+						
+						<h:panelGrid columns="2" width="100%">
+							<h:outputLabel value="Ano: " style="font-size: 13px;float: right; width:180px" />
+							<p:selectOneMenu style="width: 256px;" value="#{secretariaController.anoSelecionado}">
+								<f:selectItems value="#{CombosEspeciaisMB.getAnos()}"
+									var="country" itemLabel="#{country}" itemValue="#{country}" 
+									/>
+							<p:ajax event="change" process="@form" update="@form" />
+						</p:selectOneMenu>	
+						</h:panelGrid>
+						<h:panelGrid columns="2" width="100%">
+							<h:outputLabel value="Mês: " style="font-size: 13px;float: right; width:180px" />
+							<p:selectOneMenu style="width: 256px;" value="#{secretariaController.mesSelecionado}">
+								<f:selectItems value="#{CombosEspeciaisMB.getMeses()}"
+									var="mesel" itemLabel="#{mesel}" itemValue="#{mesel}" 
+									/>
+							<p:ajax event="change" process="@form" update="@form" />
+						</p:selectOneMenu>	
+						</h:panelGrid>
 			</h:panelGrid>
 
 			<h:panelGrid width="90%" style="border: none !important">
@@ -57,11 +76,12 @@
 
 					<p:column style="width:10%">
 						<f:facet name="header">
-							<h:outputText value="Id" />
+							<h:outputText value="Data" />
 						</f:facet>
-						<h:outputText value="#{custotab.id}" />
+						<h:outputText value="#{custotab.data}">
+							<f:convertDateTime locale="pt-br" />
+						</h:outputText>
 					</p:column>
-
 					<p:column style="width:10%">
 						<f:facet name="header">
 							<h:outputText value="Tipo" />
@@ -69,30 +89,58 @@
 						<h:outputText value="#{custotab.tipoCusto.name}" />
 					</p:column>
 
-					<p:column style="width:10%">
+					<p:column style="width:20%">
 						<f:facet name="header">
-							<h:outputText value="Nome" />
+							<h:outputText value="Observacao" />
 						</f:facet>
-						<h:outputText value="#{custotab.nome}" />
+						 <p:cellEditor>
+							 <f:facet name="output">
+							  	<p:inputText value="#{custotab.descricao}" >
+							  		<p:ajax event="blur" process="@this"  update="tbl" listener="#{financeiroController.saveExtrato(custotab)}"/>
+							  	</p:inputText>
+							 </f:facet>
+							 
+							  <f:facet name="input">
+							  	<p:inputText value="#{custotab.descricao}" >
+							  		<p:ajax event="blur"  process="@this"  update="tbl" listener="#{financeiroController.saveExtrato(custotab)}"/>
+							  	</p:inputText>
+							  </f:facet>
+						 
+						 </p:cellEditor>
+						
 					</p:column>
 
+				
 
-					<p:column style="width:10%">
-						<f:facet name="header">
-							<h:outputText value="Data" />
-						</f:facet>
-						<h:outputText value="#{custotab.data}">
-							<f:convertDateTime locale="pt-br" />
-						</h:outputText>
+
+					<p:column filterBy="#{custotab.carro}" style="width:155px;" 
+	                              sortBy="#{custotab.carro}" 
+	                              filterOptions="#{CombosEspeciaisMB.getCarros()}">
+							<f:facet name="header">
+								<h:outputText value="Grupo" />
+							</f:facet>
+							 <p:cellEditor>
+							
+							<f:facet name="output">
+								<p:selectOneMenu value="#{custo.carro}"
+									converter="converterCarro"
+									style="font-size: 12px; width:200px" >
+									<f:selectItems value="#{CombosEspeciaisMB.getCarros()}" var="country" itemValue="#{country}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+									
+							</f:facet>
+							
+							 <f:facet name="input">
+								<p:selectOneMenu value="#{custo.carro}" converter="converterCarro"	style="font-size: 12px; width:200px" >
+									<f:selectItems value="#{CombosEspeciaisMB.getCarros()}"	var="country" itemValue="#{country}" />
+									<p:ajax event="change" process="@this" />
+								</p:selectOneMenu>
+							</f:facet>
+							</p:cellEditor>
+							
 					</p:column>
 
-
-					<p:column style="width:10%">
-						<f:facet name="header">
-							<h:outputText value="Carro" />
-						</f:facet>
-						<h:outputText value="#{custotab.carro}" />
-					</p:column>
 
 					<p:column style="width:10%">
 						<f:facet name="header">

@@ -27,6 +27,11 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -44,6 +49,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
@@ -61,40 +70,58 @@ import org.aaf.financeiro.sicoob.util.CNAB240_SICOOB;
 import org.aaf.financeiro.util.ImportadorArquivo;
 import org.aaf.financeiro.util.OfficeUtil;
 import org.aaf.financeiro.util.constantes.Constante;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.EntityUtils;
 import org.apache.shiro.SecurityUtils;
+import org.docx4j.docProps.variantTypes.Array;
 import org.escola.util.Contants;
 import org.escola.util.FileDownload;
 import org.escola.validator.CPFValidator;
 import org.escolar.controller.OfficeDOCUtil;
 import org.escolar.controller.OfficePDFUtil;
 import org.escolar.enums.BimestreEnum;
+import org.escolar.enums.CanalMensagem;
 import org.escolar.enums.DisciplinaEnum;
 import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.enums.Serie;
 import org.escolar.enums.StatusBoletoEnum;
 import org.escolar.enums.TipoMembro;
+import org.escolar.enums.TipoMensagem;
 import org.escolar.model.Aluno;
 import org.escolar.model.AlunoAvaliacao;
 import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
 import org.escolar.model.Custo;
 import org.escolar.model.Member;
+import org.escolar.model.MensagemAluno;
+import org.escolar.model.PromessaPagamentoBoleto;
+import org.escolar.model.SuspensaoContrato;
 import org.escolar.rotinasAutomaticas.EnviadorEmail;
 import org.escolar.service.AlunoService;
 import org.escolar.service.AvaliacaoService;
 import org.escolar.service.ConfiguracaoService;
 import org.escolar.service.DevedorService;
 import org.escolar.service.FinanceiroService;
+import org.escolar.service.MensagemAlunoService;
+import org.escolar.service.PromessaPagamentoService;
+import org.escolar.service.SuspensaoContratoService;
 import org.escolar.service.TabelaPrecoService;
 import org.escolar.service.TurmaService;
 import org.escolar.util.CompactadorZip;
@@ -109,6 +136,11 @@ import org.primefaces.event.UnselectEvent;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 import org.primefaces.model.StreamedContent;
+
+import br.com.aaf.base.base.EnviadorWhats;
+import br.com.aaf.base.whats.model.MensagemWhatsapp;
+import br.com.aaf.base.whats.model.MensagensWatiUtilitario;
+import br.com.aaf.base.whats.model.Parametro;
 
 @Named
 @ViewScoped
@@ -141,6 +173,12 @@ public class AlunoController implements Serializable {
 	private AlunoService alunoService;
 
 	@Inject
+	private SuspensaoContratoService suspensaoContratoService;
+
+	@Inject
+	private PromessaPagamentoService promessaPagamentoService;
+
+	@Inject
 	private DevedorService devedorService;
 
 	@Inject
@@ -154,6 +192,10 @@ public class AlunoController implements Serializable {
 
 	@Inject
 	private AvaliacaoService avaliacaoService;
+	
+	@Inject
+	private MensagemAlunoService mensagemAlunoService;
+
 
 	@Inject
 	private TurmaService carroService;
@@ -178,7 +220,13 @@ public class AlunoController implements Serializable {
 
 	private LazyDataModel<Aluno> lazyListDataModelUltimoAnoLetivo;
 
+	private PromessaPagamentoBoleto promessaNova;
+
 	private Configuracao configuracao;
+	
+	private List<MensagemWhatsapp> mensagens = new ArrayList<>();
+	
+	private boolean atual = true;
 
 	private long total = 0;
 	private Double valorTotal = 0D;
@@ -215,6 +263,7 @@ public class AlunoController implements Serializable {
 		officeDOCUtil = new OfficeDOCUtil();
 		cw = new CurrencyWriter();
 		configuracao = configuracaoService.getConfiguracao();
+		setPromessaNova(new PromessaPagamentoBoleto());
 	}
 
 	public LazyDataModel<Aluno> getLazyDataModelCanceladas() {
@@ -647,14 +696,11 @@ public class AlunoController implements Serializable {
 							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
 						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
 							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						}
-						else if (escolaSelecionada.equals(EscolaEnum.RAIZES.name())) {
+						} else if (escolaSelecionada.equals(EscolaEnum.RAIZES.name())) {
 							filtros.put("escola", EscolaEnum.RAIZES);
-						}
-						else if (escolaSelecionada.equals(EscolaEnum.SESC.name())) {
+						} else if (escolaSelecionada.equals(EscolaEnum.SESC.name())) {
 							filtros.put("escola", EscolaEnum.SESC);
-						}
-						else if (escolaSelecionada.equals(EscolaEnum.EDUCARE.name())) {
+						} else if (escolaSelecionada.equals(EscolaEnum.EDUCARE.name())) {
 							filtros.put("escola", EscolaEnum.EDUCARE);
 						}
 
@@ -682,14 +728,14 @@ public class AlunoController implements Serializable {
 						}
 
 					}
-					
+
 					if (filtros.containsKey("anoLetivo")) {
-						try{
+						try {
 							filtros.put("anoLetivo", Integer.parseInt((String) filtros.get("anoLetivo")));
-						}catch(Exception e){
-							
+						} catch (Exception e) {
+
 						}
-						
+
 					}
 
 					String orderByParam = (order != null) ? order : "id";
@@ -725,7 +771,42 @@ public class AlunoController implements Serializable {
 		}
 
 		return lazyListDataModelRoot;
+	}
 
+	public List<PromessaPagamentoBoleto> getPromessasContrato(Aluno aluno) {
+		List<PromessaPagamentoBoleto> promessas = new ArrayList<>();
+		if (aluno.getId() != null) {
+			promessas = promessaPagamentoService.findByAluno(aluno.getId());
+		}
+		
+		return promessas;
+	}
+	
+	public List<PromessaPagamentoBoleto> getPromessasContratoAberta(Aluno aluno) {
+		List<PromessaPagamentoBoleto> promessas = new ArrayList<>();
+		if (aluno.getId() != null) {
+			promessas = promessaPagamentoService.findByAluno(aluno.getId(),true);
+		}
+		
+		return promessas;
+	}
+	
+	public boolean possuiPromessaAberta(Aluno aluno) {
+		return !getPromessasContratoAberta(aluno).isEmpty();
+	}
+
+	public void adicionarPromessa(Aluno aluno) {
+		promessaNova.setAluno(aluno);
+		promessaNova.setAtivo(true);
+
+		promessaPagamentoService.save(promessaNova);
+
+		promessaNova = new PromessaPagamentoBoleto();
+
+	}
+	
+	public void removerPromessa(PromessaPagamentoBoleto promessa){
+		promessaPagamentoService.remove(promessa);
 	}
 
 	public void adicionarNovoContrato(Aluno aluno) {
@@ -1115,7 +1196,7 @@ public class AlunoController implements Serializable {
 		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
 		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(aluno))));
 		trocas.put("#DADOSGERAISQTADEPARCELAS", contrato.getNumeroParcelas() + "");
-		trocas.put("#DADOSGERAISEXTENSOPARCELA", cw.write(new BigDecimal(contrato.getValorMensal())));
+		trocas.put("#EXTENSOPARCELA", cw.write(new BigDecimal(contrato.getValorMensal())));
 		trocas.put("#DADOSGERAISPARCELA", contrato.getValorMensal() + "");/// valor
 																			/// da
 																			/// parcela
@@ -1144,15 +1225,30 @@ public class AlunoController implements Serializable {
 
 		return trocas;
 	}
-	
-	public String getNomeResponsavelDevedor(Aluno al){
+
+	public String getNomeResponsavelDevedor(Aluno al) {
 		String nomeResponsavelDev = "";
-		for(ContratoAluno ca: al.getContratos()){
+		for (ContratoAluno ca : al.getContratos()) {
 			nomeResponsavelDev += ca.getNomeResponsavel();
 			nomeResponsavelDev += "// \n";
+			nomeResponsavelDev += " <br>";
 		}
 		return nomeResponsavelDev;
-		
+
+	}
+	
+	public String getNomeResponsavelDevedor(Aluno al, int ano) {
+		String nomeResponsavelDev = "";
+		ContratoAluno ca =  al.getContratoVigente(ano);
+		nomeResponsavelDev += ca.getNomeResponsavel();
+		if(nomeResponsavelDev != null && !nomeResponsavelDev.equalsIgnoreCase("")){
+			return nomeResponsavelDev;
+		}
+
+		for (ContratoAluno ca2 : al.getContratos()) {
+			nomeResponsavelDev = ca2.getNomeResponsavel();
+		}
+		return nomeResponsavelDev;
 	}
 
 	public boolean alunoCadastrado(Aluno al) {
@@ -1250,7 +1346,7 @@ public class AlunoController implements Serializable {
 		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
 		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(contrato.getAluno()))));
 		trocas.put("#DADOSGERAISQTADEPARCELAS", contrato.getNumeroParcelas() + "");
-		trocas.put("#DADOSGERAISEXTENSOPARCELA", cw.write(new BigDecimal(contrato.getValorMensal())));
+		trocas.put("#EXTENSOPARCELA", cw.write(new BigDecimal(contrato.getValorMensal())));
 		trocas.put("#DADOSGERAISPARCELA", contrato.getValorMensal() + "");/// valor
 																			/// da
 																			/// parcela
@@ -1609,7 +1705,7 @@ public class AlunoController implements Serializable {
 		String nomeArquivo = "";
 		if (aluno != null && aluno.getId() != null) {
 			nomeArquivo = aluno.getId() + contrato.getNomeResponsavel() + "g";
-			ImpressoesUtils.imprimirInformacoesAluno(aluno, "MODELO1-2.doc", montarContrato(aluno, contrato),
+			ImpressoesUtils.imprimirInformacoesAluno(aluno, "MODELO1-2.docx", montarContrato(aluno, contrato),
 					nomeArquivo);
 			nomeArquivo += ".doc";
 		} else {
@@ -1964,7 +2060,7 @@ public class AlunoController implements Serializable {
 	public void gerarNFSe() {
 		gerarNFSe(aluno);
 	}
-	
+
 	public void gerarNFSe(Aluno aluno) {
 		try {
 			JAXBContext contextObj;
@@ -1977,6 +2073,7 @@ public class AlunoController implements Serializable {
 					+ aluno.getContratoVigente().getNomeResponsavel().replace(" ", "") + ".xml";
 			String caminho = File.separator + "home" + File.separator + "servidor" + File.separator + "nfs"
 					+ File.separator + "adonai" + File.separator + nomeArquivo;
+
 			marshallerObj.marshal(getNFSeDTO(aluno), new FileOutputStream(caminho));
 
 			if (enviarNFS(caminho, Contants.login, Contants.senha)) {
@@ -2055,24 +2152,97 @@ public class AlunoController implements Serializable {
 		}
 	}
 
-	public static synchronized boolean enviarNFS(String localNomeNotaGerada, String login, String senha) {
+	private static void aceptallSSL() {
+		// Create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+
+			@Override
+			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+				return new X509Certificate[0];
+			}
+
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				// TODO Auto-generated method stub
+
+			}
+
+		} };
+
+		// Install the all-trusting trust manager
+		try {
+			SSLContext sc = SSLContext.getInstance("TLS");
+			sc.init(null, trustAllCerts, new java.security.SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		} catch (Exception e) {
+		}
+		// // Now you can access an https URL without having the certificate in
+		// the
+		// // truststore
+		// try {
+		// URL url = new URL("https://hostname/index.html");
+		// } catch (MalformedURLException e) {
+		// }
+	}
+
+	private CloseableHttpClient getHttpCliente() {
+		try {
+			TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+			SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+			SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+					NoopHostnameVerifier.INSTANCE);
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
+					.register("https", sslsf).register("http", new PlainConnectionSocketFactory()).build();
+			BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
+					socketFactoryRegistry);
+			CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf)
+					.setConnectionManager(connectionManager).build();
+
+			return httpClient;
+
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public synchronized boolean enviarNFS(String localNomeNotaGerada, String login, String senha) {
 		System.out.println("ENVIANDO NOTAS FISCAIS  ........");
 
+		aceptallSSL();
+
 		try {
-			DefaultHttpClient httpclient = new DefaultHttpClient();
+			// DefaultHttpClient httpclient = new DefaultHttpClient();
+			CloseableHttpClient httpclient = getHttpCliente();
 			HttpPost httppost = new HttpPost(Contants.URL);
+			httppost.setHeader("Authorization",
+					"Basic " + new String(java.util.Base64.getEncoder().encode((login + ":" + senha).getBytes())));
 			File file = new File(localNomeNotaGerada);
-			MultipartEntity mpEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-			ContentBody cbFile = new FileBody(file);
-			mpEntity.addPart("f1", cbFile);
-			mpEntity.addPart("login", new StringBody(login));
-			mpEntity.addPart("senha", new StringBody(senha));
-			mpEntity.addPart("cidade", new StringBody("8223"));
-			httppost.setEntity(mpEntity);
+			HttpEntity entity = MultipartEntityBuilder.create().addPart("f1", new FileBody(file)).build();
+			httppost.setEntity(entity);
+
+			// MultipartEntity mpEntity = new
+			// MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+			// ContentBody cbFile = new FileBody(file);
+			// mpEntity.addPart("Content-Type", cbFile);
+			// mpEntity.addPart("Authorization", new StringBody ("Basic " + new
+			// String(java.util.Base64.getEncoder().encode((login+":"+senha).getBytes()))));
+			// mpEntity.addPart("senha", new StringBody(senha));
+			// mpEntity.addPart("cidade", new StringBody("8223"));
+			// httppost.setEntity(mpEntity);
 			System.out.println("executing request " + httppost.getRequestLine());
 			System.out.println("Now uploading your file into uploadbox.com");
 			HttpResponse response = httpclient.execute(httppost);
 			System.out.println(response.getStatusLine().getStatusCode());
+			System.out.println(EntityUtils.toString(response.getEntity(), "UTF-8"));
+
 			if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300) {
 				return true;
 			}
@@ -2109,8 +2279,6 @@ public class AlunoController implements Serializable {
 		}
 		return null;
 	}
-	
-	
 
 	public boolean podeGerarBoleto(ContratoAluno contrato) {
 		if (contrato.getBoletos() == null || contrato.getBoletos().isEmpty()) {
@@ -2402,12 +2570,12 @@ public class AlunoController implements Serializable {
 				// cor = "marcarLinha";
 				// }
 			}
-			if(a.getRemovido() != null && a.getRemovido()){
+			if (a.getRemovido() != null && a.getRemovido()) {
 				cor = "marcarLinhaVermelho";
 				return cor;
 			}
-			
-			if(!possuiContratoAbertoAnoAtual(a)){
+
+			if (!possuiContratoAbertoAnoAtual(a)) {
 				cor = "marcarLinhaVermelho";
 				return cor;
 			}
@@ -2418,8 +2586,8 @@ public class AlunoController implements Serializable {
 
 	private boolean possuiContratoAbertoAnoAtual(Aluno aluno) {
 		for (ContratoAluno contrato : aluno.getContratos()) {
-			if ((contrato.getCancelado() == null || !contrato.getCancelado()) 
-				&& contrato.getAno() == Short.parseShort(String.valueOf(configuracao.getAnoLetivo()))) {
+			if ((contrato.getCancelado() == null || !contrato.getCancelado())
+					&& contrato.getAno() == Short.parseShort(String.valueOf(configuracao.getAnoLetivo()))) {
 				return true;
 			}
 		}
@@ -2585,7 +2753,7 @@ public class AlunoController implements Serializable {
 		String nomeArquivo = "";
 		if (contrato != null && contrato.getId() != null) {
 			nomeArquivo = contrato.getAluno().getId() + "g";
-			ImpressoesUtils.imprimirInformacoesAluno("MODELO1-2.doc", montarContrato(contrato), nomeArquivo);
+			ImpressoesUtils.imprimirInformacoesAluno("MODELO1-2.docx", montarContrato(contrato), nomeArquivo);
 			nomeArquivo += ".doc";
 		} else {
 			nomeArquivo = "modeloContrato2017.docx";
@@ -2617,6 +2785,35 @@ public class AlunoController implements Serializable {
 		return "remover";
 	}
 
+	public String suspender(ContratoAluno contrato) {
+		SuspensaoContrato suspensao = new SuspensaoContrato();
+		suspensao.setAtivo(true);
+		suspensao.setContrato(contrato);
+		suspensao.setDataSuspensao(new Date());
+		suspensao.setDescricao("Suspenso");
+		enviarMensagemSuspensaoContrato(contrato);
+		suspensaoContratoService.save(suspensao);
+		return "";
+	}
+
+	public String removerSuspensao(ContratoAluno contrato) {
+		List<SuspensaoContrato> suspensoes = suspensaoContratoService.findByParam(contrato.getId(), true);
+		for (SuspensaoContrato suspensao : suspensoes) {
+			suspensao.setAtivo(false);
+			suspensao.setContrato(contrato);
+			suspensao.setDataContratoRetornado(new Date());
+			suspensao.setDescricao("voltando..");
+			suspensaoContratoService.remove(suspensao);
+		}
+
+		return "";
+	}
+
+	public boolean possuiSuspensao(ContratoAluno contrato) {
+		List<SuspensaoContrato> suspensoes = suspensaoContratoService.findByParam(contrato.getId(), true);
+		return !suspensoes.isEmpty();
+	}
+
 	public ContratoAluno getContrato() {
 		Object obj = Util.getAtributoSessao("contrato");
 		ContratoAluno contrato = null;
@@ -2642,6 +2839,7 @@ public class AlunoController implements Serializable {
 		// Util.removeAtributoSessao("contrato");
 		// alunoService.removerContrato(contrat);
 
+		enviarMensagemCancelamentoContrato(contrat);
 		return "ok";
 	}
 
@@ -2831,4 +3029,187 @@ public class AlunoController implements Serializable {
 		return null;
 	}
 
+	public PromessaPagamentoBoleto getPromessaNova() {
+		return promessaNova;
+	}
+
+	public void setPromessaNova(PromessaPagamentoBoleto promessaNova) {
+		this.promessaNova = promessaNova;
+	}
+	
+	public void enviarMensagemSuspensaoContrato(ContratoAluno contrato) {
+		Aluno aluno = alunoService.findById(contrato.getAluno().getId());
+		List<Parametro> parametros = new ArrayList<Parametro>();
+		parametros.add(new Parametro("1", getNomeResponsavelDevedor(aluno, contrato.getAno())));
+		parametros.add(new Parametro("2", contrato.getMesesAberto()));
+
+		List<String> telefones = aluno.contatosWhatsValido();
+
+		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
+			for (String telefone : telefones) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefone, parametros);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefone));
+				}
+			}
+		} else {
+
+			if (telefones.get(0) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefones.get(0), parametros);
+				aluno.setContato1WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefones.get(0)));
+				}
+			}
+
+			if (telefones.get(1) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefones.get(1), parametros);
+				aluno.setContato2WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefones.get(1)));
+				}
+			}
+
+			if (telefones.get(2) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefones.get(2), parametros);
+				aluno.setContato3WhatsValido(enviado);
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefones.get(2)));
+				}
+			}
+
+			if (telefones.get(3) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefones.get(3), parametros);
+				aluno.setContato4WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefones.get(3)));
+				}
+			}
+
+			if (telefones.get(4) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("suspensao_contrato", telefones.get(4), parametros);
+				aluno.setContato5WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemSuspensao(contrato,telefones.get(4)));
+				}
+			}
+
+			aluno.setJaTestousContatosWhats(true);
+			alunoService.saveContado(aluno);
+		}
+	}
+	
+	public void enviarMensagemCancelamentoContrato(ContratoAluno contrato) {
+		Aluno aluno = alunoService.findById(contrato.getAluno().getId());
+		List<Parametro> parametros = new ArrayList<Parametro>();
+		parametros.add(new Parametro("1", getNomeResponsavelDevedor(aluno,contrato.getAluno().getAnoLetivo())));
+		parametros.add(new Parametro("2", contrato.getMesesAberto()));
+
+		List<String> telefones = aluno.contatosWhatsValido();
+
+		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
+			for (String telefone : telefones) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefone, parametros);
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefone));
+				}
+			}
+		} else {
+
+			if (telefones.get(0) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefones.get(0), parametros);
+				aluno.setContato1WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefones.get(0)));
+				}
+			}
+
+			if (telefones.get(1) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefones.get(1), parametros);
+				aluno.setContato2WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefones.get(1)));
+				}
+			}
+
+			if (telefones.get(2) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefones.get(2), parametros);
+				aluno.setContato3WhatsValido(enviado);
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefones.get(2)));
+				}
+
+			}
+
+			if (telefones.get(3) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefones.get(3), parametros);
+				aluno.setContato4WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefones.get(3)));
+				}
+			}
+
+			if (telefones.get(4) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("cancelamento_contrato", telefones.get(4), parametros);
+				aluno.setContato5WhatsValido(enviado);
+
+				if (enviado) {
+					mensagemAlunoService.save(montarMensagemCancelamento(contrato,telefones.get(4)));
+				}
+			}
+
+			aluno.setJaTestousContatosWhats(true);
+			alunoService.saveContado(aluno);
+		}
+	}
+
+	private MensagemAluno montarMensagemCancelamento(ContratoAluno contrato, String telefone){
+		MensagemAluno msg = new MensagemAluno();
+		msg.setAluno(contrato.getAluno());
+		msg.setAno(contrato.getAno());
+		msg.setMensagem(
+				"Olá {{1}}, devido ao NÃO pagamento do boleto de  {{2}} , conforme contrato que prevê o cancelamento do transporte 10 dias após o vencimento e a falta de retorno para tentar um acordo, a Tefamel transporte escolar está CANCELANDO o transporte."
+				+"Lembramos que as parcelas NÃO pagas ficam sujeitas ao cadastro no sistema de proteção de credito (SPC) e protesto conforme contrato."
+				+"Tefamel - Transporte Escolar Favo de Mel");
+		msg.setTipo(TipoMensagem.AVISO_TRANSPORTE_SERA_CANCELADO_AMANHA);
+		msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+		msg.setNumeroWhats(telefone);
+		
+		return msg;
+	}
+	
+	private MensagemAluno montarMensagemSuspensao(ContratoAluno contrato, String telefone){
+		MensagemAluno msg = new MensagemAluno();
+		msg.setAluno(contrato.getAluno());
+		msg.setAno(contrato.getAno());
+		msg.setMensagem(
+				"Olá {{1}}, devido ao NÃO pagamento do boleto de  {{2}} e conforme contrato que prevê a suspensão do transporte 10 dias após o vencimento, a Tefamel transporte escolar está suspendendo o transporte até que seja regularizado os pagamentos."
++"Lembramos que após a suspensão do contrato, fica possível o CANCELAMENTO do contrato e a vaga da criança fica disponível para outra."
++"Para evitar o cancelamento e a perda da vaga, entre em contato imediatamente para regularizar sua situação."
++"Tefamel - Transporte Escolar Favo de Mel");
+		msg.setTipo(TipoMensagem.AVISO_TRANSPORTE_SERA_SUSPENSO_AMANHA);
+		msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+		msg.setNumeroWhats(telefone);
+		
+		return msg;
+	}
+	
+	
+	public void getMensagens(String telefone){
+		MensagensWatiUtilitario mensagensWhats = new MensagensWatiUtilitario();
+		mensagens = mensagensWhats.getMensagens(telefone);
+	}
+	
+	public List<MensagemWhatsapp> getListaMensagens(){
+		return mensagens;
+	}
+	
 }

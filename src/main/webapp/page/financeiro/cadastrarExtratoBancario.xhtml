@@ -1,0 +1,46 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}">
+		<h:form style="width:100%; border:none">
+
+			<h:panelGrid columns="2" width="100%;" styleClass="alinharTopo"	style="margin-top: -30px;width:92%">
+
+					<ui:include src="cmpItemExtrato.xhtml">
+    					<ui:param name="extratoFil" value="#{extratoBancario}" />
+    					<ui:param name="visible" value="#{true}" />
+					</ui:include>
+			
+					<p:panelGrid>
+						<h:commandButton id="dividir" action="#{financeiroController.dividirExtrato()}" value="Dividir Pagamento" />
+					</p:panelGrid>
+		
+				</h:panelGrid>
+			
+				
+				<h:panelGrid>
+					<ui:repeat var="filho" value="#{extratoBancario.itensFilhos}">
+					<ui:include src="cmpItemExtrato.xhtml">
+    					<ui:param name="extratoFil" value="#{filho}" />
+    					<ui:param name="visible" value="#{true}" />
+					</ui:include>
+					
+					</ui:repeat>
+				</h:panelGrid>
+				
+
+			<h:commandButton id="voltarButtom" immediate="true"
+				action="#{professorController.voltar()}" value="Voltar" />
+
+
+			<h:commandButton id="salvarButtom"
+				style="margin-left:690px !important"
+				action="#{financeiroController.saveExtrato()}" value="Salvar" />
+
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -181,7 +181,8 @@
 									</h:panelGrid>
 									<br/>
 									<br/>
-							
+									
+									
 									<p:commandButton style="background:red"
 													action="#{alunoController.cancelar(contratoAlun)}"  
 													value="Cancelar Contrato" 
@@ -193,8 +194,31 @@
 									<br/>
 									<br/>
 									<h:outputLabel value="CONTRATO PROTESTADO" style="font-size:25px" rendered="#{contratoAlun.protestado}"/>
-														
+											
+											
+									<p:commandButton  icon="ui-icon-print" ajax="false"
+												style="background:yellow"
+												rendered="#{not alunoController.possuiSuspensao(contratoAlun)}"
+												action="#{alunoController.suspender(contratoAlun)}"  
+												value="Suspender Contrato" 
+												immediate="true">
+									</p:commandButton>		
 									
+									<br/>
+									<br/>
+									<h:outputLabel value="CONTRATO SUSPENSO" style="font-size:25px" 
+										rendered="#{alunoController.possuiSuspensao(contratoAlun)}"/>	
+							
+									<br/>
+									<br/>
+									<p:commandButton ajax="false"
+												style="background:yellow"
+												rendered="#{alunoController.possuiSuspensao(contratoAlun)}"
+												action="#{alunoController.removerSuspensao(contratoAlun)}"  
+												value="Remover Suspensão Contrato" 
+												immediate="true">
+									</p:commandButton>	
+							
 							</h:panelGrid>
 					</h:panelGrid>
 						

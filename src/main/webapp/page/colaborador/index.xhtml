@@ -34,96 +34,14 @@
 				
 				<p:messages id="messages" showDetail="true" closable="true" />
 				<h:panelGrid columns="23">
-					<p:tooltip for="adicionar" value="Adicionar um novo Aluno"
-						position="top" />
 					<p:tooltip for="editar" value="Editar" position="top" />
-					<p:tooltip for="contrato" value="Contrato" position="top" />
-					<p:tooltip for="boleto" value="Boleto" position="top" />
-					<p:tooltip for="cnab" value="CNAB240" position="top" />
-					<p:tooltip for="gerarBoleto" value="GERAR BOLETOS" position="top" />
-					<p:tooltip for="fichaRematricula" value="Ficha Rematricula" position="top" />
-					<p:tooltip for="gerarNFS" value="Gerar NFSe Prefeitura"
-						position="top" />
-					<p:tooltip for="enviarCnab" value="Enviar CNAB" position="top"
-						rendered="#{authController.hasPermission(authController.mestre)}" />
-					<p:tooltip for="removerCnabEnviado" value="Remover CNAB ENVIADO"
-						position="top"
-						rendered="#{authController.hasPermission(authController.mestre)}" />
 	
-					<p:tooltip for="gerarBaixa" value="Gerar arquivo Baixa"
-						position="top"
-						rendered="#{authController.hasPermission(authController.mestre)}" />
-	
-					<p:commandButton id="adicionar" icon="ui-icon-plus"
-						action="#{alunoController.adicionarNovo()}" />
 					<p:commandButton id="editar" icon="ui-icon-pencil"
 						action="#{alunoController.editar()}" alt="Editar"
 						disabled="#{!alunoController.alunoSelecionado}" />
 					<p:separator style=" height:25px;" />
-					<p:commandButton id="contrato" icon="ui-icon-contact" ajax="false"
-						onclick="PrimeFaces.monitorDownload(start, stop);"
-						disabled="#{!alunoController.alunoSelecionado}">
-						<p:fileDownload value="#{alunoController.imprimirContrato()}" />
-					</p:commandButton>
 	
-					<p:commandButton id="boleto" icon="ui-icon-print" ajax="false"
-						onclick="PrimeFaces.monitorDownload(start, stop);"
-						disabled="#{!alunoController.alunoSelecionado}">
-						<p:fileDownload value="#{alunoController.gerarBoleto()}" />
-					</p:commandButton>
-	
-					<p:commandButton icon="ui-icon-arrowreturn-1-w" ajax="false"
-						alt="Ficha rematricula"
-						id="fichaRematricula"
-						onclick="PrimeFaces.monitorDownload(start, stop);"
-						disabled="#{!alunoController.alunoSelecionado}">
-						<p:fileDownload
-							value="#{alunoController.imprimirFichaRematricula()}" />
-					</p:commandButton>
-	
-					<p:commandButton id="cnab" icon="ui-icon-transfer-e-w" ajax="false"
-						onclick="PrimeFaces.monitorDownload(start, stop);"
-						disabled="#{!alunoController.alunoSelecionado}">
-						<p:fileDownload value="#{alunoController.gerarCNB240()}" />
-					</p:commandButton>
-	
-					<p:commandButton id="gerarNFS" update="@form" icon="ui-icon-check"
-						alt="Gerar NFS prefeitura" action="#{alunoController.gerarNFSe()}"
-						disabled="#{!alunoController.alunoSelecionado}">
-						<p:confirm header="Confirmacao"
-							message="Deseja Gerar a Nota Fiscal ?" icon="ui-icon-alert" />
-					</p:commandButton>
-	
-					<p:commandButton id="gerarBoleto"
-						action="#{alunoController.gerarBoletoModel()}" alt="GerarBoleto"
-						rendered="#{false}" />
-	
-					<p:commandButton id="enviarCnab" update="@form" icon="ui-icon-check"
-						action="#{alunoController.enviarCnab()}" alt="Rematricular"
-						disabled="#{!alunoController.alunoSelecionado}"
-						rendered="#{authController.hasPermission(authController.mestre) and !alunoController.cnabEnvado}">
-						<p:confirm header="Confirmacao"
-							message="Deseja fazer a rematricula ?" icon="ui-icon-alert" />
-					</p:commandButton>
-	
-					<p:commandButton id="removerCnabEnviado" update="@form"
-						icon="ui-icon-check"
-						action="#{alunoController.removerCnabEnviado()}"
-						alt="Desmatricular" disabled="#{!alunoController.alunoSelecionado}"
-						rendered="#{authController.hasPermission(authController.mestre) and alunoController.cnabEnvado}">
-						<p:confirm header="Confirmacao"
-							message="Deseja remover a rematricula ?" icon="ui-icon-alert" />
-					</p:commandButton>
-	
-					<p:commandButton id="gerarBaixa" update="@form" icon="ui-icon-check"
-						alt="Gerar Baixa" ajax="false"
-						onclick="PrimeFaces.monitorDownload(start, stop);"
-						rendered="#{authController.hasPermission(authController.mestre)}">
-	
-						<p:fileDownload value="#{alunoController.gerarArquivoBaixa()}" />
-					</p:commandButton>
 				</h:panelGrid>
-
 
 				<h:panelGrid columns="1"
 					style="float:right; ">
@@ -264,19 +182,6 @@
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>
 
-					<p:column style="text-align: center; width:6%"
-						styleClass="#{alunoController.marcarLinha(professorTab)}">
-						<f:facet name="header">
-							<h:outputText value="Remover" />
-						</f:facet>
-
-						<p:commandButton update="tbl" icon="ui-icon-trash"
-							action="#{alunoController.remover(professorTab.id)}">
-							<p:confirm header="Confirmation"
-								message="Deseja realmente remover  #{professorTab.nomeAluno} ?"
-								icon="ui-icon-alert" />
-						</p:commandButton>
-					</p:column>
 
 				</p:dataTable>
 

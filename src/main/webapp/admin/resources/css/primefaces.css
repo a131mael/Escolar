@@ -19,11 +19,11 @@ table tbody .marcarLinha {color: #00008B !important; }
  /* box-shadow: 0 0 0 !important; */
  /* border: #e2bfbf !important; */
  
- table tbody .marcarLinhaVerde {color: #00ff00!important; }
+ table tbody .marcarLinhaVerde {color: #02fd73!important; }
  /* box-shadow: 0 0 0 !important; */
  /* border: #e2bfbf !important; */
 
-table tbody .marcarLinhaAmarelo {color: #FFD700 !important; }
+table tbody .marcarLinhaAmarelo  {color: #f7fd02!important; }
 
 table tbody .marcarLinhaVermelho {color: #FF0000 !important; }
  /* box-shadow: 0 0 0 !important; */
@@ -37,6 +37,8 @@ table tbody .marcarLinhaVermelho {color: #FF0000 !important; }
 .tamanhoCelula td{
     width: #80px;
 }  
+
+.backgroundVerde {    background: lightgray}       
        
 .fc-event-time,
 .fc-event-title {
@@ -88,7 +90,8 @@ table tbody .marcarLinhaVermelho {color: #FF0000 !important; }
     border: 1px solid #c3c3c3 !important;
     box-shadow: 0 1px 0 #fff !important;   
     background: url("../images/button/ico-pesquisar.png") no-repeat #fff !important;
-    background-position: 95px 8px !important;
+    background-position: 4px 11px !important;
+    padding-left: 15px;
 }
 
 .inputPesquisa input, .inputPesquisa input:hover {
@@ -188,10 +191,10 @@ background: #dbdbdb !important;
     margin: 1px 16px 1px 1px;
     color: #666666;
     font-family: 'RobotoCondensed',Arial,Helvetica,sans-serif !important;
-    font-size: 16px;
+    font-size: 14px;
     text-shadow: 0 0 0;
     font-weight: normal;
-    text-transform: uppercase;
+    
 }
 
 .ui-inputfield {

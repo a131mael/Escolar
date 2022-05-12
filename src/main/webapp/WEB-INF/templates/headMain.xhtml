@@ -17,15 +17,22 @@
 	<p:growl id="messages" />
 
 	<p:menubar style="width:100%;margin-left: -16px;margin-top: -16px">
-		
-		<p:submenu label="Alunos">
+	
+		<p:menuitem value="Home" url="../secretaria/index.jsf"
+			icon="ui-icon-search" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
+				
+		<p:submenu label="Alunos" rendered="#{authController.hasPermission(authController.administrador
+															,authController.secretaria,authController.dono
+															)}">
 			<p:menuitem value="Alunos atuais" url="../aluno/index.jsf"	icon="ui-icon-pencil" 
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
+					rendered="#{authController.hasPermission(authController.administrador
+															,authController.secretaria,authController.dono
+															)}"/>
 		
 			<p:menuitem value="Canceladas Atuais" url="../aluno/canceladas.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 		
-			<p:menuitem value="Todas" url="../aluno/indexRoot.jsf"	icon="ui-icon-pencil" 
+			<p:menuitem value="Todes" url="../aluno/indexRoot.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.dono)}"/>
 							
 			<p:menuitem value="Todas" url="../aluno/indexFinanceiro.jsf" icon="ui-icon-pencil" 
@@ -38,7 +45,7 @@
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 		</p:submenu>
 		
-		<p:menuitem value="Crianças" url="../motorista/alunosmotorista.jsf"	icon="ui-icon-pencil" 
+		<p:menuitem value="Crianças" url="../colaborador/index.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.getMotorista())}"/>
 		
 
@@ -47,7 +54,7 @@
 
 	
 		<p:menuitem value="Carros" url="../turma/index.jsf"	icon="ui-icon-gear"
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.getMotorista(),authController.dono)}" />
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}" />
 
 
 		<p:menuitem value="Avaliações" url="../avaliacao/index.jsf"	icon="ui-icon-close" 
@@ -60,10 +67,14 @@
 		<p:menuitem value="Calendario" url="../calendario/index.jsf" icon="ui-icon-close" 
 					rendered="false"/>
 
-		<p:submenu label="Financeiro" >
+		<p:submenu label="Financeiro" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}" >
 				
 				<p:menuitem value="Baixa"
 					url="../financeiro/baixaManual.jsf" icon="ui-icon-close"
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro,authController.dono)}" />
+
+				<p:menuitem value="Extrato Bancario"
+					url="../financeiro/extratoBancario.jsf" icon="ui-icon-close"
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro,authController.dono)}" />
 
 				<p:menuitem value="Importar CNAB"

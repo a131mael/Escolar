@@ -23,17 +23,25 @@
 	
 		<h:form prependId="false" style="width:100%; border:none" 
 				rendered="#{authController.hasPermission(authController.administrador
-							,authController.secretaria,authController.secretaria)}">
+							,authController.secretaria,authController.secretaria,authController.dono)}">
 
 			<h:panelGrid id="panelFerramentas" columns="17" style="margin-top: -30px; margin-left:-20px">
 				 <p:tooltip  for="editar" value="Editar" position="top"/>
+				 
 				<p:tooltip  for="negativoDebito" value="Negativo Debito" position="top"/>
 				<p:tooltip  for="contrato" value="Contrato" position="top"/>
 				<p:tooltip  for="restaurar" value="Restaurar" position="top"/>
+				
+				 <p:tooltip  for="enviarAviso" value="Enviar Whatsapp para TODOS" position="top"/>
 			
 				<p:commandButton id="editar" icon="ui-icon-pencil" update="@form" action="#{relatorioController.editar()}"	alt="Editar" />
 				
-				<p:commandButton id="restaurar" icon="ui-icon-pencil" action="#{alunoController.restaurar(aluno.id)}" disabled="#{!alunoController.alunoSelecionado}"/>
+				<p:commandLink id="enviarAviso"  alt="Enviar Whatsapp para TODOS"
+							action="#{relatorioController.enviarMensagemBoletoAtrasado()}"	 >
+					<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
+				</p:commandLink>
+				
+				<p:commandButton id="restaurar" icon="ui-icon-pencil" rendered="false" action="#{alunoController.restaurar(aluno.id)}" disabled="#{!alunoController.alunoSelecionado}"/>
 				
 				<p:separator style=" height:25px;" />
 				<p:commandButton id="negativoDebito"  ajax="false" icon="ui-icon-pencil" 
@@ -41,7 +49,7 @@
 	   						     disabled="#{!alunoController.alunoSelecionado}" rendered="false">
 								 <p:fileDownload value="#{alunoController.imprimirNegativoDebito()}" />
 	 		  </p:commandButton>
-				<p:commandButton id="contrato" icon="ui-icon-pencil"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
+				<p:commandButton id="contrato" icon="ui-icon-pencil" rendered="false"  ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);"  
 								disabled="#{!alunoController.alunoSelecionado}">
 						<p:fileDownload value="#{alunoController.imprimirContrato()}" />
 				</p:commandButton>
@@ -91,11 +99,36 @@
 							<p:dataExporter type="xml" target="tbl" fileName="cars" />
 						</h:commandLink>
 					</f:facet>
-					<p:column style="width:7%; text-align:center;" filterBy="#{professorTab.codigo}"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              sortBy="#{professorTab.codigo}" 
-                              headerText="Código ">
-						<h:outputText value="#{professorTab.codigo}" />
+					
+					<p:column headerText="Enviado ?" width="25%">
+					<table >
+						<tr>
+							<td  style="width: 25px; border: 0px">
+							<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.id)}">
+								<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
+							</p:panelGrid>
+							
+							</td>
+							<td style="border: 0px">
+								<p:dataTable value="#{alunoController.getPromessasContratoAberta(professorTab)}" 
+										var="promessa" rendered="#{alunoController.possuiPromessaAberta(professorTab)}">
+								<p:column width="30%">
+									<h:outputLabel value="#{promessa.dataPromessaPagamento}" >
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+										<br/>
+									</h:outputLabel>
+								</p:column>
+								<p:column>
+									<h:outputLabel value="#{promessa.descricao}" >
+										<f:convertDateTime pattern="dd/MM/yyyy" />
+										<br/>
+									</h:outputLabel>
+								</p:column>
+							</p:dataTable></td>
+						</tr>
+						
+					</table>
+						
 					</p:column>
 
 					<p:column filterBy="#{professorTab.nomeAluno}"
@@ -108,11 +141,11 @@
 					
 					<p:column style="text-align:center;"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Nome ">
+                              headerText="responsavel ">
 						<h:outputText value="#{alunoController.getNomeResponsavelDevedor(professorTab)}" />
 					</p:column>
 
-					<p:column filterBy="#{professorTab.periodo}"
+					<p:column filterBy="#{professorTab.periodo}"  width="3%"
                               sortBy="#{professorTab.periodo}" 
                               style="text-align:center;width:8%"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
@@ -125,29 +158,46 @@
                               sortBy="#{professorTab.serie}" 
                               style="text-align: center;width:10%;"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Série "
+                              headerText="Contato "
                               filterOptions="#{CombosEspeciaisMB.seriesSelectIItem}">
-						<h:outputText value="#{professorTab.serie.name}" />
+								
+								 <h:outputText value="#{professorTab.contatoTelefone1}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome1}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone2}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome2}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone3}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome3}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone4}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome4}" />						
+
 					</p:column>	
 					
-					<p:column filterBy="#{professorTab.escola}"
+					<p:column filterBy="#{professorTab.escola}"  width="6%"
                               sortBy="#{professorTab.escola}" 
                               style="text-align: center;width:10%;"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Série "
+                              headerText="Escola "
                               filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>	
 
-					<p:column style="text-align: center; width:8%" 
+					<p:column style="text-align: center; width:6%" 
 					styleClass="#{alunoController.marcarLinha(professorTab)}">
 						<f:facet name="header">
-							<h:outputText value="Remover" />
+							<h:outputText value="Enviar whats" />
 						</f:facet>
 						
-							<p:commandButton update="tbl" icon="ui-icon-trash" action="#{alunoController.remover(professorTab.id)}" >
-								
-							</p:commandButton>
+							<p:commandLink label="Enviar whats aviso de debito" update="tbl"  
+											action="#{relatorioController.enviarMensagemBoletoAtrasado(professorTab.id)}" >
+								<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
+							</p:commandLink>
 					</p:column>
 
 				</p:dataTable>

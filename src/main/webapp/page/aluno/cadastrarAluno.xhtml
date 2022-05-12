@@ -300,9 +300,19 @@
 					
 					
 					
-					<p:tab id="localizacao" title="Localizacao">
+					<p:tab id="localizacao" title="Promessas">
 						<h:panelGrid id="panelLocalizacao" columns="1" border="0">
-							<ui:include src="cmpAlunoLocalizacao.xhtml">
+							<ui:include src="cmpAlunoPromessa.xhtml">
+		    					<ui:param name="parametro" value="#{aluno}" />
+		    					<ui:param name="visible" value="#{true}" />
+							</ui:include>
+						</h:panelGrid>
+					</p:tab>
+					
+						
+					<p:tab id="conversas" title="Conversas">
+						<h:panelGrid id="panelConversas" columns="1" border="0">
+							<ui:include src="cmpAlunoConversas.xhtml">
 		    					<ui:param name="parametro" value="#{aluno}" />
 		    					<ui:param name="visible" value="#{true}" />
 							</ui:include>

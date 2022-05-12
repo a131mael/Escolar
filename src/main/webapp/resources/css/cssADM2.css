@@ -175,7 +175,7 @@ form {
 }
 label {
   float: left;
-  width: 15%;
+ -- width: 15%;
   margin-left: 20px;
   margin-right: 0.5em;
   padding-top: 0.2em;

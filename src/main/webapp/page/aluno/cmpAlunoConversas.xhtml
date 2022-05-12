@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<h:panelGrid columns="5" border="0">
+		<p:commandButton title=""
+			value="#{aluno.contatoTelefone1} #{aluno.contatoNome1}"
+			style="font-size: 11px; width:200px">
+			<p:ajax
+				listener="#{alunoController.getMensagens(aluno.contatoTelefone1)}"
+				event="click" update="form:tabs:panelConversas" />
+		</p:commandButton>
+
+		<p:commandButton title=""
+			value="#{aluno.contatoTelefone2} #{aluno.contatoNome2}"
+			style="font-size: 11px; width:200px">
+			<p:ajax
+				listener="#{alunoController.getMensagens(aluno.contatoTelefone2)}"
+				event="click" update="form:tabs:panelConversas" />
+		</p:commandButton>
+
+		<p:commandButton title=""
+			value="#{aluno.contatoTelefone3} #{aluno.contatoNome3}"
+			style="font-size: 11px; width:200px">
+			<p:ajax
+				listener="#{alunoController.getMensagens(aluno.contatoTelefone3)}"
+				event="click" update="form:tabs:panelConversas" />
+		</p:commandButton>
+
+		<p:commandButton title=""
+			value="#{aluno.contatoTelefone4} #{aluno.contatoNome4}"
+			style="font-size: 11px; width:200px">
+			<p:ajax
+				listener="#{alunoController.getMensagens(aluno.contatoTelefone4)}"
+				event="click" update="form:tabs:panelConversas" />
+		</p:commandButton>
+
+		<p:commandButton title=""
+			value="#{aluno.contatoTelefone5} #{aluno.contatoNome5}"
+			style="font-size: 11px; width:200px">
+			<p:ajax
+				listener="#{alunoController.getMensagens(aluno.contatoTelefone5)}"
+				event="click" update="form:tabs:panelConversas" />
+		</p:commandButton>
+	</h:panelGrid>
+	<hr />
+
+	<br />
+	<br />
+	<p:panelGrid id="panelMensagens">
+		<ui:repeat  value="#{alunoController.getListaMensagens()}"
+			var="mensagem">
+			
+			
+			<p:panelGrid id="panelX" rendered="#{mensagem.primeiro}"	style="background: lightgray;">
+				<h:outputText value="#{mensagem.text}" style="background: lightgray;"/>
+				<br />
+				<br />
+			</p:panelGrid>
+
+			<p:panelGrid rendered="#{not mensagem.primeiro}">
+				<h:outputText value="#{mensagem.text}" />
+				<br />
+				<br />
+			</p:panelGrid>
+
+
+		</ui:repeat>
+
+
+	</p:panelGrid>
+
+</ui:composition>

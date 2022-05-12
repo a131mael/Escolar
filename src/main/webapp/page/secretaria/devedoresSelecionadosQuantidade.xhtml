@@ -115,20 +115,32 @@
 						<h:outputText value="#{professorTab.periodo.name}" />
 					</p:column>
 					
-					<p:column filterBy="#{professorTab.serie}"
-                              sortBy="#{professorTab.serie}" 
-                              style="text-align: center;width:10%;"
+					<p:column style="text-align: center;width:10%;"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Série "
-                              filterOptions="#{CombosEspeciaisMB.seriesSelectIItem}">
-						<h:outputText value="#{professorTab.serie.name}" />
+                              headerText="Contato "
+                              >
+						 <h:outputText value="#{professorTab.contatoTelefone1}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome1}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone2}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome2}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone3}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome3}" />
+					             <br/>
+					             <h:outputText value="#{professorTab.contatoTelefone4}" />
+					             <h:outputText value=" " />
+					             <h:outputText value="#{professorTab.contatoNome4}" />	
 					</p:column>	
 					
 					<p:column filterBy="#{professorTab.escola}"
                               sortBy="#{professorTab.escola}" 
                               style="text-align: center;width:10%;"
                               styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Série "
+                              headerText="Escola "
                               filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>	

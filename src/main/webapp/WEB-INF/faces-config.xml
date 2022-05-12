@@ -46,6 +46,16 @@
 			<redirect />
 		</navigation-case>
 		<navigation-case>
+			<from-outcome>Motorista</from-outcome>
+			<to-view-id>/page/colaborador/index.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>Monitor</from-outcome>
+			<to-view-id>/page/colaborador/index.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>Usuario</from-outcome>
 			<to-view-id>/page/secretaria/index.xhtml</to-view-id>
 			<redirect />
@@ -69,6 +79,44 @@
 			<redirect />
 		</navigation-case>
 	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/page/colaborador/index.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>cadastrar</from-outcome>
+			<to-view-id>/page/colaborador/cadastrarAluno.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>remover</from-outcome>
+			<to-view-id>/page/aluno/removerAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/page/colaborador/index.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>editar</from-outcome>
+			<to-view-id>/page/colaborador/cadastrarAluno.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>remover</from-outcome>
+			<to-view-id>/page/aluno/removerAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/page/colaborador/cadastrarAluno.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>index</from-outcome>
+			<to-view-id>/page/colaborador/index.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>remover</from-outcome>
+			<to-view-id>/page/aluno/removerAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
 	<navigation-rule>
 		<from-view-id>/page/secretaria/alunosUltimoAnoLetivo.xhtml</from-view-id>
 		<navigation-case>
@@ -314,6 +362,22 @@
 			<to-view-id>/page/secretaria/devedoresSelecionadosMes.xhtml</to-view-id>
 			<redirect />
 		</navigation-case>
+		
+		<navigation-case>
+			<from-outcome>verdevedor</from-outcome>
+			<to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/public/public/pedidoMatricula.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>enviadoComSucesso</from-outcome>
+			<to-view-id>/public/enviadoComSucesso.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
 	</navigation-rule>
 	
 	<navigation-rule>
@@ -342,5 +406,35 @@
 			<redirect />
 		</navigation-case>
 	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/page/financeiro/baixaManual.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>veraluno</from-outcome>
+			<to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/page/financeiro/extratoBancario.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>editarExtrato</from-outcome>
+			<to-view-id>/page/financeiro/cadastrarExtratoBancario.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+		<from-view-id>/page/financeiro/cadastrarExtratoBancario.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>indexExtrato</from-outcome>
+			<to-view-id>/page/financeiro/extratoBancario.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
+	
+	
 	<application />
 </faces-config>
