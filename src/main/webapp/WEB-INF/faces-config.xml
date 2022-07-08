@@ -371,13 +371,12 @@
 	</navigation-rule>
 	
 	<navigation-rule>
-		<from-view-id>/public/public/pedidoMatricula.xhtml</from-view-id>
+		<from-view-id>/public/pedidoMatricula.xhtml</from-view-id>
 		<navigation-case>
 			<from-outcome>enviadoComSucesso</from-outcome>
 			<to-view-id>/public/enviadoComSucesso.xhtml</to-view-id>
 			<redirect />
 		</navigation-case>
-		
 	</navigation-rule>
 	
 	<navigation-rule>

@@ -16,14 +16,14 @@
 				<p:wizard flowListener="#{pedidoMatriculaController.onFlowProcess}">
 					<p:tab id="personal" title="Dados da Criança">
 						<p:panel header="Dados da Criança" style="font-size: 15px;" >
-							<h:outputLabel value="Nome(*): "	style="font-size: 11px; width:80px" />
+							<h:outputLabel value="Nome(*): "	style="font-size: 11px; width:70px" />
 							<p:inputText id="nomealuno" value="#{contratoAlun.aluno.nomeAluno}" title="" style="font-size: 11px; width:180px">
 								<p:ajax process="@this" event="change" required="true" requiredMessage="Nome é obrigatório"/>
 							</p:inputText>
 							<p:message for="nomealuno" />
 
-							<h:outputLabel value="Bairro: "	style="font-size: 11px; width:80px" />
-							<p:selectOneMenu style="width: 180px;" value="#{contratoAlun.aluno.bairro}">
+							<h:outputLabel value="Bairro: "	style="font-size: 11px; width:70px" />
+							<p:selectOneMenu style="width: 180px;" value="#{contratoAlun.aluno.bairroAluno}">
 								<f:selectItems	value="#{CombosEspeciaisMB.getBairroSelectIItem()}"
 									var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}"
 									disabled="#{disable}" />
@@ -31,26 +31,14 @@
 							</p:selectOneMenu>
 							<br />
 
-							<h:outputLabel value="Rua(*): "	style="font-size: 11px; width:80px" />
+							<h:outputLabel value="Rua(*): "	style="font-size: 11px; width:70px" />
 							<p:inputText title="" style="font-size: 11px; width:180px" value="#{contratoAlun.aluno.endereco}">
 								<p:ajax process="@this" event="change" />
 							</p:inputText>
 							<br />
 
-							<h:outputLabel value="Numero(*): "	style="font-size: 11px; width:80px" />
-							<p:inputText title="" style="font-size: 11px; width:180px" >
-								<p:ajax process="@this" event="change" />
-							</p:inputText>
-							<br />
-							<h:outputLabel value="Complemento(*): "
-								style="font-size: 11px; width:80px" />
-							<p:inputText title="" style="font-size: 11px; width:180px">
-								<p:ajax process="@this" event="change" />
-							</p:inputText>
-							<br/>
-							
-							<h:outputLabel value="Escola: "	style="font-size: 11px; width:80px" />
-							<p:selectOneMenu style="width: 256px;" value="#{contratoAlun.aluno.escola}">
+							<h:outputLabel value="Escola: "	style="font-size: 11px; width:70px" />
+							<p:selectOneMenu style="width: 236px;" value="#{contratoAlun.aluno.escola}">
 								<f:selectItems id="escolaaluno" value="#{CombosEspeciaisMB.getEscolas()}"
 									var="country" itemLabel="#{country.name}" itemValue="#{country}" 
 									disabled="#{disable}"/>
@@ -59,7 +47,7 @@
 							<p:message for="escolaaluno" />
 							
 							
-							<h:outputLabel value="Série :"	style="font-size: 11px; width:80px" />
+							<h:outputLabel value="Série :"	style="font-size: 11px; width:70px" />
 							<p:selectOneMenu style="width: 180px;" value="#{contratoAlun.aluno.serie}">
 								<f:selectItems value="#{CombosEspeciaisMB.getSeries()}"
 									var="country" itemLabel="#{country.name}	"
@@ -67,11 +55,28 @@
 								<p:ajax event="change" process="@this" />
 							</p:selectOneMenu>
 							<br/>
-							<h:outputLabel value="Nascimento: "	style="font-size: 11px; width:80px" />
-						<p:calendar value="#{contratoAlun.aluno.dataNascimento}" pattern="dd/MM/yyyy" mask="true"	style="font-size: 15px; width:280px" >
-							<p:ajax process="@this" event="change"/>
-						</p:calendar>
-
+							
+							<h:outputLabel value="Horário: " style="font-size: 11px; width:70px" />
+							<p:selectOneMenu  style="width: 180px;"	value="#{contratoAlun.aluno.periodo}" required="true">
+								<f:selectItems value="#{CombosEspeciaisMB.getPeriodos()}" var="country" itemLabel="#{country.name}" itemValue="#{country}"/>
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+							<br/>
+		
+							<h:outputLabel value="Nascimento: "	style="font-size: 11px; width:70px" />
+							<p:calendar value="#{contratoAlun.aluno.dataNascimento}" pattern="dd/MM/yyyy" mask="true"	style="font-size: 15px; width:280px" >
+								<p:ajax process="@this" event="change"/>
+							</p:calendar>
+							<br/>
+							<h:outputLabel value="Tipo: " style="font-size: 13px; width:70px" />
+							<h:selectOneRadio value="#{contratoAlun.aluno.idaVolta}" style="width:100%">
+								<f:selectItem itemValue="0" itemLabel="Ida e Volta" />
+								<f:selectItem itemValue="1" itemLabel="Somente IDA" />
+								<f:selectItem itemValue="2" itemLabel="Somente Volta" />
+							</h:selectOneRadio>
+							
+							
+						
 						</p:panel>
 					</p:tab>
 				
@@ -117,20 +122,19 @@
 						<p:message for="bairroresp" />
 	
 						<h:outputLabel value="Rua(*): "	style="font-size: 11px; width:80px" />
-						<p:inputText id="ruaresp" title="" style="font-size: 11px; width:180px" required="true" requiredMessage="Rua é obrigatório">
+						<p:inputText id="ruaresp" title="" value="#{contratoAlun.endereco}" style="font-size: 11px; width:180px" required="true" requiredMessage="Rua é obrigatório">
 							<p:ajax process="@this" event="change" />
 						</p:inputText>
 						<p:message for="ruaresp" />
 
 						<h:outputLabel value="Numero(*): "
 							style="font-size: 11px; width:80px" />
-						<p:inputText id="numeroresp" title="" style="font-size: 11px; width:180px" required="true" requiredMessage="Numero é obrigatório">
+						<p:inputText id="numeroresp" value="#{contratoAlun.numero}" title="" style="font-size: 11px; width:180px" required="true" requiredMessage="Numero é obrigatório">
 							<p:ajax process="@this" event="change" />
 						</p:inputText>
 						<p:message for="numeroresp" />
-						<h:outputLabel value="Complemento(*): "
-							style="font-size: 11px; width:80px" />
-						<p:inputText title="" style="font-size: 11px; width:180px">
+						<h:outputLabel value="Complemento(*): "	style="font-size: 11px; width:80px" />
+						<p:inputText value="#{contratoAlun.complemento}" title="" style="font-size: 11px; width:180px">
 							<p:ajax process="@this" event="change" />
 						</p:inputText>
 						<br/>
@@ -151,50 +155,52 @@
 						<h:inputText title="" value="#{contratoAlun.aluno.contatoEmail2}"
 							style="font-size: 11px; width:180px" />
 						<br />
-	
-						<h:outputLabel value="Telefone: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+						
+						<h:outputLabel value="Telefone: " style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText id="telefone1con" title="" value="#{contratoAlun.aluno.contatoTelefone1}"
-							style="font-size: 11px; width:110px " required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
+							style="font-size: 11px; width:100px " required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
 	
 						<h:outputLabel value="Falar com: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome1}"
-							style="font-size: 11px; width:110px" required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
+							style="font-size: 11px; width:100px" required="true" requiredMessage="Ao menos 1 telefone é nescessário"/>
 							<p:message for="telefone1con" />
 						<h:outputLabel value="Telefone: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText title="" value="#{aluno.contatoTelefone2}"
-							style="font-size: 11px; width:110px" />
+							style="font-size: 11px; width:100px" />
 	
 						<h:outputLabel value="Falar com: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome2}"
-							style="font-size: 11px; width:110px" />
-						<br />
+							style="font-size: 11px; width:100px" />
+						<br/>
+						
 						<h:outputLabel value="Telefone: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText title="" value="#{contratoAlun.aluno.contatoTelefone3}"
-							style="font-size: 11px; width:110px" />
+							style="font-size: 11px; width:100px" />
 	
 						<h:outputLabel value="Falar com: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText title="" value="#{contratoAlun.aluno.contatoNome3}"
-							style="font-size: 11px; width:110px" />
+							style="font-size: 11px; width:100px" />
 						<br />
+						
 						<h:outputLabel value="Telefone: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText value="#{contratoAlun.aluno.contatoTelefone4}"
-							style="font-size: 11px; width:110px" />
+							style="font-size: 11px; width:100px" />
 	
 						<h:outputLabel value="Falar com: "
-							style="font-size: 11px; width:80px ;float:none !important" />
+							style="font-size: 11px; width:20px ;float:none !important" />
 						<p:inputText value="#{contratoAlun.aluno.contatoNome4}"
-							style="font-size: 11px; width:110px" />
+							style="font-size: 11px; width:100px" />
 						
 						<br/>
-						<p:commandButton value="ENVIAR"	style="float:right; ;background: #e2f336;font-size: 15px">
-							<p:ajax process="@this"	listener="#{pedidoMatriculaController.enviar()}" />
+						<br/>
+						<p:commandButton value="ENVIAR"  action="#{pedidoMatriculaController.enviar()}" style="float:right; ;background: #e2f336;font-size: 15px">
+							
 						</p:commandButton>
 						<br/>
 						<br/>

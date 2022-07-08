@@ -9,47 +9,47 @@
 
 	
 	<h:panelGrid id="panelContratos" border="0" rendered="#{visible}" width="100%">
-		<p:accordionPanel value="#{contratos}" var="contratoAlun" multiple="true" >
-		 <p:tab title="#{alunoController.getTituloContrato(contratoAlun)}">
+		<p:accordionPanel value="#{contratos}" var="contratoAluno" multiple="true" >
+		 <p:tab title="#{alunoController.getTituloContrato(contratoAluno)}">
 		 	<p:tabView id="tabViewContrato">
 					<p:tab id="tabcontrato" title="Contrato">
 						<h:panelGrid columns="2" border="0">
 							<h:panelGrid columns="2" border="0">
 								<h:outputLabel value="Numero: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.numero}"
+								<p:inputText value="#{contratoAluno.numero}"
 									disabled="true"
 									style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Ano: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.ano}"
+								<p:inputText value="#{contratoAluno.ano}"
 									style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Nome Responsável: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.nomeResponsavel}"
+								<p:inputText value="#{contratoAluno.nomeResponsavel}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Nome PAI Responsável: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.nomePaiResponsavel}"
+								<p:inputText value="#{contratoAluno.nomePaiResponsavel}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Nome MAE Responsável: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.nomeMaeResponsavel}"
+								<p:inputText value="#{contratoAluno.nomeMaeResponsavel}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 	
 								<h:outputLabel value="CPF Responsável: "
 									style="font-size: 13px; width:180px" />
 								<h:panelGrid columns="2">
-										<p:inputText id="inputcpf"  value="#{contratoAlun.cpfResponsavel}"
+										<p:inputText id="inputcpf"  value="#{contratoAluno.cpfResponsavel}"
 													style="font-size: 15px; width:275px"
 													validatorMessage="CPF INVÁLIDO.">
 													 <f:validator for="inputcpf" validatorId="org.escola.validator.CPFValidator" />
@@ -59,43 +59,43 @@
 								
 								<h:outputLabel value="RG Responsável: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.rgResponsavel}"
+								<p:inputText value="#{contratoAluno.rgResponsavel}"
 									style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Endereço: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.endereco}"
+								<p:inputText value="#{contratoAluno.endereco}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 	
 								<h:outputLabel value="Bairro: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.bairro}"
+								<p:inputText value="#{contratoAluno.bairro}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 								
 								<h:outputLabel value="Cidade: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.cidade}"
+								<p:inputText value="#{contratoAluno.cidade}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 	
 								<h:outputLabel value="CEP: " style="font-size: 13px; width:180px" />
-								<p:inputMask id="cpf" value="#{contratoAlun.cep}" mask="99 999-999"
+								<p:inputMask id="cpf" value="#{contratoAluno.cep}" mask="99 999-999"
 											style="font-size: 15px; width:275px" />
 								
 	
 	
 								<h:outputLabel value="Nº Parcelas: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.numeroParcelas}"
+								<p:inputText value="#{contratoAluno.numeroParcelas}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 	
 								<h:outputLabel value="Mensalidade: "
 									style="font-size: 13px; width:180px" />
-								<p:inputText value="#{contratoAlun.valorMensal}"
+								<p:inputText value="#{contratoAluno.valorMensal}"
 											style="font-size: 15px; width:275px">
 								</p:inputText>
 	
@@ -103,15 +103,15 @@
 									style="font-size: 13px; width:180px" />
 									<h:panelGrid id="panelVencimento" columns="2">
 										<p:selectOneMenu  style="width: 160px;"
-											value="#{contratoAlun.vencimentoUltimoDia}" >
+											value="#{contratoAluno.vencimentoUltimoDia}" >
 											<f:selectItem itemLabel="No dia" itemValue="#{false}" />
 											<f:selectItem itemLabel="Vence ultimo dia" itemValue="#{true}" />
 										<!-- 	<p:ajax event="blur" process="@this" update="form:tabView:diaVencimento"/> -->
 										</p:selectOneMenu>
 								
 									
-										<p:inputText id="diaVencimento" value="#{contratoAlun.diaVencimento}"
-											style="font-size: 15px; width:275px" rendered="#{!contratoAlun.vencimentoUltimoDia}">
+										<p:inputText id="diaVencimento" value="#{contratoAluno.diaVencimento}"
+											style="font-size: 15px; width:275px" rendered="#{!contratoAluno.vencimentoUltimoDia}">
 										</p:inputText> 
 									
 									</h:panelGrid>
@@ -124,10 +124,10 @@
 							</h:panelGrid>
 							<h:panelGrid columns="1" border="0" style="100%">
 									<p:commandButton value="Salvar Contrato" 
-													rendered="#{not contratoAlun.cancelado and alunoController.podeGerarBoleto(contratoAlun)}">
+													rendered="#{not contratoAluno.cancelado and alunoController.podeGerarBoleto(contratoAluno)}">
 													<p:ajax process="form:tabs:panelContratos" event="click"
 															update="form:tabs:panelContratos" 
-															listener="#{alunoController.salvar(contratoAlun)}"/>
+															listener="#{alunoController.salvar(contratoAluno)}"/>
 									</p:commandButton>
 									
 									<br/>
@@ -135,8 +135,8 @@
 									<br/>
 									
 									<p:commandButton style="background:blue"
-													value="Gerar Boletos" rendered="#{alunoController.podeGerarBoleto(contratoAlun) and !contratoAlun.cancelado}">
-													<p:ajax listener="#{alunoController.gerarBoletos(contratoAlun)}"   
+													value="Gerar Boletos" rendered="#{alunoController.podeGerarBoleto(contratoAluno) and !contratoAluno.cancelado}">
+													<p:ajax listener="#{alunoController.gerarBoletos(contratoAluno)}"   
 															update="form:tabs:panelContratos" />
 									</p:commandButton>
 									
@@ -145,35 +145,35 @@
 									<h:panelGrid columns="5" border="0">
 										<p:commandButton id="contrato" icon="ui-icon-print"
 														value="Download Contrato"
-														rendered="#{alunoController.podeImprimir(contratoAlun)}"
+														rendered="#{alunoController.podeImprimir(contratoAluno)}"
 														ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);">
-										<p:fileDownload value="#{alunoController.imprimirContrato(contratoAlun)}" />
+										<p:fileDownload value="#{alunoController.imprimirContrato(contratoAluno)}" />
 										</p:commandButton>
 				
 										<p:commandButton id="boleto" icon="ui-icon-print" ajax="false"
 													onclick="PrimeFaces.monitorDownload(start, stop);"
-													rendered="#{alunoController.podeImprimir(contratoAlun)}"
+													rendered="#{alunoController.podeImprimir(contratoAluno)}"
 													value="Download Boletos" >
-												<p:fileDownload value="#{alunoController.gerarBoleto(contratoAlun)}" />
+												<p:fileDownload value="#{alunoController.gerarBoleto(contratoAluno)}" />
 										</p:commandButton>
 				
 										<p:commandButton id="cnb240" icon="ui-icon-print" ajax="false"
 														onclick="PrimeFaces.monitorDownload(start, stop);"
 														rendered="#{authController.hasPermission(authController.mestre)}" 
 														value="Download CNB240" >
-												<p:fileDownload value="#{alunoController.gerarCNB240(contratoAlun)}" />
+												<p:fileDownload value="#{alunoController.gerarCNB240(contratoAluno)}" />
 										</p:commandButton>
 										
 										
 										<p:commandButton icon="ui-icon-arrowthick-1-e" alt="Protestar contrato" 
 														id="protesto" process="@this" value="PROTESTAR"
-														actionListener="#{devedorController.enviarProtesto(contratoAlun)}"
-														rendered="#{not contratoAlun.protestado}">
+														actionListener="#{devedorController.enviarProtesto(contratoAluno)}"
+														rendered="#{not contratoAluno.protestado}">
 											<p:confirm header="Confirmation" message="Você deseja realmente protestar  ?" 
 													  icon="ui-icon-alert" >
 										   </p:confirm>
 										</p:commandButton>
-										<p:tooltip for="protesto" value="PROTESTAR !!!" trackMouse="false"  rendered="#{not contratoAlun.protestado}"/>
+										<p:tooltip for="protesto" value="PROTESTAR !!!" trackMouse="false"  rendered="#{not contratoAluno.protestado}"/>
 										
 										
 				
@@ -184,22 +184,22 @@
 									
 									
 									<p:commandButton style="background:red"
-													action="#{alunoController.cancelar(contratoAlun)}"  
+													action="#{alunoController.cancelar(contratoAluno)}"  
 													value="Cancelar Contrato" 
 													process="@this"
-													rendered="#{not contratoAlun.cancelado}">
+													rendered="#{not contratoAluno.cancelado}">
 													
 									</p:commandButton>
 									
 									<br/>
 									<br/>
-									<h:outputLabel value="CONTRATO PROTESTADO" style="font-size:25px" rendered="#{contratoAlun.protestado}"/>
+									<h:outputLabel value="CONTRATO PROTESTADO" style="font-size:25px" rendered="#{contratoAluno.protestado}"/>
 											
 											
 									<p:commandButton  icon="ui-icon-print" ajax="false"
 												style="background:yellow"
-												rendered="#{not alunoController.possuiSuspensao(contratoAlun)}"
-												action="#{alunoController.suspender(contratoAlun)}"  
+												rendered="#{not alunoController.possuiSuspensao(contratoAluno)}"
+												action="#{alunoController.suspender(contratoAluno)}"  
 												value="Suspender Contrato" 
 												immediate="true">
 									</p:commandButton>		
@@ -207,14 +207,14 @@
 									<br/>
 									<br/>
 									<h:outputLabel value="CONTRATO SUSPENSO" style="font-size:25px" 
-										rendered="#{alunoController.possuiSuspensao(contratoAlun)}"/>	
+										rendered="#{alunoController.possuiSuspensao(contratoAluno)}"/>	
 							
 									<br/>
 									<br/>
 									<p:commandButton ajax="false"
 												style="background:yellow"
-												rendered="#{alunoController.possuiSuspensao(contratoAlun)}"
-												action="#{alunoController.removerSuspensao(contratoAlun)}"  
+												rendered="#{alunoController.possuiSuspensao(contratoAluno)}"
+												action="#{alunoController.removerSuspensao(contratoAluno)}"  
 												value="Remover Suspensão Contrato" 
 												immediate="true">
 									</p:commandButton>	
@@ -226,7 +226,7 @@
 			
 			<p:tab id="tabBoleto" title="Boletos">
 				<ui:include src="cmpAlunoBoletos.xhtml">
-			    	<ui:param name="paramContrato" value="#{contratoAlun}" />
+			    	<ui:param name="paramContrato" value="#{contratoAluno}" />
 			    	<ui:param name="visible" value="#{true}" />
 				</ui:include>
 			</p:tab>			
