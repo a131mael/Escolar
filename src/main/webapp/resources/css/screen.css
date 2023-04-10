@@ -1,83 +1,23 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
- * contributors by the @authors tag. See the copyright.txt in the
- * distribution for a full listing of individual contributors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-/* Core styles for the page */
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #F1F1F1;
-  font-family: "Lucida Sans Unicode", "Lucida ", sans-serif;
-  font-size: 0.6em;
-  color:#363636;
-}
 
 #container {
   margin: 0 auto;
-  padding: 0 20px 10px 20px;
-  border-top: 5px solid #000000;
+  /* padding: 0 20px 10px 20px; */
+  border-top: 0px solid #000000;
   border-left: 5px solid #8c8f91;
   border-right: 5px solid #8c8f91;
   border-bottom: 25px solid #8c8f91;
-  width: 100%; /* subtract 40px from banner width for padding */
   background: #FFFFFF;
   background-image: url(#{request.contextPath}/resources/gfx/headerbkg.png);
   background-repeat: repeat-x;
-  padding-top: 30px;
-  box-shadow: 3px 3px 15px #d5d5d5;
-}
-#container2 {
-  margin: 0 auto;
-  padding: 0 20px 10px 20px;
-  border-top: 5px solid #000000;
-  border-left: 5px solid #8c8f91;
-  border-right: 5px solid #8c8f91;
-  border-bottom: 25px solid #8c8f91;
-  width: 100%; /* subtract 40px from banner width for padding */
-  background: #FFFFFF;
-  background-image: url(#{request.contextPath}/resources/gfx/headerbkg.png);
-  background-repeat: repeat-x;
-  padding-top: 30px;
   box-shadow: 3px 3px 15px #d5d5d5;
 }
 
 #content {
   float: left;
-  width: 1000px;
-  margin: 20px;
-}
-#content2 {
-  float: left;
-  width: 640px;
-  margin: 5px;
-}
-
-#aside {
-  font-size: 0.6em;
-  width: 275px;
-  float: left;
-  margin: 20px 0px;
-  border: 1px solid #D5D5D5;
-  background: #F1F1F1;
-  background-image: url(#{request.contextPath}/resources/gfx/asidebkg.png);
-  background-repeat: repeat-x;
-  padding: 20px;
-}
-
-#aside ul {
-  padding-left: 30px;
+  display: flex;
+  justify-content: center;
+  /* padding-top: 30px; */
+  /* margin-left: 30px; */
 }
 .dualbrand {
   float: right;
@@ -121,22 +61,7 @@ span.invalid {
   padding-left: 3px;
   color: red;
 }
-form {
-  padding: 1em;
-  font: 110%/1 sans-serif;
-  width: 375px;
-  border: 1px solid #D5D5D5;
-}
-label {
-  float: left;
-  width: 15%;
-  margin-left: 5px;
-  margin-right: 0.5em;
-  padding-top: 0.2em;
-  text-align: right;
-  font-weight: bold;
-  color:#363636;
-}
+
 .ui-wizard-step-title{
 	font-size: 12px !important;
     margin: 0 3px 0 0;
@@ -144,13 +69,8 @@ label {
     float: left;
 }
 
-input {
-  margin-bottom: 8px;
-}
-.register {
-  float: left;
-  margin-left: 85px;
-}
+
+
 
 /*  -----  table style  -------  */
 
@@ -162,6 +82,21 @@ input {
   clear:both;
   width: 550px;
 }
+
+.imagemDeFundo{
+    background-image: url(#{request.contextPath}/resources/gfx/onibusbkg5.jpg)  ;
+    background-repeat: no-repeat no-repeat;
+    background-size: cover;
+}
+
+.imagemDeFundoEscolar{
+    background-image: url(#{request.contextPath}/resources/gfx/onibusescolar2.png)  ;
+    background-repeat: no-repeat no-repeat;
+    background-size: cover;
+}
+
+
+
 
 .ui-selectonemenu .ui-selectonemenu-trigger {
     border-right: 0;
@@ -240,4 +175,61 @@ input {
 .simpletablestyle td a:hover {
   color:#3883ce;
   text-decoration:none; 
+}
+
+
+
+
+/* CSS menu bar*/
+.topnav2 {
+	background-color: #ffffff;
+	font-size: 0.85em;
+}
+
+.topnav2 a {
+	float: left;
+	display: block;
+	color: black;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.topnav2 a:hover {
+	background-color: #ddd;
+	color: black;
+}
+
+.topnav2 a.active {
+	background-color: #2196F3;
+	color: white;
+}
+
+.topnav2 .login-container {
+	float: right;
+}
+
+.topnav2 input[type=text] {
+	padding: 6px;
+	margin-top: 8px;
+	font-size: 14px;
+	border: none;
+	width: 120px;
+}
+
+.topnav2 .login-container button {
+	float: right;
+	padding: 6px 10px;
+	margin-top: 8px;
+	margin-right: 16px;
+	background-color: #555;
+	color: white;
+	font-size: 14px;
+	border: none;
+	cursor: pointer;
+}
+
+.topnav2 .login-container button:hover {
+	background-color: green;
 }

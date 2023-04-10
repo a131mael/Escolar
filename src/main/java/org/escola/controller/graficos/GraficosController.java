@@ -47,11 +47,14 @@ import org.escolar.service.FaturamentoService;
 import org.escolar.service.FinanceiroService;
 import org.escolar.service.TurmaService;
 import org.escolar.util.Util;
+import org.jfree.chart.axis.CategoryAxis;
 import org.primefaces.event.ItemSelectEvent;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
+import org.primefaces.model.chart.BarChartSeries;
 import org.primefaces.model.chart.BubbleChartModel;
 import org.primefaces.model.chart.BubbleChartSeries;
+import org.primefaces.model.chart.ChartSeries;
 import org.primefaces.model.chart.LineChartModel;
 import org.primefaces.model.chart.LineChartSeries;
 import org.primefaces.model.chart.PieChartModel;
@@ -84,15 +87,21 @@ public class GraficosController implements Serializable {
 
 	private PieChartModel pieModelAlunosTroca;
 
+	private LineChartModel gastosGraficoLinhaMult;
+
+	private LineChartModel receitasGraficoLinhaMult;
+
 	private String faturamentoAtual;
 
 	private String quantidadeContratos;
 
 	private String quantidadeAlunos;
-	
+
 	private double totalReceitaGrupoMes = 0d;
 	private double totalGastoGrupoMes = 0d;
 	
+	private double totalReceitaGrupoMesAnterior = 0d;
+	private double totalGastoGrupoMesAnterior = 0d;
 
 	@Inject
 	private FaturamentoService faturamentoService;
@@ -124,13 +133,31 @@ public class GraficosController implements Serializable {
 		createPieModel1AlunoTroca();
 		createPieModelRecebimentosGrupoMes();
 		createPieModelGastosMesGrupo();
+		creategastosGraficoLinhaMult();
+		getGastosPorGrupo2();
+		getReceitasPorGrupo2();
+		
 	}
 
-	public void remontarGraficosComMes(){
+	public void remontarGraficosComMes() {
 		createPieModelRecebimentosGrupoMes();
 		createPieModelGastosMesGrupo();
 	}
 	
+	public String marcarLinha(double value) {
+		String cor = "";
+		
+		if(value == 0d) {
+			cor = "marcarLinhaVermelho";
+		}else if (value > 0d) {
+			cor = "marcarLinhaVerde";
+		}else {
+			cor = "marcarLinhaVermelho";
+		}
+		
+		return cor;
+	}
+
 	private void createPieModelRecebimentosGrupoMes() {
 		totalReceitaGrupoMes = 0d;
 		pieModelRecebimentoGruposMes = new PieChartModel();
@@ -149,7 +176,8 @@ public class GraficosController implements Serializable {
 				filtros.put("grupoRecebimento", ExtratoGruposPagamentoRecebimentoEnum.values()[i]);
 				double quantidade = (double) extratoBancarioService.count(filtros);
 				if (quantidade > 0) {
-					pieModelRecebimentoGruposMes.set(ExtratoGruposPagamentoRecebimentoEnum.values()[i].getNome(),	quantidade);
+					pieModelRecebimentoGruposMes.set(ExtratoGruposPagamentoRecebimentoEnum.values()[i].getNome(),
+							quantidade);
 					totalReceitaGrupoMes += quantidade;
 				}
 			}
@@ -170,41 +198,114 @@ public class GraficosController implements Serializable {
 
 	public List<Entry<String, Number>> getGastosPorGrupo() {
 		Set<Entry<String, Number>> objetoGrafico = pieModelGastosGrupoMes.getData().entrySet();
-		List<Entry<String, Number>> lista = new ArrayList<Map.Entry<String,Number>>(objetoGrafico);
-		Collections.sort(lista, new Comparator<Entry<String, Number>>() {  
-            @Override  
-            public int compare(Entry<String, Number> p1, Entry<String, Number> p2) {  
-            	if((p1.getValue() == p2.getValue())){
-            		return 0;
-            	}else if(p1.getValue().doubleValue() > p2.getValue().doubleValue()){
-            		return -1;
-            	}else{
-            		return 1;
-            	}
-            }  
-     });  
-		
+		List<Entry<String, Number>> lista = new ArrayList<Map.Entry<String, Number>>(objetoGrafico);
+		Collections.sort(lista, new Comparator<Entry<String, Number>>() {
+			@Override
+			public int compare(Entry<String, Number> p1, Entry<String, Number> p2) {
+				if ((p1.getValue() == p2.getValue())) {
+					return 0;
+				} else if (p1.getValue().doubleValue() > p2.getValue().doubleValue()) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+		});
+
 		return lista;
 	}
 
 	public List<Entry<String, Number>> getReceitasPorGrupo() {
 		Set<Entry<String, Number>> objetoGrafico = pieModelRecebimentoGruposMes.getData().entrySet();
-		List<Entry<String, Number>> lista = new ArrayList<Map.Entry<String,Number>>(objetoGrafico);
-		Collections.sort(lista, new Comparator<Entry<String, Number>>() {  
-            @Override  
-            public int compare(Entry<String, Number> p1, Entry<String, Number> p2) {  
-            	if((p1.getValue() == p2.getValue())){
-            		return 0;
-            	}else if(p1.getValue().doubleValue() > p2.getValue().doubleValue()){
-            		return -1;
-            	}else{
-            		return 1;
-            	}
-            }  
-     });  
-		
+		List<Entry<String, Number>> lista = new ArrayList<Map.Entry<String, Number>>(objetoGrafico);
+		Collections.sort(lista, new Comparator<Entry<String, Number>>() {
+			@Override
+			public int compare(Entry<String, Number> p1, Entry<String, Number> p2) {
+				if ((p1.getValue() == p2.getValue())) {
+					return 0;
+				} else if (p1.getValue().doubleValue() > p2.getValue().doubleValue()) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+		});
+
 		return lista;
 	}
+	
+	public List<Map.Entry<String,Map.Entry<String,Number>>> getReceitasPorGrupo2() {
+		List<Entry<String, Number>> lista =getReceitasPorGrupo();
+		totalReceitaGrupoMesAnterior = 0d;
+		
+		List<Map.Entry<String,Map.Entry<String,Number>>> listaf = new ArrayList<Map.Entry<String,Entry<String,Number>>>();
+		Map<String, Object> filtros = new HashMap<String, Object>();
+		filtros.put("ano", relatorioController.getAnoSelecionado());
+		filtros.put("mes", relatorioController.getMesSelecionadoRelatorio()-1);
+		filtros.put("tipoEntradaSaida", ExtratoTiposEntradaSaidaEnum.ENTRADA);
+		
+		
+		for(Entry<String, Number> entrada : lista) {
+			for(ExtratoGruposPagamentoRecebimentoEnum grupo :ExtratoGruposPagamentoRecebimentoEnum.values()) {
+				if(entrada.getKey().equalsIgnoreCase(grupo.getNome())) {
+					
+					filtros.put("grupoRecebimento", grupo);
+					double quantidade = (double) extratoBancarioService.count(filtros);
+					
+					setTotalReceitaGrupoMesAnterior(getTotalReceitaGrupoMesAnterior() + quantidade);
+						
+					List<Number> valores = new ArrayList<>();
+					valores.add(entrada.getValue());
+					valores.add(quantidade);
+							
+					@SuppressWarnings("unchecked")
+					Entry<String,Map.Entry<String,Number>> entry = new MyEntry(entrada.getKey(), valores);
+					listaf.add(entry);
+					
+				}	
+			}
+			
+		}
+		return listaf;
+	}
+
+	public List<Map.Entry<String,Map.Entry<String,Number>>> getGastosPorGrupo2() {
+		List<Entry<String, Number>> lista =getGastosPorGrupo();
+		totalGastoGrupoMesAnterior = 0d;
+		List<Map.Entry<String,Map.Entry<String,Number>>> listaf = new ArrayList<Map.Entry<String,Entry<String,Number>>>();
+		Map<String, Object> filtros = new HashMap<String, Object>();
+		filtros.put("ano", relatorioController.getAnoSelecionado());
+		filtros.put("mes", relatorioController.getMesSelecionadoRelatorio()-1);
+		filtros.put("tipoEntradaSaida", ExtratoTiposEntradaSaidaEnum.SAIDA);
+		
+		
+		for(Entry<String, Number> entrada : lista) {
+			for(ExtratoGruposPagamentoRecebimentoEnum grupo :ExtratoGruposPagamentoRecebimentoEnum.values()) {
+				if(entrada.getKey().equalsIgnoreCase(grupo.getNome())) {
+					
+					filtros.put("grupoRecebimento", grupo);
+					double quantidade = (double) extratoBancarioService.count(filtros);
+					
+					setTotalGastoGrupoMesAnterior(getTotalGastoGrupoMesAnterior() + quantidade);
+						
+					List<Number> valores = new ArrayList<>();
+					valores.add(entrada.getValue());
+					valores.add(quantidade);
+							
+					@SuppressWarnings("unchecked")
+					Entry<String,Map.Entry<String,Number>> entry = new MyEntry(entrada.getKey(), valores);
+					listaf.add(entry);
+					
+				}	
+			}
+			
+		}
+		
+		
+		
+		return listaf;
+	}
+
 	
 	private void createPieModelGastosMesGrupo() {
 		totalGastoGrupoMes = 0D;
@@ -300,6 +401,106 @@ public class GraficosController implements Serializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void creategastosGraficoLinhaMult() {
+		setGastosGraficoLinhaMult(new LineChartModel());
+		Axis xAxis = getGastosGraficoLinhaMult().getAxis(AxisType.X);
+		xAxis.setLabel("Dia");
+
+		Axis yAxis = lineModel1.getAxis(AxisType.Y);
+		yAxis = getGastosGraficoLinhaMult().getAxis(AxisType.Y);
+		yAxis.setLabel("Valor");
+
+		setGastosGraficoLinhaMult(carregaValoreGraficoGastros());
+		getGastosGraficoLinhaMult().setTitle("Gastos Por dia somatorio");
+		getGastosGraficoLinhaMult().setLegendPosition("e");
+		getGastosGraficoLinhaMult().setShowPointLabels(true);
+		getGastosGraficoLinhaMult().getAxes().put(AxisType.X, xAxis);
+	}
+
+	private LineChartModel carregaValoreGraficoGastros() {
+		LineChartModel model = new LineChartModel();
+		
+		Map<String, Object> filtros = new HashMap<String, Object>();
+		filtros.put("ano", relatorioController.getAnoSelecionado());
+		filtros.put("tipoEntradaSaida", ExtratoTiposEntradaSaidaEnum.SAIDA);
+		filtros.put("dataEvento", "a");
+		for(int mes=1;mes<=12;mes++) {
+			filtros.put("mes", mes);
+			ChartSeries charSerie = getChartSerieMes(mes-1);
+			
+			 Calendar instance = Calendar.getInstance();
+		     instance.set(Calendar.MONTH, mes);
+			
+			for(int dia = 1;dia <=instance.getActualMaximum(Calendar.DAY_OF_MONTH); dia ++) {
+				filtros.put("dia", dia);
+				double somatorio = extratoBancarioService.count(filtros);
+				charSerie.set(dia, somatorio);
+			}
+			model.addSeries(charSerie);
+		}
+		
+		return model;
+	}
+	
+	private ChartSeries getChartSerieMes(int mes) {
+		ChartSeries charMes = new ChartSeries();
+		
+		switch (mes) {
+		case 0:
+			charMes.setLabel("Janeiro");
+			break;
+		case 1:
+			charMes.setLabel("Fevereiro");
+			break;
+		case 2:
+			charMes.setLabel("Março");
+			break;
+
+		case 3:
+			charMes.setLabel("Abril");
+			break;
+
+		case 4:
+			charMes.setLabel("Maio");
+			break;
+
+		case 5:
+			charMes.setLabel("Junho");
+			break;
+
+		case 6:
+			charMes.setLabel("Julho");
+			break;
+
+		case 7:
+			charMes.setLabel("Agosto");
+			break;
+
+		case 8:
+			charMes.setLabel("Setembro");
+			break;
+
+		case 9:
+			charMes.setLabel("Outubro");
+			break;
+
+		case 10:
+			charMes.setLabel("Novembro");
+			break;
+		case 11:
+			charMes.setLabel("Dezembro");
+			break;
+
+			
+		default:
+			charMes.setLabel("???");
+			break;
+		}
+		
+		return charMes;
+		
 	}
 
 	private void createPieModel1AlunoTroca() {
@@ -619,6 +820,38 @@ public class GraficosController implements Serializable {
 
 	public void setTotalGastoGrupoMes(double totalGastoGrupoMes) {
 		this.totalGastoGrupoMes = totalGastoGrupoMes;
+	}
+
+	public LineChartModel getGastosGraficoLinhaMult() {
+		return gastosGraficoLinhaMult;
+	}
+
+	public void setGastosGraficoLinhaMult(LineChartModel gastosGraficoLinhaMult) {
+		this.gastosGraficoLinhaMult = gastosGraficoLinhaMult;
+	}
+
+	public LineChartModel getReceitasGraficoLinhaMult() {
+		return receitasGraficoLinhaMult;
+	}
+
+	public void setReceitasGraficoLinhaMult(LineChartModel receitasGraficoLinhaMult) {
+		this.receitasGraficoLinhaMult = receitasGraficoLinhaMult;
+	}
+
+	public double getTotalReceitaGrupoMesAnterior() {
+		return totalReceitaGrupoMesAnterior;
+	}
+
+	public void setTotalReceitaGrupoMesAnterior(double totalReceitaGrupoMesAnterior) {
+		this.totalReceitaGrupoMesAnterior = totalReceitaGrupoMesAnterior;
+	}
+
+	public double getTotalGastoGrupoMesAnterior() {
+		return totalGastoGrupoMesAnterior;
+	}
+
+	public void setTotalGastoGrupoMesAnterior(double totalGastoGrupoMesAnterior) {
+		this.totalGastoGrupoMesAnterior = totalGastoGrupoMesAnterior;
 	}
 
 }

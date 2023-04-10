@@ -71,13 +71,13 @@
                              paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                              resizableColumns="true"
-                             rows="20"
+                             rows="100"
   							 id="tbl" var="professorTab"
 							 value="#{relatorioController.lazyDataModelMes}"
 							 >
    <!-- rowsPerPageTemplate="25,50,100" -->
    
-   					<p:ajax event="rowSelect"  update="panelFerramentas" />
+   					<p:ajax event="rowSelect"  update="panelFerramentas,panelConversas" />
 					<f:facet name="{Exporters}">
 						<h:commandLink>
 							<p:graphicImage name="/gfx/excel.png" width="24" />
@@ -188,6 +188,16 @@
 						<h:outputText value="#{professorTab.escola.name}" />
 					</p:column>	
 
+					<p:column style="text-align: center; width:7%" 	styleClass="#{alunoController.marcarLinha(professorTab)}">
+						<f:facet name="header">
+							<h:outputText value="Ver conversa" />
+						</f:facet>
+						
+							<p:commandButton value="Conversa" type="button" icon="pi pi-external-link" onclick="PF('dlg1').show()"/>
+							
+					</p:column>
+
+
 					<p:column style="text-align: center; width:6%" 
 					styleClass="#{alunoController.marcarLinha(professorTab)}">
 						<f:facet name="header">
@@ -199,6 +209,7 @@
 								<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
 							</p:commandLink>
 					</p:column>
+					
 
 				</p:dataTable>
 
@@ -207,5 +218,79 @@
 			</h:panelGrid>
 
 		</h:form>
+		
+		<p:dialog header="Header" widgetVar="dlg1" height="500" width="1150" showEffect="fade">
+	   	 		<p class="m-0">
+	   	 		<h:panelGrid id="panelConversas" columns="1" border="0">
+						
+						<h:panelGrid columns="5" border="0">
+						<p:commandButton title=""
+							value="#{relatorioController.aluno.contatoTelefone1} #{relatorioController.aluno.contatoNome1}"
+							style="font-size: 11px; width:200px">
+							<p:ajax
+								listener="#{alunoController.getMensagens(relatorioController.aluno.contatoTelefone1)}"
+								event="click" update="panelConversas" />
+						</p:commandButton>
+				
+						<p:commandButton title="" rendered="#{relatorioController.aluno.contatoTelefone2 != null}"
+							value="#{relatorioController.aluno.contatoTelefone2} #{relatorioController.aluno.contatoNome2}"
+							style="font-size: 11px; width:200px">
+							<p:ajax
+								listener="#{alunoController.getMensagens(relatorioController.aluno.contatoTelefone2)}"
+								event="click" update="panelConversas" />
+						</p:commandButton>
+				
+						<p:commandButton title="" rendered="#{relatorioController.aluno.contatoTelefone3 != null}"
+							value="#{relatorioController.aluno.contatoTelefone3} #{relatorioController.aluno.contatoNome3}"
+							style="font-size: 11px; width:200px">
+							<p:ajax
+								listener="#{alunoController.getMensagens(relatorioController.aluno.contatoTelefone3)}"
+								event="click" update="panelConversas" />
+						</p:commandButton>
+				
+						<p:commandButton title="" rendered="#{relatorioController.aluno.contatoTelefone4 != null}"
+							value="#{relatorioController.aluno.contatoTelefone4} #{relatorioController.aluno.contatoNome4}"
+							style="font-size: 11px; width:200px">
+							<p:ajax
+								listener="#{alunoController.getMensagens(relatorioController.aluno.contatoTelefone4)}"
+								event="click" update="panelConversas" />
+						</p:commandButton>
+				
+						<p:commandButton title=""
+							value="#{relatorioController.aluno.contatoTelefone5} #{relatorioController.aluno.contatoNome5}"
+							style="font-size: 11px; width:200px" rendered="#{relatorioController.aluno.contatoTelefone5 != null}">
+							<p:ajax
+								listener="#{alunoController.getMensagens(relatorioController.aluno.contatoTelefone5)}"
+								event="click" update="panelConversas" />
+						</p:commandButton>
+					</h:panelGrid>
+						<hr />
+					
+						<br />
+						<br />
+					<p:panelGrid id="panelMensagens">
+						<ui:repeat  value="#{alunoController.getListaMensagens()}"
+							var="mensagem">
+							
+							<h:panelGrid  id="panelX" rendered="#{mensagem.primeiro}"	style="background: lightgray;width:90%">
+								<h:outputText value="#{mensagem.text}" style="background: lightgray;"/>
+							</h:panelGrid>
+				
+							<h:panelGrid rendered="#{not mensagem.primeiro}" style="float: right;width:90%;text-align: end;" >
+								<h:outputText value="#{mensagem.text}" />
+								
+							</h:panelGrid>
+				
+						</ui:repeat>
+						                 
+				
+					</p:panelGrid>
+				
+				
+	
+			</h:panelGrid>
+ 	 		</p>
+	</p:dialog>			
+		
 	</ui:define>
 </ui:composition>

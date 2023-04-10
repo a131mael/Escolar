@@ -32,8 +32,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.escolar.enums.CanalMensagem;
+import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.enums.Serie;
+import org.escolar.enums.StatusContratoEnum;
 import org.escolar.enums.TipoMensagem;
 import org.escolar.enums.TipoMobilidadeEnum;
 import org.escolar.model.Aluno;
@@ -48,6 +50,7 @@ import org.escolar.service.FinanceiroService;
 import org.escolar.service.MensagemAlunoService;
 import org.escolar.service.PromessaPagamentoService;
 import org.escolar.service.RelatorioService;
+import org.escolar.service.TabelaPrecoService;
 import org.escolar.util.Util;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
@@ -86,6 +89,8 @@ public class RelatorioController implements Serializable {
 	private Aluno aluno;
 
 	private Integer anoSelecionado;
+	
+	private StatusContratoEnum statusContrato;
 	
 	private Integer mesSelecionadoRelatorio;
 
@@ -139,6 +144,10 @@ public class RelatorioController implements Serializable {
 
 	private LazyDataModel<Aluno> lazyListDataModelQuantidade;
 	private LazyDataModel<Aluno> lazyListDataModelMes;
+	private LazyDataModel<Aluno> lazyListDataModelContrato;
+	
+	@Inject
+	private TabelaPrecoService tabelaPrecoService;
 
 	public double getNotasEnviadas(int mes) {
 		return relatorioService.getTotalNotasEmitidas(mes);
@@ -618,8 +627,7 @@ public class RelatorioController implements Serializable {
 					List<Aluno> ol = financeiroService.findAlunoQuantidade(first, pageSize, orderByParam, orderParam,
 							filtros);
 					if (ol != null && ol.size() > 0) {
-						lazyListDataModelQuantidade.setRowCount(
-								(Integer.valueOf(getQuantidadeAtrasadosPorQuantidade(quantidadeAtrasados))));
+						lazyListDataModelQuantidade.setRowCount(ol.size() +1);
 						return ol;
 					}
 
@@ -763,7 +771,7 @@ public class RelatorioController implements Serializable {
 
 					List<Aluno> ol = financeiroService.findAlunoMes(first, pageSize, orderByParam, orderParam, filtros);
 					if (ol != null && ol.size() > 0) {
-						lazyListDataModelMes.setRowCount(Integer.parseInt(getTotalCriancasDevendo(mesAtrasado)));
+						lazyListDataModelMes.setRowCount(ol.size() +1);
 						return ol;
 					}
 
@@ -774,6 +782,70 @@ public class RelatorioController implements Serializable {
 			lazyListDataModelMes.setRowCount(Integer.parseInt(getTotalCriancasDevendo(mesAtrasado)));
 		}
 		return lazyListDataModelMes;
+	}
+	
+	public LazyDataModel<Aluno> getLazyDataModelContrato() {
+		if (lazyListDataModelContrato == null) {
+
+			lazyListDataModelContrato = new LazyDataModel<Aluno>() {
+
+				@Override
+				public Aluno getRowData(String rowKey) {
+					return alunoService.findById(Long.valueOf(rowKey));
+				}
+
+				@Override
+				public Object getRowKey(Aluno al) {
+					return al.getId();
+				}
+
+				@Override
+				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,
+						Map<String, Object> where) {
+
+					Map<String, Object> filtros = new HashMap<String, Object>();
+
+					filtros.putAll(where);
+					if (filtros.containsKey("periodo")) {
+						filtros.put("periodo", filtros.get("periodo").equals("MANHA") ? PerioddoEnum.MANHA
+								: filtros.get("periodo").equals("TARDE") ? PerioddoEnum.TARDE : PerioddoEnum.INTEGRAL);
+					}
+					
+					if (statusContrato != null ) {
+						filtros.put("statusContrato", statusContrato);
+					}
+
+					if (filtros.containsKey("escola")) {
+						String escolaSelecionada = filtros.get("escola").toString();
+						
+						for(EscolaEnum escola :EscolaEnum.values()) {
+							if (escolaSelecionada.equals(escola.name())) {
+								filtros.put("escola", escola);
+							}
+						}
+					}
+
+					String orderByParam = (order != null) ? order : "id";
+					String orderParam = ("ASCENDING".equals(so.name())) ? "asc" : "desc";
+
+					Object obj = Util.getAtributoSessao("mesAtrasado");
+					if (obj != null) {
+						mesAtrasado = (int) obj;
+					}
+
+					List<Aluno> ol = financeiroService.findAlunosStatusContrato(first, pageSize, orderByParam, orderParam, filtros);
+					if (ol != null && ol.size() > 0) {
+						lazyListDataModelContrato.setRowCount(Integer.parseInt(getTotalCriancasDevendo(mesAtrasado)));
+						return ol;
+					}
+
+					this.setRowCount(Integer.parseInt(getTotalCriancasDevendo(mesAtrasado)));
+					return null;
+				}
+			};
+			lazyListDataModelContrato.setRowCount(Integer.parseInt(getTotalCriancasDevendo(mesAtrasado)));
+		}
+		return lazyListDataModelContrato;
 	}
 
 	public Aluno getAluno() {
@@ -832,11 +904,41 @@ public class RelatorioController implements Serializable {
 		List<MensagemAluno> mensagens = mensagemAlunoService.findByParam(idAluno, String.valueOf(mes), String.valueOf(ano), CanalMensagem.WHATSAPP);
 		return !mensagens.isEmpty();
 	}
-
+	
+	public void saveStatusContrato(Aluno aluno) {
+		alunoService.saveStatusCntrato(aluno);
+	}
 	
 	public void enviarMensagemBoletoAtrasado(long idAluno) {
 		Aluno aluno = alunoService.findById(idAluno);
 
+		Calendar c = Calendar.getInstance();
+		c.set(Calendar.MONTH, mesAtrasado -1 );
+		c.set(Calendar.YEAR,anoSelecionado);
+		
+		Calendar hj = Calendar.getInstance();
+		
+		
+		String  mensagem = "atrasado";
+		if(c.get(Calendar.YEAR) < hj.get(Calendar.YEAR)) {
+			mensagem = "aviso_vencimento_boleto2";
+		}
+		
+		if(c.get(Calendar.YEAR) <= hj.get(Calendar.YEAR)) {
+			if(c.get(Calendar.MONTH) < hj.get(Calendar.MONTH)) {
+				mensagem = "aviso_vencimento_boleto2";
+			}
+		}
+		
+		if(c.get(Calendar.YEAR) <= hj.get(Calendar.YEAR)) {
+			if(c.get(Calendar.MONTH) <= hj.get(Calendar.MONTH)) {
+				if( hj.get(Calendar.DAY_OF_MONTH) > 20) {
+					mensagem = "aviso_vencimento_boleto2";
+				}
+			}
+		}
+		
+		
 		List<Parametro> parametros = new ArrayList<Parametro>();
 		
 		
@@ -844,10 +946,13 @@ public class RelatorioController implements Serializable {
 		parametros.add(new Parametro("2", getMes(mesAtrasado)));
 
 		List<String> telefones = aluno.contatosWhatsValido();
+		
+		
 
 		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
 			for (String telefone : telefones) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefone, parametros);
+				
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefone, parametros);
 
 				if (enviado) {
 					MensagemAluno msg = new MensagemAluno();
@@ -866,7 +971,7 @@ public class RelatorioController implements Serializable {
 		} else {
 
 			if (telefones.get(0) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(0), parametros);
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(0), parametros);
 				aluno.setContato1WhatsValido(enviado);
 
 				if (enviado) {
@@ -884,7 +989,7 @@ public class RelatorioController implements Serializable {
 			}
 
 			if (telefones.get(1) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(1), parametros);
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(1), parametros);
 				aluno.setContato2WhatsValido(enviado);
 
 				if (enviado) {
@@ -903,7 +1008,7 @@ public class RelatorioController implements Serializable {
 			}
 
 			if (telefones.get(2) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(2), parametros);
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(2), parametros);
 				aluno.setContato3WhatsValido(enviado);
 				if (enviado) {
 					MensagemAluno msg = new MensagemAluno();
@@ -921,7 +1026,7 @@ public class RelatorioController implements Serializable {
 			}
 
 			if (telefones.get(3) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(3), parametros);
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(3), parametros);
 				aluno.setContato4WhatsValido(enviado);
 
 				if (enviado) {
@@ -939,7 +1044,7 @@ public class RelatorioController implements Serializable {
 			}
 
 			if (telefones.get(4) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(4), parametros);
+				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(4), parametros);
 				aluno.setContato5WhatsValido(enviado);
 
 				if (enviado) {
@@ -1105,6 +1210,127 @@ public class RelatorioController implements Serializable {
 		}
 	}
 	
+	private double getValor(int mesMatricula, Aluno aluno2, int anoRematricula) {
+		double valor = tabelaPrecoService.getValor(mesMatricula, aluno2, anoRematricula);
+		return valor;
+	}
+	
+	public void enviarMensagemRematricula(long idAluno) {
+		Aluno aluno = alunoService.findById(idAluno);
+		List<Parametro> parametros = new ArrayList<Parametro>();
+		parametros.add(new Parametro("name", getNomeResponsavelDevedor(aluno, anoSelecionado)));
+		parametros.add(new Parametro("1", getValor(1, aluno, configuracao.getAnoRematricula()) + ""));
+		parametros.add(new Parametro("2", getValor(2, aluno, configuracao.getAnoRematricula()) +""));
+
+
+		List<String> telefones = aluno.contatosWhatsValido();
+
+		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
+			for (String telefone : telefones) {
+			boolean enviado =	EnviadorWhats.enviarWhats("rematricula", telefone, parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+		} else {
+
+			if (telefones.get(0) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(0), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(1) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(1), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(2) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(2), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(3) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(3), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(4) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(4), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+		
+		}
+		
+	}
+	
+	public void enviarMensagemRematricula2(long idAluno) {
+		Aluno aluno = alunoService.findById(idAluno);
+		List<Parametro> parametros = new ArrayList<Parametro>();
+		//parametros.add(new Parametro("name", getNomeResponsavelDevedor(aluno, anoSelecionado)));
+		//parametros.add(new Parametro("1", getValor(1, aluno, configuracao.getAnoRematricula()) + ""));
+		//parametros.add(new Parametro("2", getValor(2, aluno, configuracao.getAnoRematricula()) +""));
+
+
+		List<String> telefones = aluno.contatosWhatsValido();
+
+		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
+			for (String telefone : telefones) {
+			boolean enviado =	EnviadorWhats.enviarWhats("rematricula_terceira", telefone, parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+		} else {
+
+			if (telefones.get(0) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(0), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(1) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(1), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(2) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(2), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(3) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(3), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+
+			if (telefones.get(4) != null) {
+				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(4), parametros);
+				if (enviado) {
+					alunoService.setStatusCONVITE_ENVIADO(aluno);
+				}
+			}
+		
+		}
+		
+	}
+	
 	
 	public void enviarMensagemCancelamentoContrato(long idAluno) {
 		Aluno aluno = alunoService.findById(idAluno);
@@ -1266,6 +1492,14 @@ public class RelatorioController implements Serializable {
 	public void setMesSelecionadoRelatorio(Integer mesSelecionadoRelatorio) {
 		Util.addAtributoSessao("mesSelecionadoRelatorio", mesSelecionadoRelatorio);
 		this.mesSelecionadoRelatorio = mesSelecionadoRelatorio;
+	}
+
+	public StatusContratoEnum getStatusContrato() {
+		return statusContrato;
+	}
+
+	public void setStatusContrato(StatusContratoEnum statusContrato) {
+		this.statusContrato = statusContrato;
 	}
 
 

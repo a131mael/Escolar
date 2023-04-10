@@ -24,8 +24,8 @@
 				<f:selectItems value="#{CombosEspeciaisMB.getMesesValorInteiroCorreto()}"
 					var="country" itemLabel="#{country}" itemValue="#{country}" 
 					/>
-			<p:ajax event="change" process="@this" listener="#{graficosController.remontarGraficosComMes()}" update="j_idt61:paneisGastros" />
-		</p:selectOneMenu>	
+			<p:ajax event="change" process="@this" listener="#{graficosController.remontarGraficosComMes()}" update="paneisGastros" />
+			</p:selectOneMenu>	
 		</h:panelGrid>
 		</h:panelGrid>
 	
@@ -302,37 +302,23 @@
 			 	<p:ajax event="itemSelect" listener="#{graficosController.itemSelect}"/>
 			</p:chart>
 			
+			<p:chart type="line" model="#{graficosController.gastosGraficoLinhaMult}" style="height:700px;" >
+			 	<p:ajax event="itemSelect" listener="#{graficosController.itemSelect}"/>
+			</p:chart>
+			
+			
 			<h:panelGrid columns="2" styleClass="alinharTopo"> 
-				<h:outputLabel value="Gastos" />
 				<h:outputLabel value="Receitas" />
-				<p:dataTable styleClass="alinharTopo"  style="width:100%" sortField="#{gasto.value}" sortBy="#{gasto.value}" var="gasto" value="#{graficosController.getGastosPorGrupo()}"  >
+				<h:outputLabel value="Gastos" />
+					<p:dataTable styleClass="alinharTopo" style="width:100%;"  var="gasto" value="#{graficosController.getReceitasPorGrupo2()}"  >
 					<p:column headerText="Grupo">
 						<h:outputText value="#{gasto.key}" />
 						<f:facet name="footer">
 	              		  <h:outputText value="Total"/>
 	            		</f:facet>
 					</p:column>
-					<p:column headerText="Valor">
-						<h:outputText value="#{gasto.value}" >
-							<f:convertNumber type="currency" currencySymbol="R$" />
-						</h:outputText>
-						<f:facet name="footer">
-	              		  <h:outputText value="#{graficosController.totalGastoGrupoMes}">
-	              		  	<f:convertNumber type="currency" currencySymbol="R$" />	
-	              		  </h:outputText>
-	            		</f:facet>
-					</p:column>
-				</p:dataTable>
-				
-				<p:dataTable styleClass="alinharTopo" style="width:100%;" sortField="#{gasto.value}" sortBy="#{gasto.value}" var="gasto" value="#{graficosController.getReceitasPorGrupo()}"  >
-					<p:column headerText="Grupo">
-						<h:outputText value="#{gasto.key}" />
-						<f:facet name="footer">
-	              		  <h:outputText value="Total"/>
-	            		</f:facet>
-					</p:column>
-					<p:column headerText="Valor">
-						<h:outputText value="#{gasto.value}"  >
+					<p:column headerText="Mês atual">
+						<h:outputText value="#{gasto.value.get(0)}"  >
 							<f:convertNumber type="currency" currencySymbol="R$" />
 						</h:outputText>
 						<f:facet name="footer">
@@ -341,7 +327,80 @@
 	              		  </h:outputText>
 	            		</f:facet>
 					</p:column>
+					
+					<p:column headerText="Mês anterior">
+						<h:outputText value="#{gasto.value.get(1)}"  >
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+						<f:facet name="footer">
+	              		  <h:outputText value="#{graficosController.totalReceitaGrupoMesAnterior}">
+	              		  	<f:convertNumber type="currency" currencySymbol="R$" />
+	              		  </h:outputText>
+	            		</f:facet>
+					</p:column>
+					
+					<p:column headerText="Diferença" styleClass="#{graficosController.marcarLinha(gasto.value.get(0) - gasto.value.get(1))}" >
+						<h:outputText value="#{gasto.value.get(0) - gasto.value.get(1)}"  >
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+						<f:facet name="footer">
+	              		  <h:outputText value="#{graficosController.totalReceitaGrupoMes - graficosController.totalReceitaGrupoMesAnterior }" 
+	              		  styleClass="#{graficosController.marcarLinha(graficosController.totalReceitaGrupoMes -graficosController.totalReceitaGrupoMesAnterior  )}">
+	              		  	<f:convertNumber type="currency" currencySymbol="R$" />
+	              		  </h:outputText>
+	            		</f:facet>
+					</p:column>
+					
+					
+					
 				</p:dataTable>
+				
+				
+				<p:dataTable styleClass="alinharTopo"  style="width:100%"  var="gasto" value="#{graficosController.getGastosPorGrupo2()}"  >
+					<p:column headerText="Grupo">
+						<h:outputText value="#{gasto.key}" />
+						<f:facet name="footer">
+	              		  <h:outputText value="Total"/>
+	            		</f:facet>
+					</p:column>
+					<p:column headerText="Atual">
+						<h:outputText value="#{gasto.value.get(0)}" >
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+				
+						<f:facet name="footer">
+	              		  <h:outputText value="#{graficosController.totalGastoGrupoMes}">
+	              		  	<f:convertNumber type="currency" currencySymbol="R$" />	
+	              		  </h:outputText>
+	            		</f:facet>
+					</p:column>
+					
+					<p:column headerText="Mês anterior">
+						<h:outputText value="#{gasto.value.get(1)}" >
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+						<f:facet name="footer">
+	              		  <h:outputText value="#{graficosController.totalGastoGrupoMesAnterior}">
+	              		  	<f:convertNumber type="currency" currencySymbol="R$" />	
+	              		  </h:outputText>
+	            		</f:facet>
+					</p:column>
+					
+					<p:column headerText="Diferença">
+						<h:outputText value="#{gasto.value.get(0) - gasto.value.get(1)}" styleClass="#{graficosController.marcarLinha(gasto.value.get(1) - gasto.value.get(0))}" >
+							<f:convertNumber type="currency" currencySymbol="R$" />
+						</h:outputText>
+						<f:facet name="footer">
+	              		  <h:outputText value="#{graficosController.totalGastoGrupoMes - graficosController.totalGastoGrupoMesAnterior }" 
+	              		  styleClass="#{graficosController.marcarLinha(graficosController.totalGastoGrupoMesAnterior -graficosController.totalGastoGrupoMes  )}"  >
+	              		  	<f:convertNumber type="currency" currencySymbol="R$" />
+	              		  </h:outputText>
+	            		</f:facet>
+					</p:column>
+					
+				</p:dataTable>
+				
+			
 			
 			</h:panelGrid>
 			

@@ -58,32 +58,44 @@
 								</h:panelGrid>
 								
 								<h:outputLabel value="RG Responsável: "
-									style="font-size: 13px; width:180px" />
+									style="font-size: 13px; width:180px" rendered="false"/>
 								<p:inputText value="#{contratoAluno.rgResponsavel}"
-									style="font-size: 15px; width:275px">
+									style="font-size: 15px; width:275px" rendered="false">
 								</p:inputText>
 								
 								<h:outputLabel value="Endereço: "
 									style="font-size: 13px; width:180px" />
 								<p:inputText value="#{contratoAluno.endereco}"
 											style="font-size: 15px; width:275px">
+												<p:ajax event="change" listener="#{alunoController.salvarNumeroCasa(contratoAluno)}"/>
+								</p:inputText>
+								<h:outputLabel value="N casa "
+									style="font-size: 13px; width:180px" />
+								<p:inputText value="#{contratoAluno.enderecoNumero}"
+											style="font-size: 15px; width:275px">
+											<p:ajax event="change" listener="#{alunoController.salvarNumeroCasa(contratoAluno)}"/>
 								</p:inputText>
 	
 								<h:outputLabel value="Bairro: "
 									style="font-size: 13px; width:180px" />
 								<p:inputText value="#{contratoAluno.bairro}"
 											style="font-size: 15px; width:275px">
+											<p:ajax event="change" listener="#{alunoController.salvarNumeroCasa(contratoAluno)}"/>
 								</p:inputText>
 								
 								<h:outputLabel value="Cidade: "
 									style="font-size: 13px; width:180px" />
 								<p:inputText value="#{contratoAluno.cidade}"
 											style="font-size: 15px; width:275px">
+											<p:ajax event="change" listener="#{alunoController.salvarNumeroCasa(contratoAluno)}"/>
 								</p:inputText>
 	
 								<h:outputLabel value="CEP: " style="font-size: 13px; width:180px" />
 								<p:inputMask id="cpf" value="#{contratoAluno.cep}" mask="99 999-999"
-											style="font-size: 15px; width:275px" />
+											style="font-size: 15px; width:275px" >
+											
+											<p:ajax event="change" listener="#{alunoController.salvarCPFcontrato(contratoAluno)}"/>
+											</p:inputMask>
 								
 	
 	

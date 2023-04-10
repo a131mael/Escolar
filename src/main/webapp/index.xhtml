@@ -1,62 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    JBoss, Home of Professional Open Source
-    Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
-    contributors by the @authors tag. See the copyright.txt in the
-    distribution for a full listing of individual contributors.
+<ui:composition 
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	template="/WEB-INF/templates/default.xhtml">
+	<ui:define name="content">
+	
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    template="/WEB-INF/templates/default.xhtml">
-    <ui:define name="content">
-        <center><h1>TEFAMEL</h1></center>
+		<div style="width: 100%">
+					
+				<div id="custom_html-2" style="border-top: solid; border-top-color: #FFFF00;padding-top: 2b0px; width:100%;height:500px " class="imagemDeFundo">
+					
+					<div class="topnav2">
+					<div class="login-container">
+						<a  style="color: white" href="/Escolar/index.xhtml">Home</a> 
+						<a  style="color: white" href="/Escolar/escolar.xhtml">Transporte Escolar</a> 
+						<a  style="color: white" href="/Escolar/turismo.xhtml">Turismo</a> 
+						<a  style="color: white" href="/Escolar/contato.xhtml">Contato</a>
+					</div>
+				
+				</div>
+				<div style=" margin-left: 30px;padding-top: 20px;">
+					<img src="resources/gfx/logo tefamel.png" width="160"  height="60"/>
+				</div >
+					<br/><br/>
+					<div style="width: 500px;padding-left: 80px;    font-size: 22px;">
+						<i style="width: 10px; font-size:22px;  text-align: center; margin-right: 4px; color: #00006a;">Turismo.</i>
+					</div>
+					<div style="width: 500px;padding-left: 80px">
+						<i style="width: 10px; text-align: center; margin-right: 4px; color: #00006a;"><pre>   Atuando a 30 anos no transporte de passageiros, sempre com o lema segurança e qualidade.</pre> </i>
+					</div>
+					<div style="width: 500px;padding-left: 80px;    font-size: 22px;">
+						<button class="button button5">Faça seu orçamento </button>
+						<button class="button button5">Conheça nossa Frota </button>
+					</div>
+				</div>
+				
+				<div id="custom_html-2" style="border-top: solid; border-top-color: #FFFF00;padding-top: 2b0px; width:100%;height:500px; float: right; " class="imagemDeFundoEscolar">
+					
+					<br/><br/>
+					<br/><br/>
+					<br/><br/>
+					<div style="width: 500px;  font-size: 22px; float: right;" >
+						<i style="width: 10px; font-size:22px;  text-align: center; margin-right: 4px; color: #00006a;">Transporte Escolar.</i>
+					</div>
+					<div style="width: 500px; float: right;padding-top: 20px">
+						<i style="width: 10px; text-align: center; margin-right: 4px; color: #00006a;">
+							<pre style="font-size: 15px">    Transporte Escolar Favo de mel e Turismo. Localizado em Palhoça/SC a 30 anos atuando no transporte escolar em palhoça. </pre>
+							</i>
+					</div>
+					<div style="width: 500px;padding-left: 80px;    font-size: 22px; float: right;">
+						<button class="button button5">Entre em contato </button>
+						<button class="button button5">Conheça os locais de atuação </button>
+					</div>
+				</div>
+				
+				<div id="custom_html-2" style="margin-left: 30px; border-top: solid; border-top-color: #FFFF00;padding-top: 10px" >
+					<h5 class="widget-title">CONTATO</h5><div class="textwidget custom-html-widget">
+					<div style="line-height: 2;font-size: 15px;">
+					<i class="fa fa-location-arrow" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> R. Manoel Joaquim de Souza, 97 - Bela Vista, Palhoça - SC, 88132-710<br/>
+					<i class="fa fa-phone" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> Telefones: (48) 3093-0042 <br/>
+					<i class="fa fa-whatsapp" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> Whatsapp: (48) 3093-0042 <br/>
+					<i class="fa fa-clock-o" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> Horário de Atendimento: das 08h às 12h e das 13h30 às 18h<br/>
+					<i class="fa fa-calendar" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> De segunda-feira a sexta-feira<br/>
+					<i class="fa fa-envelope-o" style="width: 15px; text-align: center; margin-right: 4px; color: #00006a;"></i> E-mail: tefameltur@gmail.com<br/></div></div>
+				</div>
+				
+				
+				
+		</div>
 
-	<center>
-        <div>
-            <p>TEFAMEL - Transporte Escolar e Turismo</p>
-            <a href="http://www.tefamel.com/">Site oficial</a>
-            <p> </p>
-            <img src="resources/gfx/logo tefamel.png" width="390"/>
-        </div>
 
-        <h:form id="reg">
-            <h2>Acesso restrito!</h2>
-            <p>Coloque seu usuario e senha.</p>
-            <h:panelGrid columns="3" columnClasses="titleCell">
-                <h:outputLabel for="name" value="Usuário:" />
-                <h:inputText id="name" value="#{authUser.login}" />
-                <h:message for="name" errorClass="invalid" />
 
-                <h:outputLabel for="email" value="Senha:" />
-                <h:inputSecret  id="email" value="#{authUser.senha}" />
-                <h:message for="email" errorClass="invalid" />
-                
-            </h:panelGrid>
 
-            <p>
-                <h:panelGrid columns="2">
-                    <h:commandButton id="login"
-                        action="#{authController.login()}"
-                        value="Entrar" styleClass="register" />
-                    <h:messages styleClass="messages"
-                        errorClass="invalid" infoClass="valid"
-                        warnClass="warning" globalOnly="true" />
-                </h:panelGrid>
-            </p>
-        </h:form>
-        
- </center>
-    </ui:define>
+		
+
+
+
+
+	</ui:define>
 </ui:composition>

@@ -264,7 +264,8 @@ public class AlunoController implements Serializable {
 		configuracao = configuracaoService.getConfiguracao();
 		setPromessaNova(new PromessaPagamentoBoleto());
 	}
-
+	
+	
 	public LazyDataModel<Aluno> getLazyDataModelCanceladas() {
 		if (lazyListDataModelCanceladas == null) {
 
@@ -783,7 +784,7 @@ public class AlunoController implements Serializable {
 	
 	public List<PromessaPagamentoBoleto> getPromessasContratoAberta(Aluno aluno) {
 		List<PromessaPagamentoBoleto> promessas = new ArrayList<>();
-		if (aluno.getId() != null) {
+		if (aluno != null && aluno.getId() != null) {
 			promessas = promessaPagamentoService.findByAluno(aluno.getId(),true);
 		}
 		
@@ -1228,11 +1229,20 @@ public class AlunoController implements Serializable {
 	public String getNomeResponsavelDevedor(Aluno al) {
 		String nomeResponsavelDev = "";
 		for (ContratoAluno ca : al.getContratos()) {
-			nomeResponsavelDev += ca.getNomeResponsavel();
-			nomeResponsavelDev += "// \n";
-			nomeResponsavelDev += " <br>";
+			nomeResponsavelDev = ca.getNomeResponsavel();
+			//nomeResponsavelDev += "// \n";
+			//nomeResponsavelDev += " <br>";
 		}
 		return nomeResponsavelDev;
+
+	}
+	
+	public String getTemIrmao(Aluno al) {
+		if(al.getIrmao1() != null) {
+			return "Sim";
+		}else {
+			return "Não";
+		}
 
 	}
 	
@@ -1823,7 +1833,14 @@ public class AlunoController implements Serializable {
 		Util.addAtributoSessao("contrato", contrato);
 		Util.addAtributoSessao("aluno", contrato.getAluno());
 		this.aluno = contrato.getAluno();
-
+	}
+	
+	public void salvarNumeroCasa(ContratoAluno contrato) {
+		alunoService.saveNumeroCasa(contrato);
+	}
+	
+	public void salvarCPFcontrato(ContratoAluno contrato) {
+		alunoService.saveCPF(contrato);
 	}
 
 	public String voltar() {

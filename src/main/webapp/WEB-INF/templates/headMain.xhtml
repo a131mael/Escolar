@@ -32,7 +32,10 @@
 			<p:menuitem value="Canceladas Atuais" url="../aluno/canceladas.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 		
-			<p:menuitem value="Todes" url="../aluno/indexRoot.jsf"	icon="ui-icon-pencil" 
+			<p:menuitem value="Todas" url="../aluno/indexRoot.jsf"	icon="ui-icon-pencil" 
+					rendered="#{authController.hasPermission(authController.dono)}"/>
+					
+			<p:menuitem value="Controle Contrato" url="../aluno/contratoEntregueAssinado.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.dono)}"/>
 							
 			<p:menuitem value="Todas" url="../aluno/indexFinanceiro.jsf" icon="ui-icon-pencil" 
@@ -64,8 +67,7 @@
 		<p:menuitem value="Relatórios" url="../relatorio/index.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 
-		<p:menuitem value="Calendario" url="../calendario/index.jsf" icon="ui-icon-close" 
-					rendered="false"/>
+		<p:menuitem value="Frete" url="../frete/index.jsf" icon="ui-icon-close" />
 
 		<p:submenu label="Financeiro" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}" >
 				
@@ -91,6 +93,9 @@
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.financeiro,authController.dono)}" />
 			
 				<p:menuitem value="Protestar" url="../secretaria/protestos.jsf" icon="ui-icon-close" 
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
+					
+				<p:menuitem value="Protesto confirmado" url="../secretaria/protestosConfirmadosWebService.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 				
 				<p:menuitem value="Enviado para Protesto" url="../secretaria/protestados.jsf" icon="ui-icon-close" 

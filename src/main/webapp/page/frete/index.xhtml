@@ -1,0 +1,219 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<script type="text/javascript">
+    PrimeFaces.locales['pt'] = {
+        closeText: 'Fechar',
+        prevText: 'geri',
+        nextText: 'ileri',
+        currentText: 'Hoje',
+        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+            'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+        monthNamesShort: ['Jan','Fev','Mar','Abr','Maio','Jun',
+            'Jul','Ago','Set','Out','Nov','Dez'],
+        dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sabado'],
+        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
+        dayNamesMin: ['D','S','T','Q','Q','S','S'],
+        weekHeader: 'Hf',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: '',
+        month: 'Mes',
+        week: 'Semana',
+        day: 'Dia',
+        allDayText : 'Horas'
+    };
+</script>
+		<h:form id="formFrete" style="width:100%; border:none; height:100%" >
+
+			<p:growl id="messages" showDetail="true" />
+
+			<p:dialog widgetVar="eventDialog" header="Adicionar Frete"
+				showEffect="clip" hideEffect="clip" >
+				<h:panelGrid id="eventDetails" columns="2" width="400px" >
+					
+					
+					<p:outputLabel for="title" value="Contratante:" styleClass="labeltipoexpand" />
+					<h:panelGrid columns="2" style="width: 250px;height: 26px;">
+						<p:inputText id="title" value="#{calendarioController.frete.contratante.nome}" disabled="true" style="width: 220px"/>
+						<p:commandButton icon="s fa fa-configuracao" oncomplete=";PF('eventContratant').show();" /> 
+					</h:panelGrid>
+					
+					<p:outputLabel for="carro" value="Carro:" styleClass="labeltipoexpand"/>
+					 <p:selectCheckboxMenu id="carro"  
+					 					  styleClass="carroPersonalizadoFrte"
+                                          style="float: left; width: 260px"
+                                          updateLabel="true"
+                                           converter="converterCarro"
+                                           value="#{calendarioController.carrosSelecionados}">
+                                <f:selectItems value="#{CombosEspeciaisMB.getCarrosSelectItem()}" />
+
+                    </p:selectCheckboxMenu> 
+
+					<p:outputLabel for="origem" value="Origem:" styleClass="labeltipoexpand"/>
+					<p:inputText id="origem" value="#{calendarioController.frete.localOrigem}" style="width: 250px" />
+					
+					<p:outputLabel for="destino" value="Destino:" styleClass="labeltipoexpand"/>
+					<p:inputText id="destino" value="#{calendarioController.frete.localDestino}"  style="width: 250px" />
+					
+					<p:outputLabel for="to" value="Horario Saída:" styleClass="labeltipoexpand" />
+					<p:calendar id="to" value="#{calendarioController.frete.horarioLocalOrigem}" 
+						timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm" style="width: 250px !important"/>
+						
+					<p:outputLabel for="from" value="Horario retorno :" styleClass="labeltipoexpand"/>
+					<p:calendar id="from" value="#{calendarioController.frete.horarioParaRetorno}"
+						timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm" style="width: 250px !important"/>
+					
+				
+					<p:outputLabel for="valor" value="Valor :" styleClass="labeltipoexpand" />
+					<p:inputNumber id="valor"  
+								   styleClass="imputnumbervalue"					
+									thousandSeparator=" " 
+									symbolPosition=","  value="#{calendarioController.frete.valor}"	style="width: 250px"/>
+					
+					<p:outputLabel for="valorpago" value="Valor PAGO:" styleClass="labeltipoexpand" />
+					<p:inputNumber id="valorpago" 
+									styleClass="imputnumbervalue"
+									symbolPosition=","
+									thousandSeparator=" " 
+									value="#{calendarioController.frete.valorPago}"	
+									style="width: 250px; " />
+									
+					<p:outputLabel value="Valor pago Motorista:" styleClass="labeltipoexpand" />
+					<p:inputNumber id="valorpagomotora" 
+									styleClass="imputnumbervalue"
+									symbolPosition=","
+									thousandSeparator=" " 
+									value="#{calendarioController.frete.valorPagoMotorista}"	
+									style="width: 250px; " />				
+				
+					<p:outputLabel value="Forma de Pagamento:" styleClass="labeltipoexpand" />
+					<p:selectOneMenu style="width: 236px;" value="#{calendarioController.frete.formaPagamento}">
+					<f:selectItems value="#{CombosEspeciaisMB.getFormaPagamentoSelectIItem()}"
+									var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}" />
+						<p:ajax event="change" process="@this" />
+					</p:selectOneMenu>
+				
+					<p:commandButton id="salvarFrte" value="Salvar" update="formFrete:panelSche,eventDetails">
+						<p:ajax event="click" update="formFrete:panelSche,eventDetails" process="eventDetails" 
+							listener="#{calendarioController.salvarFrete()}"  
+							oncomplete="PF('eventDialog').hide();"
+							/>
+							
+						</p:commandButton>
+				</h:panelGrid>
+			</p:dialog>
+			
+			
+			<p:dialog widgetVar="eventContratant" header="Contratante"	showEffect="clip" hideEffect="clip" width="400px" >
+				<h:panelGrid id="contratantePanel" columns="2">
+					
+					<p:outputLabel for="title" value="CPF/CNPJ" styleClass="labeltipoexpand"/>
+					<p:inputText id="cnpj" value="#{calendarioController.frete.contratante.CPF_CNPJ}" style="width: 250px"
+						required="false"  >
+						<p:ajax event="blur" process="@this" listener="#{calendarioController.buscarContratanteCPF()}" update="contratantePanel"/>
+					</p:inputText>
+
+					<p:outputLabel for="nome" value="Nome" styleClass="labeltipoexpand"/>
+					<p:inputText id="nome" value="#{calendarioController.frete.contratante.nome}" style="width: 250px">
+						<p:ajax event="blur" process="@this" />
+					</p:inputText>
+
+					<p:outputLabel for="tele1" value="Telefone 1" styleClass="labeltipoexpand" />
+					<p:inputMask id="tele1" value="#{calendarioController.frete.contratante.telefone1}"  mask="(99) 999-99 99 99" style="width: 250px">
+						<p:ajax event="blur" process="@this" />
+					</p:inputMask>
+
+					<p:outputLabel for="tele2" value="Telefone 2" styleClass="labeltipoexpand" />
+					<p:inputMask id="tele2" value="#{calendarioController.frete.contratante.telefone2}"  mask="(99) 999-99 99 99" style="width: 250px">
+						<p:ajax event="blur" process="@this" />
+					</p:inputMask>
+						
+					<p:outputLabel for="email" value="Email" styleClass="labeltipoexpand"/>
+					<p:inputText id="email" value="#{calendarioController.frete.contratante.email}" style="width: 250px" >
+					 	<f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+						<p:ajax event="blur" process="@this" />
+					</p:inputText>
+
+
+					<p:outputLabel for="obs" value="Observacao" styleClass="labeltipoexpand" />
+					<p:inputTextarea id="obs" value="#{calendarioController.frete.contratante.descricao}" style=" height: 80px;width: 250px;" >
+						<p:ajax event="blur" process="@this" />
+					</p:inputTextarea>
+
+
+					<p:commandButton id="addButton" value="Salvar" process="formFrete:eventDetails,@this"
+						actionListener="#{calendarioController.salvarContratante()}"
+						oncomplete="PF('eventContratant').hide();" update="formFrete:eventDetails"/>
+				</h:panelGrid>
+			</p:dialog>
+
+			<br/>
+
+		<h:panelGrid columns="4">
+			<p:panelGrid columns="2" style="margin-right: 50px;">
+				<h:outputLabel value="Total em caixa" style="width: 100%" styleClass="labeltipoexpand"/>
+				<h:outputLabel value="#{calendarioController.getTotalEmCaixa()}" >
+						<f:convertNumber pattern="##,###.00" />
+				</h:outputLabel>
+			</p:panelGrid>
+			
+			<p:panelGrid columns="2" style="margin-right: 50px;">
+				<h:outputLabel value="Total recebido " style="width: 100%" styleClass="labeltipoexpand"/>
+				<h:outputLabel value="#{calendarioController.getValorRecebidoMes()}" >
+						<f:convertNumber pattern="##,###.00" />
+				</h:outputLabel>
+			</p:panelGrid>
+			
+			<p:panelGrid columns="2" style="margin-right: 50px;">
+				<h:outputLabel value="Total recebido em dinheiro" style="width: 100%" styleClass="labeltipoexpand"/>
+				<h:outputLabel value="#{calendarioController.getValorRecebidoDinheiro()}" >
+					<f:convertNumber pattern="##,###.00" />
+				</h:outputLabel>
+			</p:panelGrid>
+			
+			<p:panelGrid columns="2">
+				<h:outputLabel value="Total pago motoristas" style="width: 100%" styleClass="labeltipoexpand"/>
+				<h:outputLabel value="#{calendarioController.getValorRecebidoDinheiro()}" >
+					<f:convertNumber pattern="##,###.00" />
+				</h:outputLabel>
+			</p:panelGrid>
+
+		</h:panelGrid>
+
+	
+			<br/>
+			
+			<h:panelGrid id="panelSche" columnClasses="value" width="98%" style="height:100%">
+				<p:schedule id="schedule" value="#{calendarioController.eventModel}" 
+					locale="pt" widgetVar="myschedule" timeZone="GMT-3"
+					style="width:100%;height:100%">
+
+					 <p:ajax event="dateSelect" listener="#{calendarioController.onDateSelect}"
+						update="eventDetails" oncomplete="PF('eventDialog').show();" />
+					<p:ajax event="eventSelect"
+						listener="#{calendarioController.onEventSelect}" update="eventDetails"
+						oncomplete="PF('eventDialog').show();" />
+					<p:ajax event="eventMove" listener="#{calendarioController.onEventMove}"
+						update="messages" />
+					<p:ajax event="eventResize"
+						listener="#{calendarioController.onEventResize}" update="messages" />
+						
+					<p:ajax event="eventResize"
+						listener="#{calendarioController.onEventResize}" update="messages" />
+
+				</p:schedule>
+
+			</h:panelGrid>
+
+
+
+		</h:form>
+	</ui:define>
+</ui:composition>

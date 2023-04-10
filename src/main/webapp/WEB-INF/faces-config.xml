@@ -407,6 +407,16 @@
 	</navigation-rule>
 	
 	<navigation-rule>
+		<from-view-id>/page/aluno/contratoEntregueAssinado.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>cadastrar</from-outcome>
+			<to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		
+	</navigation-rule>
+	
+	<navigation-rule>
 		<from-view-id>/page/financeiro/baixaManual.xhtml</from-view-id>
 		<navigation-case>
 			<from-outcome>veraluno</from-outcome>

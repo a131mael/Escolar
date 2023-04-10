@@ -17,6 +17,7 @@
 package org.escola.controller.aluno;
 
 import java.io.Serializable;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,7 +73,7 @@ public class PedidoMatriculaController implements Serializable {
 		contratoAlun.getAluno().setAtivo(true);
 		contratoAlun.getAluno().setCodigo(alunoservice.getProximoCodigo() + "");
 		contratoAlun.getAluno().setCpfResponsavel(contratoAlun.getCpfResponsavel());
-		contratoAlun.getAluno().setNomeResponsavel(contratoAlun.getNomeResponsavel());
+		contratoAlun.getAluno().setNomeResponsavel(removerAcentos(contratoAlun.getNomeResponsavel()));
 		contratoAlun.getAluno().setRemovido(false);
 		contratoAlun.getAluno().setEnderecoAluno(contratoAlun.getAluno().getEndereco());
 		Aluno alper = alunoservice.saveAluno(contratoAlun.getAluno(), true);
@@ -87,6 +88,10 @@ public class PedidoMatriculaController implements Serializable {
 		//alunoservice.saveContrato(contratoAlun);
 		init();
 		return "enviadoComSucesso";
+	}
+	
+	public static String removerAcentos(String str) {
+	    return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 	}
 
 	public String onFlowProcess(FlowEvent event) {

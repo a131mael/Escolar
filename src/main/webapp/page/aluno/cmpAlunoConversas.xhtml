@@ -56,22 +56,17 @@
 		<ui:repeat  value="#{alunoController.getListaMensagens()}"
 			var="mensagem">
 			
-			
-			<p:panelGrid id="panelX" rendered="#{mensagem.primeiro}"	style="background: lightgray;">
+			<h:panelGrid  id="panelX" rendered="#{mensagem.primeiro}"	style="background: lightgray;width:100%">
 				<h:outputText value="#{mensagem.text}" style="background: lightgray;"/>
-				<br />
-				<br />
-			</p:panelGrid>
+			</h:panelGrid>
 
-			<p:panelGrid rendered="#{not mensagem.primeiro}">
+			<h:panelGrid rendered="#{not mensagem.primeiro}" style="float: right;width:100%;text-align: end;" >
 				<h:outputText value="#{mensagem.text}" />
-				<br />
-				<br />
-			</p:panelGrid>
-
+				
+			</h:panelGrid>
 
 		</ui:repeat>
-
+		                 
 
 	</p:panelGrid>
 
