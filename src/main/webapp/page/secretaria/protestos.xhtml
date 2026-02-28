@@ -81,7 +81,7 @@
 					paginatorPosition="bottom"
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} 
                                          {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
-					resizableColumns="true" rows="20"
+					resizableColumns="true" rows="100"
 					rowsPerPageTemplate="20,50,100,200,300" id="tbl" var="contratoalunotab"
 					value="#{devedorController.lazyListDataModelProtestoWebService}">
 					<!-- rowsPerPageTemplate="25,50,100" -->
@@ -116,7 +116,7 @@
 					<p:column filterBy="#{contratoalunotab.numero}"
 						style="text-align: center;width:9%;"
 						styleClass="#{devedorController.marcarLinha(contratoalunotab)}"
-						headerText="Nº contrato">
+						headerText="Nº contrato" width="5%">
 						<h:outputText value="#{contratoalunotab.numero}" />
 					</p:column>
 					
@@ -134,7 +134,7 @@
                               headerText="Contato "
                               styleClass="#{devedorController.marcarLinha(contratoalunotab)}"
                               width="12%"
-                              >
+                              rendered="false">
 							<p:panelGrid columns="2" rendered="#{devedorController.temcontato(contratoalunotab.aluno.contatoTelefone1)}">
 			                        <h:outputText value="#{contratoalunotab.aluno.contatoNome1}" />
 									<h:outputText value="#{contratoalunotab.aluno.contatoTelefone1}" />
@@ -166,7 +166,7 @@
 						<h:outputText value="#{contratoalunotab.cpfResponsavel}" />
 					</p:column>
 
-				<p:column style="text-align: center;width:20%;"
+				<p:column style="text-align: center;width:30%;"
 						 styleClass="#{devedorController.marcarLinha(contratoalunotab)}"
 						headerText="boletos">
 						<br/>
@@ -213,11 +213,11 @@
 						</h:outputText>
 					</p:column>
 				
-					<p:column id="colunaComentario" style="text-align: center;width:10%;">
+					<p:column id="colunaComentario" style="text-align: center;width:12%;">
 			 	         <h:outputText id="modelInput" value="#{devedorController.getMessage(contratoalunotab.comentarioWebService) }" style="width:98%;height:120px" />
 					</p:column>
 					
-					<p:column style="text-align: center;width:10%;">
+					<p:column style="text-align: center;width:12%;">
 			 	        <p:fileUpload accept="pdf" 
 			 	        process="@this" fileUploadListener="#{devedorController.handleFileUpload}" auto="false"/>
 					

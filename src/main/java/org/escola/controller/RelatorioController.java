@@ -31,14 +31,15 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.aaf.escolar.enums.EscolaEnum;
 import org.escolar.enums.CanalMensagem;
-import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.enums.Serie;
 import org.escolar.enums.StatusContratoEnum;
 import org.escolar.enums.TipoMensagem;
 import org.escolar.enums.TipoMobilidadeEnum;
 import org.escolar.model.Aluno;
+import org.escolar.model.Boleto;
 import org.escolar.model.Carro;
 import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
@@ -87,6 +88,8 @@ public class RelatorioController implements Serializable {
 	private PromessaPagamentoService promessaPagamentoService;
 
 	private Aluno aluno;
+	
+	private Boleto boleto;
 
 	private Integer anoSelecionado;
 	
@@ -94,10 +97,11 @@ public class RelatorioController implements Serializable {
 	
 	private Integer mesSelecionadoRelatorio;
 
-	private List<Aluno> devedores = new ArrayList<Aluno>();
+	private List<Aluno> devedores ;
 
 	@PostConstruct
 	private void init() {
+		devedores = new ArrayList<Aluno>();
 		setConfiguracao(configuracaoService.getConfiguracao());
 		Object obj = Util.getAtributoSessao("aluno");
 		if (obj != null) {
@@ -143,22 +147,22 @@ public class RelatorioController implements Serializable {
 	private int mesSelecionado = 1;
 
 	private LazyDataModel<Aluno> lazyListDataModelQuantidade;
-	private LazyDataModel<Aluno> lazyListDataModelMes;
+	private LazyDataModel<Boleto> lazyListDataModelMes;
 	private LazyDataModel<Aluno> lazyListDataModelContrato;
 	
 	@Inject
 	private TabelaPrecoService tabelaPrecoService;
 
 	public double getNotasEnviadas(int mes) {
-		return relatorioService.getTotalNotasEmitidas(mes);
+		return relatorioService.getTotalNotasEmitidas(mes,anoSelecionado);
 	}
 
 	public List<String> getResponsaveisNotasEnviadas(int mes) {
-		return relatorioService.getResponsaveisNotasEnviadas(mes);
+		return relatorioService.getResponsaveisNotasEnviadas(mes,anoSelecionado);
 	}
 
 	public List<String> getResponsaveisNotasEnviadas() {
-		return relatorioService.getResponsaveisNotasEnviadas(mesSelecionado);
+		return relatorioService.getResponsaveisNotasEnviadas(mesSelecionado,anoSelecionado);
 	}
 
 	public int quantidadeIrmaos(Aluno aluno) {
@@ -656,9 +660,20 @@ public class RelatorioController implements Serializable {
 	}
 
 	public String verDevedor(int posicao) {
-		if (devedores != null) {
-			aluno = alunoService.findById(devedores.get(posicao).getId());
-			Util.addAtributoSessao("aluno", aluno);
+		if (devedores == null || devedores.isEmpty()) {
+			Map<String, Object> filtros = new HashMap<String, Object>();
+			filtros.put("quantidadeDevedores", 30);
+			filtros.put("anoSelecionado", anoSelecionado);
+			if (devedores == null || devedores.isEmpty()) {
+				devedores = financeiroService.findMaioresDevedores(filtros);
+			}
+		}
+		aluno = alunoService.findById(devedores.get(posicao).getId());
+		Util.addAtributoSessao("aluno", aluno);
+		
+		
+		if (devedores.size() <= posicao) {
+			return "";
 		}
 		return "verdevedor";
 	}
@@ -693,6 +708,10 @@ public class RelatorioController implements Serializable {
 		return "cadastrar";
 	}
 
+	public String editarBol() {
+		return editar(getBoleto().getPagador().getId());
+	}
+	
 	public String editar() {
 		return editar(getAluno().getId());
 	}
@@ -710,23 +729,23 @@ public class RelatorioController implements Serializable {
 		FacesContext.getCurrentInstance().addMessage(null, msg);
 	}
 
-	public LazyDataModel<Aluno> getLazyDataModelMes() {
+	public LazyDataModel<Boleto> getLazyDataModelMes() {
 		if (lazyListDataModelMes == null) {
 
-			lazyListDataModelMes = new LazyDataModel<Aluno>() {
+			lazyListDataModelMes = new LazyDataModel<Boleto>() {
 
 				@Override
-				public Aluno getRowData(String rowKey) {
-					return alunoService.findById(Long.valueOf(rowKey));
+				public Boleto getRowData(String rowKey) {
+					return alunoService.findBoletoById(Long.valueOf(rowKey));
 				}
 
 				@Override
-				public Object getRowKey(Aluno al) {
+				public Object getRowKey(Boleto al) {
 					return al.getId();
 				}
 
 				@Override
-				public List<Aluno> load(int first, int pageSize, String order, SortOrder so,
+				public List<Boleto> load(int first, int pageSize, String order, SortOrder so,
 						Map<String, Object> where) {
 
 					Map<String, Object> filtros = new HashMap<String, Object>();
@@ -769,7 +788,7 @@ public class RelatorioController implements Serializable {
 					filtros.put("mesAtrasado", mesAtrasado);
 					filtros.put("anoSelecionado", anoSelecionado);
 
-					List<Aluno> ol = financeiroService.findAlunoMes(first, pageSize, orderByParam, orderParam, filtros);
+					List<Boleto> ol = financeiroService.findAlunoMes2(first, pageSize, orderByParam, orderParam, filtros);
 					if (ol != null && ol.size() > 0) {
 						lazyListDataModelMes.setRowCount(ol.size() +1);
 						return ol;
@@ -856,6 +875,16 @@ public class RelatorioController implements Serializable {
 		this.aluno = aluno;
 	}
 
+	public Boleto getBoleto() {
+		return boleto;
+	}
+
+	public void setBoleto(Boleto aluno) {
+		this.boleto = aluno;
+		this.aluno = boleto.getPagador();
+	}
+
+	
 	public Integer getAnoSelecionado() {
 		return anoSelecionado;
 	}
@@ -909,6 +938,16 @@ public class RelatorioController implements Serializable {
 		alunoService.saveStatusCntrato(aluno);
 	}
 	
+	
+	private boolean contemTipo(List<MensagemAluno> mensagens, TipoMensagem tipo) {
+		for(MensagemAluno mensagem : mensagens) {
+			if(mensagem.getTipo().equals(tipo)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void enviarMensagemBoletoAtrasado(long idAluno) {
 		Aluno aluno = alunoService.findById(idAluno);
 
@@ -938,132 +977,231 @@ public class RelatorioController implements Serializable {
 			}
 		}
 		
-		
 		List<Parametro> parametros = new ArrayList<Parametro>();
+		List<MensagemAluno> mensagens= mensagemAlunoService.findByParam(idAluno, mesAtrasado+"", anoSelecionado+"", CanalMensagem.WHATSAPP);
 		
-		
-		parametros.add(new Parametro("1", getNomeResponsavelDevedor(aluno, anoSelecionado)));
-		parametros.add(new Parametro("2", getMes(mesAtrasado)));
+		if(mensagens == null || mensagens.isEmpty()) {
+			mensagem = "suave";
+			parametros.add(new Parametro("dia", getMes(mesAtrasado)));
+			
+			
+		}else if(contemTipo(mensagens,TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO)) {
+			mensagem = "suave3";
+			parametros.add(new Parametro("1", getNomeResponsavelDevedor(aluno, anoSelecionado)));
+		}else {
+			mensagem = "suave2";
+			parametros.add(new Parametro("1", getNomeResponsavelDevedor(aluno, anoSelecionado)));
+			parametros.add(new Parametro("2", getMes(mesAtrasado))); // esta ok
+			parametros.add(new Parametro("3", " 20 de " + getMes(mesAtrasado))); //+10 dias do vencimento
+		}
 
 		List<String> telefones = aluno.contatosWhatsValido();
 		
-		
+		if(telefones == null || telefones.isEmpty()) {
+			telefones = new ArrayList<String>();
+			if(aluno.getContatoTelefone1() != null && aluno.getContatoTelefone1().length() > 7) {
+				telefones.add(aluno.getContatoTelefone1());
+			}
+			if(aluno.getContatoTelefone2() != null && aluno.getContatoTelefone2().length() > 7) {
+				telefones.add(aluno.getContatoTelefone2());
+			}
+			if(aluno.getContatoTelefone3() != null && aluno.getContatoTelefone3().length() > 7) {
+				telefones.add(aluno.getContatoTelefone3());
+			}
+			if(aluno.getContatoTelefone4() != null && aluno.getContatoTelefone4().length() > 7) {
+				telefones.add(aluno.getContatoTelefone4());
+			}
+			if(aluno.getContatoTelefone5() != null && aluno.getContatoTelefone5().length() > 7) {
+				telefones.add(aluno.getContatoTelefone5());
+			}
+		}
+		enviarWhats(aluno, mensagem, parametros, telefones);
 
-		if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
-			for (String telefone : telefones) {
+	}
+
+	private void enviarWhats(Aluno aluno, String mensagem, List<Parametro> parametros, List<String> telefones) {
+		if(telefones != null && !telefones.isEmpty()) {
+			if (aluno.isJaTestousContatosWhats() != null && aluno.isJaTestousContatosWhats()) {
+				for (String telefone : telefones) {
+					
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefone, parametros);
+
+					
+					
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefone);
+						mensagemAlunoService.save(msg);
+						
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefone));
+					}
+
+				}
+			} else {
+
+				if (telefones.get(0) != null) {
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(0), parametros);
+					aluno.setContato1WhatsValido(enviado);
+
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefones.get(0));
+						mensagemAlunoService.save(msg);
+						
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefones.get(0)));
+					}
+				}
+
+				if (telefones.get(1) != null) {
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(1), parametros);
+					aluno.setContato2WhatsValido(enviado);
+
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefones.get(1));
+						mensagemAlunoService.save(msg);
+						
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefones.get(1)));
+
+					}
+				}
+
+				if (telefones.get(2) != null) {
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(2), parametros);
+					aluno.setContato3WhatsValido(enviado);
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefones.get(2));
+						mensagemAlunoService.save(msg);
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefones.get(2)));
+					}
+
+				}
+
+				if (telefones.get(3) != null) {
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(3), parametros);
+					aluno.setContato4WhatsValido(enviado);
+
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefones.get(3));
+						mensagemAlunoService.save(msg);
+						
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefones.get(3)));
+					}
+				}
+
+				if (telefones.get(4) != null) {
+					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(4), parametros);
+					aluno.setContato5WhatsValido(enviado);
+
+					if (enviado) {
+						MensagemAluno msg = new MensagemAluno();
+						msg.setAluno(aluno);
+						msg.setMes(mesAtrasado);
+						msg.setAno(anoSelecionado);
+						msg.setMensagem(
+								"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
+						
+						if(mensagem.equalsIgnoreCase("suave")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+						}else if(mensagem.equalsIgnoreCase("suave2")) {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+						}else {
+							msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+						}
+						
+						msg.setCanalMensagem(CanalMensagem.WHATSAPP);
+						msg.setNumeroWhats(telefones.get(4));
+						mensagemAlunoService.save(msg);
+						
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
+								"Mensagem enviada com sucesso para  " + telefones.get(4)));
+					}
+
+				}
+
+				aluno.setJaTestousContatosWhats(true);
+				alunoService.saveContado(aluno);
 				
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefone, parametros);
-
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefone);
-					mensagemAlunoService.save(msg);
-				}
-
+			
 			}
-		} else {
-
-			if (telefones.get(0) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(0), parametros);
-				aluno.setContato1WhatsValido(enviado);
-
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefones.get(0));
-					mensagemAlunoService.save(msg);
-				}
-			}
-
-			if (telefones.get(1) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(1), parametros);
-				aluno.setContato2WhatsValido(enviado);
-
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefones.get(1));
-					mensagemAlunoService.save(msg);
-
-				}
-			}
-
-			if (telefones.get(2) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(2), parametros);
-				aluno.setContato3WhatsValido(enviado);
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefones.get(2));
-					mensagemAlunoService.save(msg);
-				}
-
-			}
-
-			if (telefones.get(3) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(3), parametros);
-				aluno.setContato4WhatsValido(enviado);
-
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefones.get(3));
-					mensagemAlunoService.save(msg);
-				}
-			}
-
-			if (telefones.get(4) != null) {
-				boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(4), parametros);
-				aluno.setContato5WhatsValido(enviado);
-
-				if (enviado) {
-					MensagemAluno msg = new MensagemAluno();
-					msg.setAluno(aluno);
-					msg.setMes(mesAtrasado);
-					msg.setAno(anoSelecionado);
-					msg.setMensagem(
-							"Aviso de Vencimento boleto Olá nome da pessoa, verificamos em nosso sistema que o seu boleto com vencimento em MESVENCIMENTO encontra-se aberto. Lembramos que conforme contrato o transporte fica sujeito a suspensão e posterior cancelamento caso a situação não seja regularizada em até 10 dias. caso tenha efetuado o pagamento favor desconsiderar. Tefamel - Transporte Escolar Favo de Mel");
-					msg.setTipo(TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
-					msg.setCanalMensagem(CanalMensagem.WHATSAPP);
-					msg.setNumeroWhats(telefones.get(4));
-					mensagemAlunoService.save(msg);
-				}
-
-			}
-
-			aluno.setJaTestousContatosWhats(true);
-			alunoService.saveContado(aluno);
 		}
 	}
 	

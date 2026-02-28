@@ -14,11 +14,27 @@
 
 				<p:tabView id="tabs">
 					<p:tab id="dadosALunoTab" title="Dados do aluno">
-					<h:panelGrid columns="2" border="0">
+					
+					<h:panelGrid columns="3" border="0" width="100%">
 						<h:commandButton id="adicionar" value="Adicionar" action="#{alunoController.adicionarIrmao()}" >
 							<p:ajax process="@this" update="form:tabs:panelIrmaos,form:tabs:panelCars"/>
 						</h:commandButton>
-						<p:commandButton id="remover" icon="ui-icon-minusthick" action="#{alunoController.removerIrmao()}" ></p:commandButton>
+						<p:commandButton id="remover" icon="ui-icon-minusthick" value="Separar Crianças" action="#{alunoController.removerIrmao()}" ></p:commandButton>
+						
+						
+						<h:panelGrid columns="2" styleClass="alinharDireita"> 
+						
+							<h:inputText title="" value="#{alunoController.codIrmao}" style="font-size: 15px; width:60px" >
+								<p:ajax event="blur" process="@this"/>
+							</h:inputText>
+							<h:commandButton id="juntar" value="Juntar irmãos" action="#{alunoController.juntarIrmaos()}" >
+								<p:ajax process="@this" update="form:tabs:panelIrmaos,form:tabs:panelCars"/>
+							</h:commandButton>
+						
+						</h:panelGrid>
+						
+						
+						
 					</h:panelGrid>
 					<h:panelGrid id="panelIrmaos" columns="1" border="0">
 					

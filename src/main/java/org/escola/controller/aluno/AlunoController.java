@@ -56,6 +56,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import org.aaf.escolar.enums.EscolaEnum;
 import org.aaf.escolar.nfs.ItemNFS;
 import org.aaf.escolar.nfs.ListaItensNFS;
 import org.aaf.escolar.nfs.NF;
@@ -97,10 +98,10 @@ import org.escolar.controller.OfficePDFUtil;
 import org.escolar.enums.BimestreEnum;
 import org.escolar.enums.CanalMensagem;
 import org.escolar.enums.DisciplinaEnum;
-import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.enums.Serie;
 import org.escolar.enums.StatusBoletoEnum;
+import org.escolar.enums.StatusContratoEnum;
 import org.escolar.enums.TipoMembro;
 import org.escolar.enums.TipoMensagem;
 import org.escolar.model.Aluno;
@@ -163,6 +164,8 @@ public class AlunoController implements Serializable {
 	private boolean irmao3;
 
 	private boolean irmao4;
+	
+	private String codIrmao;
 
 	@Produces
 	@Named
@@ -311,68 +314,20 @@ public class AlunoController implements Serializable {
 						filtros.put("carroPegaEscola", carroService.findByName(carro));
 					}
 
+
 					if (filtros.containsKey("escola")) {
-						String escolaSelecionada = filtros.get("escola").toString();
-						if (escolaSelecionada.equals(EscolaEnum.ADONAI.name())) {
-							filtros.put("escola", EscolaEnum.ADONAI);
-						} else if (escolaSelecionada.equals(EscolaEnum.CEMA.name())) {
-							filtros.put("escola", EscolaEnum.CEMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.CETEK.name())) {
-							filtros.put("escola", EscolaEnum.CETEK);
-						} else if (escolaSelecionada.equals(EscolaEnum.DOM_JAIME.name())) {
-							filtros.put("escola", EscolaEnum.DOM_JAIME);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANA);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANANINHA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANANINHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.EVANDRA_SUELI.name())) {
-							filtros.put("escola", EscolaEnum.EVANDRA_SUELI);
-						} else if (escolaSelecionada.equals(EscolaEnum.INES_MARTA.name())) {
-							filtros.put("escola", EscolaEnum.INES_MARTA);
-						} else if (escolaSelecionada.equals(EscolaEnum.INOVACAO.name())) {
-							filtros.put("escola", EscolaEnum.INOVACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.ITERACAO.name())) {
-							filtros.put("escola", EscolaEnum.ITERACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.JOAO_SILVEIRA.name())) {
-							filtros.put("escola", EscolaEnum.JOAO_SILVEIRA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_DO_CARMO.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_DO_CARMO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_JOSE_MEDEIROS.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_JOSE_MEDEIROS);
-						} else if (escolaSelecionada.equals(EscolaEnum.ZILAR_ROSAR.name())) {
-							filtros.put("escola", EscolaEnum.ZILAR_ROSAR);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOVO_MARIA.name())) {
-							filtros.put("escola", EscolaEnum.VOVO_MARIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOO_LIVRE.name())) {
-							filtros.put("escola", EscolaEnum.VOO_LIVRE);
-						} else if (escolaSelecionada.equals(EscolaEnum.VIVENCIA.name())) {
-							filtros.put("escola", EscolaEnum.VIVENCIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VENCESLAU.name())) {
-							filtros.put("escola", EscolaEnum.VENCESLAU);
-						} else if (escolaSelecionada.equals(EscolaEnum.RODA_PIAO.name())) {
-							filtros.put("escola", EscolaEnum.RODA_PIAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MODELO.name())) {
-							filtros.put("escola", EscolaEnum.MODELO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULLER.name())) {
-							filtros.put("escola", EscolaEnum.MULLER);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULTIPLA_ESCOLHA.name())) {
-							filtros.put("escola", EscolaEnum.MULTIPLA_ESCOLHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.N_S_FATIMA.name())) {
-							filtros.put("escola", EscolaEnum.N_S_FATIMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.NOVA_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.NOVA_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.PARAISO_DO_AMOR.name())) {
-							filtros.put("escola", EscolaEnum.PARAISO_DO_AMOR);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROF_GUILHERME.name())) {
-							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						}
-
+					    String escolaSelecionada = filtros.get("escola").toString();
+					    
+					    EscolaEnum escolaEnum = EscolaEnum.valueOf(escolaSelecionada);
+					    filtros.put("escola", escolaEnum);
+					    
+					    if (escolaEnum != null) {
+					        filtros.put("escola", escolaEnum);
+					    } else {
+					        filtros.remove("escola"); // opcional
+					    }
 					}
-
+					
 					if (filtros.containsKey("serie")) {
 						if (filtros.get("serie").equals(Serie.JARDIM_I.toString())) {
 							filtros.put("serie", Serie.JARDIM_I);
@@ -476,66 +431,18 @@ public class AlunoController implements Serializable {
 						filtros.put("carroPegaEscola", carroService.findByName(carro));
 					}
 
+					
 					if (filtros.containsKey("escola")) {
-						String escolaSelecionada = filtros.get("escola").toString();
-						if (escolaSelecionada.equals(EscolaEnum.ADONAI.name())) {
-							filtros.put("escola", EscolaEnum.ADONAI);
-						} else if (escolaSelecionada.equals(EscolaEnum.CEMA.name())) {
-							filtros.put("escola", EscolaEnum.CEMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.CETEK.name())) {
-							filtros.put("escola", EscolaEnum.CETEK);
-						} else if (escolaSelecionada.equals(EscolaEnum.DOM_JAIME.name())) {
-							filtros.put("escola", EscolaEnum.DOM_JAIME);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANA);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANANINHA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANANINHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.EVANDRA_SUELI.name())) {
-							filtros.put("escola", EscolaEnum.EVANDRA_SUELI);
-						} else if (escolaSelecionada.equals(EscolaEnum.INES_MARTA.name())) {
-							filtros.put("escola", EscolaEnum.INES_MARTA);
-						} else if (escolaSelecionada.equals(EscolaEnum.INOVACAO.name())) {
-							filtros.put("escola", EscolaEnum.INOVACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.ITERACAO.name())) {
-							filtros.put("escola", EscolaEnum.ITERACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.JOAO_SILVEIRA.name())) {
-							filtros.put("escola", EscolaEnum.JOAO_SILVEIRA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_DO_CARMO.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_DO_CARMO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_JOSE_MEDEIROS.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_JOSE_MEDEIROS);
-						} else if (escolaSelecionada.equals(EscolaEnum.ZILAR_ROSAR.name())) {
-							filtros.put("escola", EscolaEnum.ZILAR_ROSAR);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOVO_MARIA.name())) {
-							filtros.put("escola", EscolaEnum.VOVO_MARIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOO_LIVRE.name())) {
-							filtros.put("escola", EscolaEnum.VOO_LIVRE);
-						} else if (escolaSelecionada.equals(EscolaEnum.VIVENCIA.name())) {
-							filtros.put("escola", EscolaEnum.VIVENCIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VENCESLAU.name())) {
-							filtros.put("escola", EscolaEnum.VENCESLAU);
-						} else if (escolaSelecionada.equals(EscolaEnum.RODA_PIAO.name())) {
-							filtros.put("escola", EscolaEnum.RODA_PIAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MODELO.name())) {
-							filtros.put("escola", EscolaEnum.MODELO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULLER.name())) {
-							filtros.put("escola", EscolaEnum.MULLER);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULTIPLA_ESCOLHA.name())) {
-							filtros.put("escola", EscolaEnum.MULTIPLA_ESCOLHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.N_S_FATIMA.name())) {
-							filtros.put("escola", EscolaEnum.N_S_FATIMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.NOVA_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.NOVA_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.PARAISO_DO_AMOR.name())) {
-							filtros.put("escola", EscolaEnum.PARAISO_DO_AMOR);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROF_GUILHERME.name())) {
-							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						}
-
+					    String escolaSelecionada = filtros.get("escola").toString();
+					    
+					    EscolaEnum escolaEnum = EscolaEnum.valueOf(escolaSelecionada);
+					    filtros.put("escola", escolaEnum);
+					    
+					    if (escolaEnum != null) {
+					        filtros.put("escola", escolaEnum);
+					    } else {
+					        filtros.remove("escola"); // opcional
+					    }
 					}
 
 					if (filtros.containsKey("serie")) {
@@ -638,72 +545,18 @@ public class AlunoController implements Serializable {
 						filtros.put("carroPegaEscola", carroService.findByName(carro));
 					}
 
-					if (filtros.containsKey("escola")) {
-						String escolaSelecionada = filtros.get("escola").toString();
-						if (escolaSelecionada.equals(EscolaEnum.ADONAI.name())) {
-							filtros.put("escola", EscolaEnum.ADONAI);
-						} else if (escolaSelecionada.equals(EscolaEnum.CEMA.name())) {
-							filtros.put("escola", EscolaEnum.CEMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.CETEK.name())) {
-							filtros.put("escola", EscolaEnum.CETEK);
-						} else if (escolaSelecionada.equals(EscolaEnum.DOM_JAIME.name())) {
-							filtros.put("escola", EscolaEnum.DOM_JAIME);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANA);
-						} else if (escolaSelecionada.equals(EscolaEnum.ELCANANINHA.name())) {
-							filtros.put("escola", EscolaEnum.ELCANANINHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.EVANDRA_SUELI.name())) {
-							filtros.put("escola", EscolaEnum.EVANDRA_SUELI);
-						} else if (escolaSelecionada.equals(EscolaEnum.INES_MARTA.name())) {
-							filtros.put("escola", EscolaEnum.INES_MARTA);
-						} else if (escolaSelecionada.equals(EscolaEnum.INOVACAO.name())) {
-							filtros.put("escola", EscolaEnum.INOVACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.ITERACAO.name())) {
-							filtros.put("escola", EscolaEnum.ITERACAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.JOAO_SILVEIRA.name())) {
-							filtros.put("escola", EscolaEnum.JOAO_SILVEIRA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_DO_CARMO.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_DO_CARMO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MARIA_JOSE_MEDEIROS.name())) {
-							filtros.put("escola", EscolaEnum.MARIA_JOSE_MEDEIROS);
-						} else if (escolaSelecionada.equals(EscolaEnum.ZILAR_ROSAR.name())) {
-							filtros.put("escola", EscolaEnum.ZILAR_ROSAR);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOVO_MARIA.name())) {
-							filtros.put("escola", EscolaEnum.VOVO_MARIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VOO_LIVRE.name())) {
-							filtros.put("escola", EscolaEnum.VOO_LIVRE);
-						} else if (escolaSelecionada.equals(EscolaEnum.VIVENCIA.name())) {
-							filtros.put("escola", EscolaEnum.VIVENCIA);
-						} else if (escolaSelecionada.equals(EscolaEnum.VENCESLAU.name())) {
-							filtros.put("escola", EscolaEnum.VENCESLAU);
-						} else if (escolaSelecionada.equals(EscolaEnum.RODA_PIAO.name())) {
-							filtros.put("escola", EscolaEnum.RODA_PIAO);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.MODELO.name())) {
-							filtros.put("escola", EscolaEnum.MODELO);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULLER.name())) {
-							filtros.put("escola", EscolaEnum.MULLER);
-						} else if (escolaSelecionada.equals(EscolaEnum.MULTIPLA_ESCOLHA.name())) {
-							filtros.put("escola", EscolaEnum.MULTIPLA_ESCOLHA);
-						} else if (escolaSelecionada.equals(EscolaEnum.N_S_FATIMA.name())) {
-							filtros.put("escola", EscolaEnum.N_S_FATIMA);
-						} else if (escolaSelecionada.equals(EscolaEnum.NOVA_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.NOVA_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.PARAISO_DO_AMOR.name())) {
-							filtros.put("escola", EscolaEnum.PARAISO_DO_AMOR);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROF_GUILHERME.name())) {
-							filtros.put("escola", EscolaEnum.PROF_GUILHERME);
-						} else if (escolaSelecionada.equals(EscolaEnum.PROJETO_ESPERANCA.name())) {
-							filtros.put("escola", EscolaEnum.PROJETO_ESPERANCA);
-						} else if (escolaSelecionada.equals(EscolaEnum.RAIZES.name())) {
-							filtros.put("escola", EscolaEnum.RAIZES);
-						} else if (escolaSelecionada.equals(EscolaEnum.SESC.name())) {
-							filtros.put("escola", EscolaEnum.SESC);
-						} else if (escolaSelecionada.equals(EscolaEnum.EDUCARE.name())) {
-							filtros.put("escola", EscolaEnum.EDUCARE);
-						}
 
+					if (filtros.containsKey("escola")) {
+					    String escolaSelecionada = filtros.get("escola").toString();
+					    
+					    EscolaEnum escolaEnum = EscolaEnum.valueOf(escolaSelecionada);
+					    filtros.put("escola", escolaEnum);
+					    
+					    if (escolaEnum != null) {
+					        filtros.put("escola", escolaEnum);
+					    } else {
+					        filtros.remove("escola"); // opcional
+					    }
 					}
 
 					if (filtros.containsKey("serie")) {
@@ -1237,6 +1090,15 @@ public class AlunoController implements Serializable {
 
 	}
 	
+	public String getCPFResponsavelDevedor(Aluno al){
+		String nomeResponsavelDev = "";
+		for(ContratoAluno ca: al.getContratos()){
+			nomeResponsavelDev = ca.getCpfResponsavel();
+		}
+		return nomeResponsavelDev;
+		
+	}
+	
 	public String getTemIrmao(Aluno al) {
 		if(al.getIrmao1() != null) {
 			return "Sim";
@@ -1430,7 +1292,7 @@ public class AlunoController implements Serializable {
 			trocas.put("finalmensagem",
 					"Informamos que a rematrícula do seu filho(a) está condicionada quitação total das parcelas em aberto até 31/12/"
 							+ ano
-							+ ". Para acertar os valores em aberto favor entrar em contato com o financeiro através dos telefones 3242-4194 ou 9 8489 4221(whatsapp).");
+							+ ". Para acertar os valores em aberto favor entrar em contato com o financeiro através do telefones 3093-0042(whatsapp)");
 		} else {
 			trocas.put("atencaodevedor", "");
 			trocas.put("devedormensagem", "");
@@ -1826,6 +1688,15 @@ public class AlunoController implements Serializable {
 		}
 		return "index";
 	}
+	
+	public void salvarObservacao(ContratoAluno contrato) {
+		alunoService.saveComentario(contrato);
+
+	//	Util.addAtributoSessao("contrato", contrato);
+	//	Util.addAtributoSessao("aluno", contrato.getAluno());
+	//	this.aluno = contrato.getAluno();
+
+	}
 
 	public void salvar(ContratoAluno contrato) {
 		contrato = alunoService.saveContrato(contrato);
@@ -1946,17 +1817,18 @@ public class AlunoController implements Serializable {
 			aluno.setIrmao4(new Aluno());
 		}
 	}
+	
+	public String juntarIrmaos() {
+		alunoService.juntar(aluno,codIrmao);
+		salvar();
+		return "index";
+	}
 
-	public void removerIrmao() {
-		if (isIrmao4()) {
-			setIrmao4(false);
-		} else if (isIrmao3()) {
-			setIrmao3(false);
-		} else if (isIrmao2()) {
-			setIrmao2(false);
-		} else if (isIrmao1()) {
-			setIrmao1(false);
-		}
+	public String removerIrmao() {
+		alunoService.separar(aluno);
+		aluno.setRemocaoIrmao(true);
+		salvar();
+		return "index";
 	}
 
 	public void removerHistorico(long idHistorico) {
@@ -1964,7 +1836,6 @@ public class AlunoController implements Serializable {
 	}
 
 	public String cadastrarNovo() {
-
 		return "exibirAluno";
 	}
 
@@ -2088,7 +1959,7 @@ public class AlunoController implements Serializable {
 			String nomeArquivo = System.currentTimeMillis() + "__"
 					+ aluno.getContratoVigente().getNomeResponsavel().replace(" ", "") + ".xml";
 			String caminho = File.separator + "home" + File.separator + "servidor" + File.separator + "nfs"
-					+ File.separator + "adonai" + File.separator + nomeArquivo;
+					+ File.separator + "tefamel" + File.separator + nomeArquivo;
 
 			marshallerObj.marshal(getNFSeDTO(aluno), new FileOutputStream(caminho));
 
@@ -2141,7 +2012,8 @@ public class AlunoController implements Serializable {
 			tomador.setCpfcnpj(contrato.getCpfResponsavel());
 			tomador.setBairro(contrato.getBairro());
 			tomador.setCep(contrato.getCep().replaceAll("-", "").replaceAll(" ", ""));
-			tomador.setCidade(contrato.getCidade());
+			/* tomador.setCidade(contrato.getCidade()); */
+			tomador.setCidade("8233");
 			tomador.setEmail(aluno.getContatoEmail1());
 			tomador.setNome_razao_social(contrato.getNomeResponsavel());
 			tomador.setLogradouro(contrato.getEndereco());
@@ -2587,7 +2459,7 @@ public class AlunoController implements Serializable {
 				// }
 			}
 			if (a.getRemovido() != null && a.getRemovido()) {
-				cor = "marcarLinhaVermelho";
+				cor = "marcarLinhaVermelho"; 
 				return cor;
 			}
 
@@ -2600,14 +2472,35 @@ public class AlunoController implements Serializable {
 		return cor;
 	}
 
-	private boolean possuiContratoAbertoAnoAtual(Aluno aluno) {
-		for (ContratoAluno contrato : aluno.getContratos()) {
-			if ((contrato.getCancelado() == null || !contrato.getCancelado())
-					&& contrato.getAno() == Short.parseShort(String.valueOf(configuracao.getAnoLetivo()))) {
-				return true;
-			}
+
+	public String marcarLinhaContrato(Aluno a) {
+		String cor = "";
+		if (a != null) {
+			if ( (a.getStatusContrato() != null 
+					&& a.getStatusContrato().equals(StatusContratoEnum.ACEITO_CONTRATO_ENVIADO))
+					|| (a.getStatusContrato() != null && a.getStatusContrato().equals(StatusContratoEnum.ACEITO)) 
+					) {
+				cor = "marcarLinhaAmarelo";
+			} 
 		}
-		return false;
+
+		return cor;
+	}
+
+
+	private boolean possuiContratoAbertoAnoAtual(Aluno aluno) {
+		try {
+			for (ContratoAluno contrato : aluno.getContratos()) {
+				if ((contrato.getCancelado() == null || !contrato.getCancelado())
+						&& contrato.getAno() == Short.parseShort(String.valueOf(configuracao.getAnoLetivo()))) {
+					return true;
+				}
+			}
+			return false;
+		}catch (Exception e) {
+			return true;
+		}
+		
 	}
 
 	public boolean isCnabEnvado() {
@@ -3226,6 +3119,16 @@ public class AlunoController implements Serializable {
 	
 	public List<MensagemWhatsapp> getListaMensagens(){
 		return mensagens;
+	}
+
+
+	public String getCodIrmao() {
+		return codIrmao;
+	}
+
+
+	public void setCodIrmao(String codIrmao) {
+		this.codIrmao = codIrmao;
 	}
 	
 }

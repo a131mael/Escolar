@@ -38,11 +38,11 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.aaf.escolar.enums.EscolaEnum;
 import org.apache.commons.collections4.map.HashedMap;
 import org.escola.auth.AuthController;
 import org.escola.util.FileDownload;
 import org.escolar.controller.OfficePDFUtil;
-import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PegarEntregarEnun;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.model.Aluno;

@@ -265,7 +265,7 @@ public class ConfiguracaoController implements Serializable {
 	public void gerarNFSEDoMesAtual() {
 		Calendar c = Calendar.getInstance();
 		double limitNota = configuracao.getValorNotas();
-		double totalGerado = relatorioService.getTotalNotasEmitidas(c.get(Calendar.MONTH)+1);
+		double totalGerado = relatorioService.getTotalNotasEmitidas(c.get(Calendar.MONTH)+1,configuracao.getAnoLetivo());
 		List<Aluno> todosAlunos = alunoService.findAlunoDoAnoLetivoComLzyContrato();
 		for (Aluno al : todosAlunos) {
 			if (totalGerado < limitNota) {

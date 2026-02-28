@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-                                    
+                                                                    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -8,7 +16,15 @@
     
     
     <wb-module deploy-name="Escolar">
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -17,7 +33,15 @@
         
         
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -26,7 +50,15 @@
         
         
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -35,7 +67,15 @@
         
         
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -50,13 +90,21 @@
         <dependent-module archiveName="Financeiro-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/Financeiro/Financeiro">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="EscolarDTO-0.0.2-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/EscolarDTO/EscolarDTO">
+        <dependent-module archiveName="EscolarDTO-0.0.4-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/EscolarDTO/EscolarDTO">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="base-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/base/base">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -65,7 +113,15 @@
         
         
         <property name="context-root" value="Escolar"/>
-                                                                        
+                                                                                                                                        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
         
@@ -74,7 +130,15 @@
         
         
         <property name="java-output-path" value="/Escolar/target/classes"/>
-                                                                    
+                                                                                                                                    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -83,7 +147,15 @@
     
     
     </wb-module>
-                                
+                                                                
+
+
+
+
+
+
+
+
 
 
 

@@ -34,7 +34,7 @@
 				
 				 <p:tooltip  for="enviarAviso" value="Enviar Whatsapp para TODOS" position="top"/>
 			
-				<p:commandButton id="editar" icon="ui-icon-pencil" update="@form" action="#{relatorioController.editar()}"	alt="Editar" />
+				<p:commandButton id="editar" icon="ui-icon-pencil" update="@form" action="#{relatorioController.editarBol()}"	alt="Editar" />
 				
 				<p:commandLink id="enviarAviso"  alt="Enviar Whatsapp para TODOS"
 							action="#{relatorioController.enviarMensagemBoletoAtrasado()}"	 >
@@ -59,7 +59,7 @@
 				<p:dataTable currentPageReportTemplate="Exibindo: {startRecord}-{endRecord} de {totalRecords} Registros"
                              emptyMessage="#Nenhum registro encontrado"
                              selectionMode="single" 
-                             selection="#{relatorioController.aluno}"
+                             selection="#{relatorioController.boleto}"
                              rowKey="#{professorTab.id}"
                              filterEvent="enter" 
                              lazy="true" 
@@ -73,6 +73,8 @@
                              resizableColumns="true"
                              rows="100"
   							 id="tbl" var="professorTab"
+  							 sortBy="#{professorTab.vencimento}"
+  							 sortField="#{professorTab.vencimento}"
 							 value="#{relatorioController.lazyDataModelMes}"
 							 >
    <!-- rowsPerPageTemplate="25,50,100" -->
@@ -104,14 +106,14 @@
 					<table >
 						<tr>
 							<td  style="width: 25px; border: 0px">
-							<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.id)}">
+							<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}">
 								<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
 							</p:panelGrid>
 							
 							</td>
 							<td style="border: 0px">
-								<p:dataTable value="#{alunoController.getPromessasContratoAberta(professorTab)}" 
-										var="promessa" rendered="#{alunoController.possuiPromessaAberta(professorTab)}">
+								<p:dataTable value="#{alunoController.getPromessasContratoAberta(professorTab.pagador)}" 
+										var="promessa" rendered="#{alunoController.possuiPromessaAberta(professorTab.pagador)}">
 								<p:column width="30%">
 									<h:outputLabel value="#{promessa.dataPromessaPagamento}" >
 										<f:convertDateTime pattern="dd/MM/yyyy" />
@@ -131,64 +133,71 @@
 						
 					</p:column>
 
-					<p:column filterBy="#{professorTab.nomeAluno}"
-                              sortBy="#{professorTab.nomeAluno}" 
+					<p:column filterBy="#{professorTab.pagador.nomeAluno}"
+                              sortBy="#{professorTab.pagador.nomeAluno}" 
                               style="text-align:center;"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
+                              styleClass="#{alunoController.marcarLinha(professorTab.pagador)}"
                               headerText="Nome ">
-						<h:outputText value="#{professorTab.nomeAluno}" />
+						<h:outputText value="#{professorTab.pagador.nomeAluno}" />
 					</p:column>
 					
 					<p:column style="text-align:center;"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
+                              styleClass="#{alunoController.marcarLinhaContrato(professorTab.pagador)}"
                               headerText="responsavel ">
-						<h:outputText value="#{alunoController.getNomeResponsavelDevedor(professorTab)}" />
-					</p:column>
-
-					<p:column filterBy="#{professorTab.periodo}"  width="3%"
-                              sortBy="#{professorTab.periodo}" 
-                              style="text-align:center;width:8%"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
-                              headerText="Periodo "
-                              filterOptions="#{CombosEspeciaisMB.periodosSelectIItem}">
-						<h:outputText value="#{professorTab.periodo.name}" />
+						<h:outputText value="#{alunoController.getNomeResponsavelDevedor(professorTab.pagador)}" />
 					</p:column>
 					
-					<p:column filterBy="#{professorTab.serie}"
-                              sortBy="#{professorTab.serie}" 
+					<p:column style="text-align:center;"
+                              styleClass="#{alunoController.marcarLinha(professorTab.pagador)}"
+                              headerText="CPF ">
+						<h:outputText value="#{alunoController.getCPFResponsavelDevedor(professorTab.pagador)}" />
+					</p:column>
+
+					<p:column filterBy="#{professorTab.vencimento}"  width="5%"
+                              sortBy="#{professorTab.vencimento}" 
+                              style="text-align:center;width:8%"
+                              styleClass="#{alunoController.marcarLinha(professorTab.pagador)}"
+                              headerText="Vencimento ">
+						<h:outputText value="#{professorTab.vencimento}" >
+							<f:convertDateTime pattern="dd/MM/yy" />
+						</h:outputText>
+					</p:column>
+					
+					<p:column filterBy="#{professorTab.pagador.serie}"
+                              sortBy="#{professorTab.pagador.serie}" 
                               style="text-align: center;width:10%;"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
+                              styleClass="#{alunoController.marcarLinha(professorTab.pagador)}"
                               headerText="Contato "
                               filterOptions="#{CombosEspeciaisMB.seriesSelectIItem}">
 								
-								 <h:outputText value="#{professorTab.contatoTelefone1}" />
+								 <h:outputText value="#{professorTab.pagador.contatoTelefone1}" />
 					             <h:outputText value=" " />
-					             <h:outputText value="#{professorTab.contatoNome1}" />
+					             <h:outputText value="#{professorTab.pagador.contatoNome1}" />
 					             <br/>
-					             <h:outputText value="#{professorTab.contatoTelefone2}" />
+					             <h:outputText value="#{professorTab.pagador.contatoTelefone2}" />
 					             <h:outputText value=" " />
-					             <h:outputText value="#{professorTab.contatoNome2}" />
+					             <h:outputText value="#{professorTab.pagador.contatoNome2}" />
 					             <br/>
-					             <h:outputText value="#{professorTab.contatoTelefone3}" />
+					             <h:outputText value="#{professorTab.pagador.contatoTelefone3}" />
 					             <h:outputText value=" " />
-					             <h:outputText value="#{professorTab.contatoNome3}" />
+					             <h:outputText value="#{professorTab.pagador.contatoNome3}" />
 					             <br/>
-					             <h:outputText value="#{professorTab.contatoTelefone4}" />
+					             <h:outputText value="#{professorTab.pagador.contatoTelefone4}" />
 					             <h:outputText value=" " />
-					             <h:outputText value="#{professorTab.contatoNome4}" />						
+					             <h:outputText value="#{professorTab.pagador.contatoNome4}" />						
 
 					</p:column>	
 					
-					<p:column filterBy="#{professorTab.escola}"  width="6%"
-                              sortBy="#{professorTab.escola}" 
+					<p:column filterBy="#{professorTab.pagador.escola}"  width="6%"
+                              sortBy="#{professorTab.pagador.escola}" 
                               style="text-align: center;width:10%;"
-                              styleClass="#{alunoController.marcarLinha(professorTab)}"
+                              styleClass="#{alunoController.marcarLinha(professorTab.pagador)}"
                               headerText="Escola "
                               filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
-						<h:outputText value="#{professorTab.escola.name}" />
+						<h:outputText value="#{professorTab.pagador.escola.name}" />
 					</p:column>	
 
-					<p:column style="text-align: center; width:7%" 	styleClass="#{alunoController.marcarLinha(professorTab)}">
+					<p:column style="text-align: center; width:7%" 	styleClass="#{alunoController.marcarLinha(professorTab.pagador)}">
 						<f:facet name="header">
 							<h:outputText value="Ver conversa" />
 						</f:facet>
@@ -199,13 +208,13 @@
 
 
 					<p:column style="text-align: center; width:6%" 
-					styleClass="#{alunoController.marcarLinha(professorTab)}">
+					styleClass="#{alunoController.marcarLinha(professorTab.pagador)}">
 						<f:facet name="header">
 							<h:outputText value="Enviar whats" />
 						</f:facet>
 						
 							<p:commandLink label="Enviar whats aviso de debito" update="tbl"  
-											action="#{relatorioController.enviarMensagemBoletoAtrasado(professorTab.id)}" >
+											action="#{relatorioController.enviarMensagemBoletoAtrasado(professorTab.pagador.id)}" >
 								<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
 							</p:commandLink>
 					</p:column>

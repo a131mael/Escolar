@@ -33,9 +33,9 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.aaf.escolar.enums.BairroEnum;
+import org.aaf.escolar.enums.EscolaEnum;
 import org.escola.controller.RelatorioController;
-import org.escolar.enums.BairroEnum;
-import org.escolar.enums.EscolaEnum;
 import org.escolar.enums.PerioddoEnum;
 import org.escolar.model.Aluno;
 import org.escolar.model.Carro;
@@ -47,11 +47,9 @@ import org.escolar.service.FaturamentoService;
 import org.escolar.service.FinanceiroService;
 import org.escolar.service.TurmaService;
 import org.escolar.util.Util;
-import org.jfree.chart.axis.CategoryAxis;
 import org.primefaces.event.ItemSelectEvent;
 import org.primefaces.model.chart.Axis;
 import org.primefaces.model.chart.AxisType;
-import org.primefaces.model.chart.BarChartSeries;
 import org.primefaces.model.chart.BubbleChartModel;
 import org.primefaces.model.chart.BubbleChartSeries;
 import org.primefaces.model.chart.ChartSeries;
@@ -175,7 +173,15 @@ public class GraficosController implements Serializable {
 			for (int i = 0; i < ExtratoGruposPagamentoRecebimentoEnum.values().length; i++) {
 				filtros.put("grupoRecebimento", ExtratoGruposPagamentoRecebimentoEnum.values()[i]);
 				double quantidade = (double) extratoBancarioService.count(filtros);
-				if (quantidade > 0) {
+				ExtratoGruposPagamentoRecebimentoEnum grupo = ExtratoGruposPagamentoRecebimentoEnum.values()[i];
+				if (grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.ENTRADA_ACORDO_DIVIDA) || 
+						grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.ENTRADA_BOLETO) ||
+								grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.ENTRADA_FRETE) ||
+										grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.ENTRADA_PIX) ||
+												grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.INDEVIDO) ||
+														grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.NAO_SELECIONADO) ||
+																grupo.equals(ExtratoGruposPagamentoRecebimentoEnum.OUTROS) 
+						) {
 					pieModelRecebimentoGruposMes.set(ExtratoGruposPagamentoRecebimentoEnum.values()[i].getNome(),
 							quantidade);
 					totalReceitaGrupoMes += quantidade;
@@ -324,10 +330,10 @@ public class GraficosController implements Serializable {
 			for (int i = 0; i < ExtratoGruposPagamentoRecebimentoEnum.values().length; i++) {
 				filtros.put("grupoRecebimento", ExtratoGruposPagamentoRecebimentoEnum.values()[i]);
 				double quantidade = (double) extratoBancarioService.count(filtros);
-				if (quantidade > 0) {
+				//if (quantidade > 0) {
 					pieModelGastosGrupoMes.set(ExtratoGruposPagamentoRecebimentoEnum.values()[i].getNome(), quantidade);
 					totalGastoGrupoMes += quantidade;
-				}
+				//}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -39,13 +39,15 @@
 				<h:panelGrid id="eventDetails" columns="2" width="400px" >
 					
 					
-					<p:outputLabel for="title" value="Contratante:" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Contratante:" styleClass="labeltipoexpand" />
 					<h:panelGrid columns="2" style="width: 250px;height: 26px;">
 						<p:inputText id="title" value="#{calendarioController.frete.contratante.nome}" disabled="true" style="width: 220px"/>
-						<p:commandButton icon="s fa fa-configuracao" oncomplete=";PF('eventContratant').show();" /> 
+						<p:commandButton icon="s fa fa-configuracao" oncomplete=";PF('eventContratant').show();" >
+							<p:ajax event="click" listener="#{calendarioController.prepareDialog}" update="formFrete:contratantePanel"/>
+						</p:commandButton> 
 					</h:panelGrid>
 					
-					<p:outputLabel for="carro" value="Carro:" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="Carro:" styleClass="labeltipoexpand"/>
 					 <p:selectCheckboxMenu id="carro"  
 					 					  styleClass="carroPersonalizadoFrte"
                                           style="float: left; width: 260px"
@@ -56,28 +58,28 @@
 
                     </p:selectCheckboxMenu> 
 
-					<p:outputLabel for="origem" value="Origem:" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="Origem:" styleClass="labeltipoexpand"/>
 					<p:inputText id="origem" value="#{calendarioController.frete.localOrigem}" style="width: 250px" />
 					
-					<p:outputLabel for="destino" value="Destino:" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="Destino:" styleClass="labeltipoexpand"/>
 					<p:inputText id="destino" value="#{calendarioController.frete.localDestino}"  style="width: 250px" />
 					
-					<p:outputLabel for="to" value="Horario Saída:" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Horario Saída:" styleClass="labeltipoexpand" />
 					<p:calendar id="to" value="#{calendarioController.frete.horarioLocalOrigem}" 
 						timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm" style="width: 250px !important"/>
 						
-					<p:outputLabel for="from" value="Horario retorno :" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="Horario retorno :" styleClass="labeltipoexpand"/>
 					<p:calendar id="from" value="#{calendarioController.frete.horarioParaRetorno}"
 						timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm" style="width: 250px !important"/>
 					
 				
-					<p:outputLabel for="valor" value="Valor :" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Valor :" styleClass="labeltipoexpand" />
 					<p:inputNumber id="valor"  
 								   styleClass="imputnumbervalue"					
 									thousandSeparator=" " 
 									symbolPosition=","  value="#{calendarioController.frete.valor}"	style="width: 250px"/>
 					
-					<p:outputLabel for="valorpago" value="Valor PAGO:" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Valor PAGO:" styleClass="labeltipoexpand" />
 					<p:inputNumber id="valorpago" 
 									styleClass="imputnumbervalue"
 									symbolPosition=","
@@ -101,7 +103,7 @@
 					</p:selectOneMenu>
 				
 					<p:commandButton id="salvarFrte" value="Salvar" update="formFrete:panelSche,eventDetails">
-						<p:ajax event="click" update="formFrete:panelSche,eventDetails" process="eventDetails" 
+						<p:ajax event="click" update="formFrete:panelSche,eventDetails,formFrete" process="eventDetails" 
 							listener="#{calendarioController.salvarFrete()}"  
 							oncomplete="PF('eventDialog').hide();"
 							/>
@@ -114,35 +116,35 @@
 			<p:dialog widgetVar="eventContratant" header="Contratante"	showEffect="clip" hideEffect="clip" width="400px" >
 				<h:panelGrid id="contratantePanel" columns="2">
 					
-					<p:outputLabel for="title" value="CPF/CNPJ" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="CPF/CNPJ" styleClass="labeltipoexpand"/>
 					<p:inputText id="cnpj" value="#{calendarioController.frete.contratante.CPF_CNPJ}" style="width: 250px"
 						required="false"  >
-						<p:ajax event="blur" process="@this" listener="#{calendarioController.buscarContratanteCPF()}" update="contratantePanel"/>
+						 <p:ajax event="blur" process="@this" listener="#{calendarioController.buscarContratanteCPF()}" update="contratantePanel"/>
 					</p:inputText>
 
-					<p:outputLabel for="nome" value="Nome" styleClass="labeltipoexpand"/>
+					<p:outputLabel value="Nome" styleClass="labeltipoexpand"/>
 					<p:inputText id="nome" value="#{calendarioController.frete.contratante.nome}" style="width: 250px">
 						<p:ajax event="blur" process="@this" />
 					</p:inputText>
 
-					<p:outputLabel for="tele1" value="Telefone 1" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Telefone 1" styleClass="labeltipoexpand" />
 					<p:inputMask id="tele1" value="#{calendarioController.frete.contratante.telefone1}"  mask="(99) 999-99 99 99" style="width: 250px">
 						<p:ajax event="blur" process="@this" />
 					</p:inputMask>
 
-					<p:outputLabel for="tele2" value="Telefone 2" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Telefone 2" styleClass="labeltipoexpand" />
 					<p:inputMask id="tele2" value="#{calendarioController.frete.contratante.telefone2}"  mask="(99) 999-99 99 99" style="width: 250px">
 						<p:ajax event="blur" process="@this" />
 					</p:inputMask>
 						
-					<p:outputLabel for="email" value="Email" styleClass="labeltipoexpand"/>
+					<p:outputLabel  value="Email" styleClass="labeltipoexpand"/>
 					<p:inputText id="email" value="#{calendarioController.frete.contratante.email}" style="width: 250px" >
 					 	<f:validateRegex pattern="[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
 						<p:ajax event="blur" process="@this" />
 					</p:inputText>
 
 
-					<p:outputLabel for="obs" value="Observacao" styleClass="labeltipoexpand" />
+					<p:outputLabel  value="Observacao" styleClass="labeltipoexpand" />
 					<p:inputTextarea id="obs" value="#{calendarioController.frete.contratante.descricao}" style=" height: 80px;width: 250px;" >
 						<p:ajax event="blur" process="@this" />
 					</p:inputTextarea>
@@ -197,14 +199,18 @@
 
 					 <p:ajax event="dateSelect" listener="#{calendarioController.onDateSelect}"
 						update="eventDetails" oncomplete="PF('eventDialog').show();" />
+					
 					<p:ajax event="eventSelect"
 						listener="#{calendarioController.onEventSelect}" update="eventDetails"
 						oncomplete="PF('eventDialog').show();" />
+					
 					<p:ajax event="eventMove" listener="#{calendarioController.onEventMove}"
 						update="messages" />
+					
 					<p:ajax event="eventResize"
 						listener="#{calendarioController.onEventResize}" update="messages" />
 						
+				
 					<p:ajax event="eventResize"
 						listener="#{calendarioController.onEventResize}" update="messages" />
 

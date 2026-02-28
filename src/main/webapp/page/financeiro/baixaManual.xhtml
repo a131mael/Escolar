@@ -43,8 +43,14 @@
 		            <h:outputText value="#{alun.codigo}" />
 		        </p:column>
 		        <p:column headerText="Crianca" styleClass="#{financeiroController.marcarLinha(alun)}">
-		            <h:commandLink target="_blank" value="#{alun.nomeAluno}" action="#{financeiroController.verAluno(alun.id)}" />
+		            <p:commandLink target="_blank" value="#{alun.nomeAluno}" action="#{financeiroController.verAluno(alun.id)}" />
+		            
+		            <h:outputLink target="_blank"   value="#{request.contextPath}/aluno.xhtml?id=#{alun.id}" rendered="false">
+		                #{alun.nomeAluno}
+					</h:outputLink>	
+		            
 		        </p:column>
+			        
 		        <p:column headerText="Responsavel" styleClass="#{financeiroController.marcarLinha(alun)}">
 		            <h:outputText value="#{alun.nomeResponsavel}" />
 		        </p:column>

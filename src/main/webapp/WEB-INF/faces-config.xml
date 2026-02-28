@@ -61,12 +61,31 @@
 			<redirect />
 		</navigation-case>
 		<navigation-case>
+			<from-outcome>Aluno</from-outcome>
+			<to-view-id>/page/cliente/index.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>Filial</from-outcome>
 			<to-view-id>/page/secretaria/index.xhtml</to-view-id>
 			<redirect />
 		</navigation-case>
 		
 	</navigation-rule>
+	<navigation-rule>
+		<from-view-id>/page/aluno/index.xhtml</from-view-id>
+		<navigation-case>
+			<from-outcome>cadastrar</from-outcome>
+			<to-view-id>/page/aluno/cadastrarAluno.xhtml</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>remover</from-outcome>
+			<to-view-id>/page/aluno/removerAluno.xhtml</to-view-id>
+			<redirect />
+		</navigation-case>
+	</navigation-rule>
+	
+	
 	<navigation-rule>
 		<from-view-id>/page/aluno/index.xhtml</from-view-id>
 		<navigation-case>

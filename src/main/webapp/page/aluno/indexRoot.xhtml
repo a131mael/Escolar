@@ -219,9 +219,20 @@
 						<h:outputText value="#{professorTab.anoLetivo}" />
 						<br />
 					</p:column>
+					
+					
+					<p:column filterBy="#{professorTab.escola}"
+						sortBy="#{professorTab.escola.name}"
+						style="text-align:center;width:14%"
+						styleClass="#{alunoController.marcarLinha(professorTab)}"
+						headerText="Escola "
+						filterOptions="#{CombosEspeciaisMB.esolasSelectIItem}">
+						<h:outputText value="#{professorTab.escola.name}" />
+					</p:column>
+
 
 					<p:column style="text-align: center; width:6%"
-						styleClass="#{alunoController.marcarLinha(professorTab)}">
+						styleClass="#{alunoController.marcarLinha(professorTab)}" rendered="false">
 						<f:facet name="header">
 							<h:outputText value="Remover" />
 						</f:facet>

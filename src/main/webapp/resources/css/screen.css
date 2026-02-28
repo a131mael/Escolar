@@ -90,7 +90,7 @@ span.invalid {
 }
 
 .imagemDeFundoEscolar{
-    background-image: url(#{request.contextPath}/resources/gfx/onibusescolar2.png)  ;
+    background-image: url(#{request.contextPath}/resources/gfx/backgroundOnibus.png)  ;
     background-repeat: no-repeat no-repeat;
     background-size: cover;
 }

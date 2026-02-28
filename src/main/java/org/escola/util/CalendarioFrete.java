@@ -81,4 +81,10 @@ public class CalendarioFrete  extends SelectEvent implements ScheduleEvent {
 		return description;
 	}
 
+	@Override
+	public String getUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -206,9 +206,9 @@ public class DevedorController implements Serializable {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 		String endpoint = ConstantesEscolaApi.URL_CARTORIO + ConstantesEscolaApi.ProtestoCartorio;
-		// String endpoint =
-		// "http://localhost:1414/integracao-0.0.1-SNAPSHOT/api/enviarContratoProtesto"
-		// ;
+		
+		 
+		//endpoint ="http://localhost:2020/api/enviarContratoProtesto";
 
 		Parametro p1 = new Parametro("idContrato", getContratoS().getNumero());
 		List<Parametro> parametros = new ArrayList<>();

@@ -116,6 +116,13 @@ public class CalendarioController implements Serializable {
 		return eventos;
 	}
 
+	public void prepareDialog() {
+	    // Do your things.
+		buscarContratanteCPF();
+		frete.getContratante();
+		RequestContext.getCurrentInstance().update("eventContratant");
+	}
+	
 	private void montarAgenda() {
 		Calendar date = Calendar.getInstance();
 		Calendar dateFim = Calendar.getInstance();
@@ -163,6 +170,7 @@ public class CalendarioController implements Serializable {
 			}
 		}
 		RequestContext.getCurrentInstance().update("eventDialog");
+		RequestContext.getCurrentInstance().update("eventContratant");
 	}
 
 	public void salvarContratante() {
@@ -203,6 +211,7 @@ public class CalendarioController implements Serializable {
 	
 	public double getValorRecebidoDinheiro() {
 		Double valor = 0d;
+		
 		if(getEventModel().getEventCount() >0) {
 			Date date = (Date) getEventModel().getEvents().get(0).getStartDate();
 			Calendar c = Calendar.getInstance();
@@ -380,6 +389,8 @@ public class CalendarioController implements Serializable {
 
 		frete = freteService.findById((Long.parseLong(idFrete)));
 		carrosSelecionados = montarCarrosSelecionados(frete.getCarroFrete());
+		
+		RequestContext.getCurrentInstance().update("eventContratant");
 
 	}
 
@@ -400,6 +411,8 @@ public class CalendarioController implements Serializable {
 
 		frete.setHorarioLocalOrigem(date.getTime());
 		frete.setHorarioParaRetorno(dateFim.getTime());
+		
+		RequestContext.getCurrentInstance().update("eventContratant");
 	}
 
 	public void onEventMove(ScheduleEntryMoveEvent event) {
