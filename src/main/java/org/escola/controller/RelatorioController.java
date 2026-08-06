@@ -1121,7 +1121,7 @@ public class RelatorioController implements Serializable {
 					}
 				}
 
-				if (telefones.get(1) != null) {
+				if (telefones.size() > 1 && telefones.get(1) != null) {
 					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(1), parametros);
 					aluno.setContato2WhatsValido(enviado);
 
@@ -1149,7 +1149,7 @@ public class RelatorioController implements Serializable {
 					}
 				}
 
-				if (telefones.get(2) != null) {
+				if (telefones.size() > 2 && telefones.get(2) != null) {
 					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(2), parametros);
 					aluno.setContato3WhatsValido(enviado);
 					if (enviado) {
@@ -1177,7 +1177,7 @@ public class RelatorioController implements Serializable {
 
 				}
 
-				if (telefones.get(3) != null) {
+				if (telefones.size() > 3 && telefones.get(3) != null) {
 					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(3), parametros);
 					aluno.setContato4WhatsValido(enviado);
 
@@ -1206,7 +1206,7 @@ public class RelatorioController implements Serializable {
 					}
 				}
 
-				if (telefones.get(4) != null) {
+				if (telefones.size() > 4 && telefones.get(4) != null) {
 					boolean enviado = EnviadorWhats.enviarWhats(mensagem, telefones.get(4), parametros);
 					aluno.setContato5WhatsValido(enviado);
 
@@ -1296,7 +1296,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(1) != null) {
+			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(1), parametros);
 				aluno.setContato2WhatsValido(enviado);
 
@@ -1318,7 +1318,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(2) != null) {
+			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(2), parametros);
 				aluno.setContato3WhatsValido(enviado);
 				if (enviado) {
@@ -1339,7 +1339,7 @@ public class RelatorioController implements Serializable {
 
 			}
 
-			if (telefones.get(3) != null) {
+			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(3), parametros);
 				aluno.setContato4WhatsValido(enviado);
 
@@ -1360,7 +1360,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(4) != null) {
+			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(4), parametros);
 				aluno.setContato5WhatsValido(enviado);
 
@@ -1418,28 +1418,28 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(1) != null) {
+			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(1), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(2) != null) {
+			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(2), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(3) != null) {
+			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(3), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(4) != null) {
+			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(4), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
@@ -1476,28 +1476,28 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(1) != null) {
+			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(1), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(2) != null) {
+			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(2), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(3) != null) {
+			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(3), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
 				}
 			}
 
-			if (telefones.get(4) != null) {
+			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(4), parametros);
 				if (enviado) {
 					alunoService.setStatusCONVITE_ENVIADO(aluno);
@@ -1535,7 +1535,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(1) != null) {
+			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(1), parametros);
 				aluno.setContato2WhatsValido(enviado);
 
@@ -1544,7 +1544,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(2) != null) {
+			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(2), parametros);
 				aluno.setContato3WhatsValido(enviado);
 				if (enviado) {
@@ -1553,7 +1553,7 @@ public class RelatorioController implements Serializable {
 
 			}
 
-			if (telefones.get(3) != null) {
+			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(3), parametros);
 				aluno.setContato4WhatsValido(enviado);
 
@@ -1562,7 +1562,7 @@ public class RelatorioController implements Serializable {
 				}
 			}
 
-			if (telefones.get(4) != null) {
+			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("aviso_vencimento_boleto2", telefones.get(4), parametros);
 				aluno.setContato5WhatsValido(enviado);
 
