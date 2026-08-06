@@ -20,11 +20,14 @@
 	
 		<p:menuitem value="Home" url="../secretaria/index.jsf"
 			icon="ui-icon-search" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
-				
+
+		<p:menuitem value="Arquivos" url="../arquivos/index.jsf"
+			icon="ui-icon-folder-open" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
+
 		<p:submenu label="Alunos" rendered="#{authController.hasPermission(authController.administrador
 															,authController.secretaria,authController.dono
 															)}">
-			<p:menuitem value="Alunos atuais" url="../aluno/index.jsf"	icon="ui-icon-pencil" 
+			<p:menuitem value="Alunos atuais" url="../aluno/index.jsf"	icon="ui-icon-pencil"
 					rendered="#{authController.hasPermission(authController.administrador
 															,authController.secretaria,authController.dono
 															)}"/>
