@@ -190,6 +190,9 @@ public class AlunoController implements Serializable {
 	private FinanceiroService financeiroService;
 
 	@Inject
+	private org.escolar.service.SicoobBoletoService sicoobBoletoService;
+
+	@Inject
 	private ConfiguracaoService configuracaoService;
 
 	@Inject
@@ -2433,6 +2436,34 @@ public class AlunoController implements Serializable {
 
 	public String getStatus(org.escolar.model.Boleto boleto) {
 		return Verificador.getStatus(boleto);
+	}
+
+	public void sincronizarBoletosComSicoob(org.escolar.model.ContratoAluno contrato) {
+		if (contrato == null || contrato.getBoletos() == null) {
+			return;
+		}
+		int sucesso = 0;
+		int erro = 0;
+		for (org.escolar.model.Boleto boleto : contrato.getBoletos()) {
+			if (Verificador.getStatusEnum(boleto).equals(StatusBoletoEnum.CANCELADO)) {
+				continue;
+			}
+			Date agora = new Date();
+			String status;
+			try {
+				status = sicoobBoletoService.consultarSituacaoBoleto(configuracao, boleto.getNossoNumero());
+				sucesso++;
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = "Erro:" + e.getMessage();
+				erro++;
+			}
+			boleto.setStatusSicoob(status);
+			boleto.setDataConsultaSicoob(agora);
+			financeiroService.atualizarStatusSicoob(boleto.getId(), status, agora);
+		}
+		FacesContext.getCurrentInstance().addMessage(null,
+			new FacesMessage(FacesMessage.SEVERITY_INFO, "Sicoob", sucesso + " boleto(s) consultado(s) com sucesso, " + erro + " com erro"));
 	}
 
 	public String getSicoobStatusHtml(org.escolar.model.Boleto boleto) {
