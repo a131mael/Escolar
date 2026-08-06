@@ -884,9 +884,12 @@ public class RelatorioController implements Serializable {
 		return boleto;
 	}
 
-	public void setBoleto(Boleto aluno) {
-		this.boleto = aluno;
-		this.aluno = boleto.getPagador();
+	public void setBoleto(Boleto boleto) {
+		this.boleto = boleto;
+		// pode chegar null quando a tabela atualiza sem nenhuma linha selecionada (ex.: botao
+		// "Sincronizar com Sicoob", que faz update="tbl" mas nao seleciona boleto nenhum) -
+		// sem esse check, dava NullPointerException e a atualizacao da tela inteira falhava.
+		this.aluno = (boleto != null) ? boleto.getPagador() : null;
 	}
 
 	
