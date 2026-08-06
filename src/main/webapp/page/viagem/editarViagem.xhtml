@@ -1,0 +1,386 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+
+		<f:metadata>
+			<f:viewParam name="id" value="#{calendarioController.idParam}" />
+			<f:viewAction action="#{calendarioController.carregarViagem()}" />
+		</f:metadata>
+
+		<h:form id="formViagem" style="width:100%; border:none; height:100%">
+
+			<p:growl id="messages" showDetail="true" />
+
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+				<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+				<p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>
+			</p:confirmDialog>
+
+			<p:dialog header="Cancelar CT-e OS" widgetVar="dlgCancelarCte" modal="true" width="450" closable="true">
+				<p:outputLabel value="Justificativa do cancelamento (mínimo 15 caracteres):" style="display:block;margin-bottom:6px;" />
+				<p:inputTextarea value="#{calendarioController.justificativaCancelamento}" rows="4" style="width:100%;" maxlength="255" />
+				<div style="margin-top:10px;text-align:right;">
+					<p:commandButton value="Confirmar Cancelamento" icon="ui-icon-alert"
+						process="@form" actionListener="#{calendarioController.cancelarCte()}"
+						update="@form"
+						onclick="if(!confirm('Tem certeza que deseja cancelar este CT-e OS junto à SEFAZ? Esta ação não pode ser desfeita.')) return false;" />
+					<p:commandButton value="Fechar" type="button" onclick="PF('dlgCancelarCte').hide()" />
+				</div>
+			</p:dialog>
+
+			<style type="text/css">
+				.btn-salvar-frete.ui-button {
+					background:#43a047 !important;
+					border-color:#43a047 !important;
+					color:#fff !important;
+				}
+				.carroCheckboxGrid {
+					display: flex;
+					flex-wrap: wrap;
+					width: 400px;
+					border-collapse: collapse;
+				}
+				.carroCheckboxGrid tbody { display: contents; }
+				.carroCheckboxGrid tr {
+					display: flex;
+					align-items: center;
+					width: 50%;
+					box-sizing: border-box;
+					padding: 3px 6px 3px 0;
+					white-space: nowrap;
+				}
+				.carroCheckboxGrid td { display: flex; align-items: center; white-space: nowrap; }
+				.carroCheckboxGrid input[type="checkbox"] { margin: 0 6px 0 0; flex-shrink: 0; }
+				.carroCheckboxGrid label { white-space: nowrap; }
+			</style>
+
+			<h:panelGroup layout="block" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+				<h:outputText value="Adicionar Viagem" rendered="#{calendarioController.frete.id == null}" style="font-size:20px;font-weight:bold;"/>
+				<h:outputText value="Editar Viagem ##{calendarioController.frete.id}" rendered="#{calendarioController.frete.id != null}" style="font-size:20px;font-weight:bold;"/>
+
+				<p:button value="Voltar" icon="ui-icon-arrowreturnthick-1-w" outcome="index" />
+			</h:panelGroup>
+
+			<h:panelGroup id="viagemDetails" layout="block">
+
+			<p:tabView>
+
+				<p:tab title="Viagem">
+
+					<p:fieldset legend="Dados da Viagem" style="margin-bottom:10px;">
+						<h:panelGrid columns="4" cellpadding="6">
+							<p:outputLabel value="Origem:" styleClass="labeltipoexpand" />
+							<p:selectOneMenu id="origem" value="#{calendarioController.frete.localOrigem}" style="width: 200px" filter="true" filterMatchMode="contains">
+								<f:selectItems value="#{CombosEspeciaisMB.getMunicipiosSCSelectItem()}" />
+							</p:selectOneMenu>
+
+							<p:outputLabel value="Destino:" styleClass="labeltipoexpand" />
+							<p:selectOneMenu id="destino" value="#{calendarioController.frete.localDestino}" style="width: 200px" filter="true" filterMatchMode="contains">
+								<f:selectItems value="#{CombosEspeciaisMB.getMunicipiosSCSelectItem()}" />
+							</p:selectOneMenu>
+
+							<p:outputLabel value="Data/Hora Saída:" styleClass="labeltipoexpand" />
+							<p:calendar id="to" value="#{calendarioController.frete.horarioLocalOrigem}"
+								timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm"
+								style="width: 200px !important"/>
+
+							<p:outputLabel value="Data/Hora Retorno:" styleClass="labeltipoexpand" />
+							<p:calendar id="from" value="#{calendarioController.frete.horarioParaRetorno}"
+								timeZone="GMT-3" pattern="dd/MM/yyyy HH:mm"
+								style="width: 200px !important"/>
+						</h:panelGrid>
+					</p:fieldset>
+
+					<p:fieldset legend="Veículo e Motorista" style="margin-bottom:10px;">
+						<h:panelGrid columns="2" cellpadding="6">
+							<p:outputLabel value="Carro:" styleClass="labeltipoexpand" style="vertical-align:top;"/>
+							<h:selectManyCheckbox id="carro" layout="pageDirection"
+								converter="converterCarro"
+								styleClass="carroCheckboxGrid"
+								value="#{calendarioController.carrosSelecionados}">
+								<f:selectItems value="#{CombosEspeciaisMB.getCarrosSelectItemMulti()}" />
+							</h:selectManyCheckbox>
+
+							<p:outputLabel value="Motorista:" styleClass="labeltipoexpand"/>
+							<p:selectOneMenu value="#{calendarioController.frete.motorista}" converter="converterProfessor" style="width: 270px;">
+								<f:selectItems value="#{CombosEspeciaisMB.getMotoristasSelectItem()}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+					</p:fieldset>
+
+				</p:tab>
+
+				<p:tab title="Contratante">
+
+					<p:fieldset legend="Dados do Contratante" style="margin-bottom:10px;">
+						<h:panelGroup id="contratanteTab" layout="block">
+							<p:commandButton value="Padrão" icon="pi pi-user"
+								actionListener="#{calendarioController.preencherContratantePadrao()}"
+								process="@this" update="contratanteTab" style="margin-bottom:10px;"/>
+							<h:panelGrid columns="4" cellpadding="6">
+
+								<p:outputLabel value="CPF/CNPJ:" styleClass="labeltipoexpand"/>
+								<p:inputText id="cnpjMain" value="#{calendarioController.frete.contratante.CPF_CNPJ}" style="width: 200px">
+									<p:ajax event="blur" process="@this" listener="#{calendarioController.buscarContratanteCPF()}" update="contratanteTab"/>
+								</p:inputText>
+
+								<p:outputLabel value="Nome:" styleClass="labeltipoexpand"/>
+								<p:inputText id="nomeMain" value="#{calendarioController.frete.contratante.nome}" style="width: 250px"/>
+
+								<p:outputLabel value="Inscrição Estadual:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.ie}" style="width: 200px"/>
+
+								<p:outputLabel value="Telefone 1:" styleClass="labeltipoexpand" />
+								<p:inputMask value="#{calendarioController.frete.contratante.telefone1}" mask="(99) 999-99 99 99" style="width: 200px"/>
+
+								<p:outputLabel value="Telefone 2:" styleClass="labeltipoexpand" />
+								<p:inputMask value="#{calendarioController.frete.contratante.telefone2}" mask="(99) 999-99 99 99" style="width: 200px"/>
+
+								<p:outputLabel value="Email:" styleClass="labeltipoexpand"/>
+								<p:inputText value="#{calendarioController.frete.contratante.email}" style="width: 250px">
+									<f:validateRegex pattern="^$|[\w\.-]*[a-zA-Z0-9_]@[\w\.-]*[a-zA-Z0-9]\.[a-zA-Z][a-zA-Z\.]*[a-zA-Z]" />
+								</p:inputText>
+
+								<p:outputLabel value="Logradouro:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.logradouro}" style="width: 280px" required="true" requiredMessage="Logradouro do contratante e obrigatorio."/>
+
+								<p:outputLabel value="Número:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.numeroEndereco}" style="width: 120px" required="true" requiredMessage="Numero do endereco do contratante e obrigatorio."/>
+
+								<p:outputLabel value="Bairro:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.bairro}" style="width: 200px" required="true" requiredMessage="Bairro do contratante e obrigatorio."/>
+
+								<p:outputLabel value="Município:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.municipio}" style="width: 200px" required="true" requiredMessage="Municipio do contratante e obrigatorio."/>
+
+								<p:outputLabel value="UF:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.uf}" style="width: 60px" maxlength="2" required="true" requiredMessage="UF do contratante e obrigatoria."/>
+
+								<p:outputLabel value="CEP:" styleClass="labeltipoexpand" />
+								<p:inputText value="#{calendarioController.frete.contratante.cep}" style="width: 120px" required="true" requiredMessage="CEP do contratante e obrigatorio."/>
+
+								<p:outputLabel value="Observação:" styleClass="labeltipoexpand" />
+								<p:inputTextarea value="#{calendarioController.frete.contratante.descricao}" style="height: 80px;width: 280px;" />
+
+							</h:panelGrid>
+						</h:panelGroup>
+					</p:fieldset>
+
+				</p:tab>
+
+				<p:tab title="Pagamento">
+
+					<p:fieldset legend="Pagamento" style="margin-bottom:10px;">
+						<h:panelGrid columns="4" cellpadding="6">
+							<p:outputLabel value="Valor:" styleClass="labeltipoexpand" />
+							<p:inputNumber id="valor"
+								styleClass="imputnumbervalue"
+								thousandSeparator=" "
+								symbolPosition=","  value="#{calendarioController.frete.valor}" style="width: 160px"/>
+
+							<p:outputLabel value="Valor Pago:" styleClass="labeltipoexpand" />
+							<p:inputNumber id="valorpago"
+								styleClass="imputnumbervalue"
+								symbolPosition=","
+								thousandSeparator=" "
+								value="#{calendarioController.frete.valorPago}" style="width: 160px;" />
+
+							<p:outputLabel value="Pago ao Motorista:" styleClass="labeltipoexpand" />
+							<p:inputNumber id="valorpagomotora"
+								styleClass="imputnumbervalue"
+								symbolPosition=","
+								thousandSeparator=" "
+								value="#{calendarioController.frete.valorPagoMotorista}" style="width: 160px;" />
+
+							<p:outputLabel value="Forma de Pagamento:" styleClass="labeltipoexpand" />
+							<p:selectOneMenu style="width: 180px;" value="#{calendarioController.frete.formaPagamento}">
+								<f:selectItems value="#{CombosEspeciaisMB.getFormaPagamentoSelectIItem()}"
+									var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+						</h:panelGrid>
+					</p:fieldset>
+
+				</p:tab>
+
+				<p:tab title="CT-e OS">
+
+					<p:fieldset legend="CT-e OS (Documento Fiscal)" style="margin-bottom:10px;">
+						<h:panelGroup id="cteTab" layout="block">
+
+						<h:panelGrid columns="4" cellpadding="6">
+							<p:outputLabel value="Tipo de Fretamento:" styleClass="labeltipoexpand" />
+							<p:selectOneMenu value="#{calendarioController.frete.tpFretamento}" style="width: 220px">
+								<f:selectItem itemLabel="Eventual" itemValue="1" />
+								<f:selectItem itemLabel="Contínuo (Intermunicipal/Interestadual)" itemValue="2" />
+								<p:ajax event="change" process="@this" />
+							</p:selectOneMenu>
+
+							<p:outputLabel value="Status CT-e:" styleClass="labeltipoexpand" />
+							<h:outputText value="#{calendarioController.frete.statusCte == null ? 'Não emitido' : calendarioController.frete.statusCte}"
+								style="font-weight:bold;" />
+
+							<p:outputLabel value="Número / Série CT-e:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.numeroCte != null}" />
+							<h:outputText value="#{calendarioController.frete.numeroCte} / #{calendarioController.frete.serieCte}" rendered="#{calendarioController.frete.numeroCte != null}" />
+
+							<p:outputLabel value="Chave de Acesso:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.chaveCte != null}" />
+							<p:inputText value="#{calendarioController.frete.chaveCte}" readonly="true" style="width:350px" onclick="this.select();" rendered="#{calendarioController.frete.chaveCte != null}" />
+
+							<p:outputLabel value="Protocolo de Autorização:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.protocoloCte != null}" />
+							<h:outputText value="#{calendarioController.frete.protocoloCte}" rendered="#{calendarioController.frete.protocoloCte != null}" />
+
+							<p:outputLabel value="Data de Autorização:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.dataAutorizacaoCte != null}" />
+							<h:outputText value="#{calendarioController.frete.dataAutorizacaoCte}" rendered="#{calendarioController.frete.dataAutorizacaoCte != null}" />
+
+							<p:outputLabel value="Motivo SEFAZ:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.motivoCte != null}" />
+							<h:outputText value="#{calendarioController.frete.motivoCte}" rendered="#{calendarioController.frete.motivoCte != null}" />
+
+							<p:outputLabel value="Protocolo de Cancelamento:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.protocoloCancelamentoCte != null}" />
+							<h:outputText value="#{calendarioController.frete.protocoloCancelamentoCte}" rendered="#{calendarioController.frete.protocoloCancelamentoCte != null}" />
+
+							<p:outputLabel value="Data de Cancelamento:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.dataCancelamentoCte != null}" />
+							<h:outputText value="#{calendarioController.frete.dataCancelamentoCte}" rendered="#{calendarioController.frete.dataCancelamentoCte != null}" />
+
+							<p:outputLabel value="Justificativa do Cancelamento:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.justificativaCancelamentoCte != null}" />
+							<h:outputText value="#{calendarioController.frete.justificativaCancelamentoCte}" rendered="#{calendarioController.frete.justificativaCancelamentoCte != null}" />
+						</h:panelGrid>
+
+						<h:outputText value="Ações" style="display:block;margin:14px 0 6px 0;font-weight:bold;color:#363636;"/>
+						<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+							<p:commandButton value="Gerar XML CT-e OS" icon="ui-icon-document"
+								rendered="#{calendarioController.frete.statusCte != 'AUTORIZADO' and calendarioController.frete.statusCte != 'CANCELADO'}"
+								process="@form" actionListener="#{calendarioController.gerarXmlCte()}"
+								update="@form" />
+
+							<p:commandButton value="Emitir CT-e OS" icon="ui-icon-check"
+								rendered="#{calendarioController.frete.xmlCteOS != null and calendarioController.frete.statusCte != 'AUTORIZADO' and calendarioController.frete.statusCte != 'CANCELADO'}"
+								process="@form" actionListener="#{calendarioController.emitirCte()}"
+								update="@form"
+								onclick="if(!confirm('Confirma a transmissão deste CT-e OS para a SEFAZ?')) return false;" />
+
+							<p:commandButton value="Cancelar CT-e OS" icon="ui-icon-close"
+								rendered="#{calendarioController.frete.statusCte == 'AUTORIZADO'}"
+								type="button" onclick="PF('dlgCancelarCte').show()" />
+
+							<p:commandButton value="Baixar XML" icon="ui-icon-arrowthickstop-1-s" ajax="false"
+								rendered="#{calendarioController.frete.xmlCteOS != null}"
+								onclick="PrimeFaces.monitorDownload(start, stop);">
+								<p:fileDownload value="#{calendarioController.xmlCteDownload}" />
+							</p:commandButton>
+
+							<p:button value="#{calendarioController.frete.statusCte == 'AUTORIZADO' or calendarioController.frete.statusCte == 'CANCELADO' ? 'Imprimir DACTE' : 'Imprimir Rascunho'}"
+								icon="ui-icon-print" target="_blank"
+								rendered="#{calendarioController.frete.xmlCteOS != null}"
+								outcome="rascunhoCte">
+								<f:param name="id" value="#{calendarioController.frete.id}" />
+							</p:button>
+						</div>
+
+						</h:panelGroup>
+					</p:fieldset>
+
+				</p:tab>
+
+				<p:tab title="scMOBI">
+
+					<p:fieldset legend="Licença de Fretamento Eventual (scMOBI)" style="margin-bottom:10px;">
+						<h:panelGroup id="scmobiTab" layout="block">
+
+						<h:panelGrid columns="2" cellpadding="6">
+							<p:outputLabel value="Quilometragem da Viagem (km):" styleClass="labeltipoexpand" />
+							<p:inputNumber value="#{calendarioController.frete.quilometragem}" decimalPlaces="1" style="width:120px"/>
+
+							<p:outputLabel value="Status:" styleClass="labeltipoexpand" />
+							<h:outputText value="#{calendarioController.statusLicencaScmobiLabel}" style="font-weight:bold;" />
+
+							<p:outputLabel value="Número do Contrato:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.numeroLicencaScmobi != null}" />
+							<h:outputText value="#{calendarioController.frete.numeroLicencaScmobi}" rendered="#{calendarioController.frete.numeroLicencaScmobi != null}" />
+
+							<p:outputLabel value="Gerada em:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.dataGeracaoLicencaScmobi != null}" />
+							<h:outputText value="#{calendarioController.frete.dataGeracaoLicencaScmobi}" rendered="#{calendarioController.frete.dataGeracaoLicencaScmobi != null}" />
+
+							<p:outputLabel value="Erro:" styleClass="labeltipoexpand" rendered="#{calendarioController.frete.erroLicencaScmobi != null}" />
+							<h:outputText value="#{calendarioController.frete.erroLicencaScmobi}" style="color:#c62828;" rendered="#{calendarioController.frete.erroLicencaScmobi != null}" />
+						</h:panelGrid>
+
+						<p:poll interval="5"
+							rendered="#{calendarioController.frete.statusLicencaScmobi == 'PROCESSANDO'}"
+							listener="#{calendarioController.atualizarStatusLicencaScmobi}"
+							update="scmobiTab" />
+
+						<h:outputText value="Ações" style="display:block;margin:14px 0 6px 0;font-weight:bold;color:#363636;"/>
+						<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+							<p:commandButton value="Gerar Licença scMOBI" icon="ui-icon-document"
+								rendered="#{calendarioController.frete.statusLicencaScmobi != 'PROCESSANDO' and calendarioController.frete.numeroLicencaScmobi == null}"
+								process="@form" actionListener="#{calendarioController.gerarLicencaScmobi()}"
+								update="@form" />
+
+							<p:commandButton value="Imprimir Licença" icon="ui-icon-print" ajax="false"
+								rendered="#{calendarioController.frete.numeroLicencaScmobi != null}"
+								onclick="PrimeFaces.monitorDownload(start, stop);">
+								<p:fileDownload value="#{calendarioController.licencaScmobiDownload}" />
+							</p:commandButton>
+
+							<p:commandButton value="Imprimir Lista de Passageiros" icon="ui-icon-print" ajax="false"
+								rendered="#{calendarioController.frete.numeroLicencaScmobi != null}"
+								onclick="PrimeFaces.monitorDownload(start, stop);">
+								<p:fileDownload value="#{calendarioController.passageirosScmobiDownload}" />
+							</p:commandButton>
+						</div>
+
+						</h:panelGroup>
+					</p:fieldset>
+
+				</p:tab>
+
+				<p:tab title="Passageiros (#{calendarioController.frete.passageiros.size()})"
+					rendered="#{calendarioController.frete.tokenPublico != null}">
+
+					<div style="margin:8px 0 14px 0;">
+						<p:outputLabel value="Link da Viagem:" style="display:block;margin-bottom:6px;font-weight:bold;color:#363636;"/>
+						<div style="display:flex;gap:4px;align-items:center;">
+							<p:inputText id="linkViagem" value="#{calendarioController.linkViagem}"
+								readonly="true" style="width:100%; box-sizing:border-box; height:30px;" onclick="this.select();" />
+							<p:commandButton type="button" icon="ui-icon-clipboard" title="Copiar link"
+								onclick="var i=this.previousElementSibling; i.select(); navigator.clipboard.writeText(i.value);"/>
+						</div>
+					</div>
+
+					<p:dataTable value="#{calendarioController.frete.passageiros}" var="passageiro"
+						emptyMessage="Nenhum passageiro confirmado ainda.">
+						<p:column headerText="Nome">
+							<h:outputText value="#{passageiro.nome}"/>
+						</p:column>
+						<p:column headerText="CPF">
+							<h:outputText value="#{passageiro.cpf}"/>
+						</p:column>
+					</p:dataTable>
+
+					<div style="margin-top:10px;">
+						<p:commandButton value="Baixar CSV Passageiros (scMOBI)" icon="ui-icon-arrowthickstop-1-s" ajax="false"
+							rendered="#{not empty calendarioController.frete.passageiros}"
+							onclick="PrimeFaces.monitorDownload(start, stop);">
+							<p:fileDownload value="#{calendarioController.passageirosCsvDownload}" />
+						</p:commandButton>
+					</div>
+				</p:tab>
+
+			</p:tabView>
+
+			</h:panelGroup>
+
+			<div style="display:flex;justify-content:flex-end;margin-top:10px;">
+				<p:commandButton id="salvarFrte" value="Salvar" icon="ui-icon-disk"
+					styleClass="btn-salvar-frete" ajax="false"
+					action="#{calendarioController.salvarFreteEVoltar}" />
+			</div>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

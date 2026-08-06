@@ -101,14 +101,27 @@
 									var="bairro" itemLabel="#{bairro.name}" itemValue="#{bairro}" />
 						<p:ajax event="change" process="@this" />
 					</p:selectOneMenu>
-				
+
+					<h:panelGroup rendered="#{calendarioController.frete.tokenPublico != null}">
+						<p:outputLabel value="Link da Viagem:" styleClass="labeltipoexpand" />
+					</h:panelGroup>
+					<h:panelGroup rendered="#{calendarioController.frete.tokenPublico != null}">
+						<p:inputText id="linkViagem" value="#{calendarioController.linkViagem}"
+							readonly="true" style="width: 250px" onclick="this.select();" />
+					</h:panelGroup>
+
 					<p:commandButton id="salvarFrte" value="Salvar" update="formFrete:panelSche,eventDetails">
-						<p:ajax event="click" update="formFrete:panelSche,eventDetails,formFrete" process="eventDetails" 
-							listener="#{calendarioController.salvarFrete()}"  
-							oncomplete="PF('eventDialog').hide();"
+						<p:ajax event="click" update="formFrete:panelSche,eventDetails" process="eventDetails"
+							listener="#{calendarioController.salvarFrete()}"
 							/>
-							
+
 						</p:commandButton>
+
+					<p:commandButton id="fecharFrte" value="Fechar" process="@this"
+						oncomplete="PF('eventDialog').hide();">
+						<p:ajax event="click" listener="#{calendarioController.fecharDialogFrete()}"
+							update="formFrete:panelSche,eventDetails" />
+					</p:commandButton>
 				</h:panelGrid>
 			</p:dialog>
 			

@@ -1,0 +1,38 @@
+<ui:fragment xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:panelGrid columns="4">
+		<p:panelGrid columns="2" style="margin-right: 50px;">
+			<h:outputLabel value="Total em caixa" style="width: 100%" styleClass="labeltipoexpand"/>
+			<h:outputLabel value="#{calendarioController.getTotalEmCaixa()}" >
+					<f:convertNumber pattern="##,###.00" />
+			</h:outputLabel>
+		</p:panelGrid>
+
+		<p:panelGrid columns="2" style="margin-right: 50px;">
+			<h:outputLabel value="Total recebido " style="width: 100%" styleClass="labeltipoexpand"/>
+			<h:outputLabel value="#{calendarioController.getValorRecebidoMes()}" >
+					<f:convertNumber pattern="##,###.00" />
+			</h:outputLabel>
+		</p:panelGrid>
+
+		<p:panelGrid columns="2" style="margin-right: 50px;">
+			<h:outputLabel value="Total recebido em dinheiro" style="width: 100%" styleClass="labeltipoexpand"/>
+			<h:outputLabel value="#{calendarioController.getValorRecebidoDinheiro()}" >
+				<f:convertNumber pattern="##,###.00" />
+			</h:outputLabel>
+		</p:panelGrid>
+
+		<p:panelGrid columns="2">
+			<h:outputLabel value="Total pago motoristas" style="width: 100%" styleClass="labeltipoexpand"/>
+			<h:outputLabel value="#{calendarioController.getValorRecebidoDinheiro()}" >
+				<f:convertNumber pattern="##,###.00" />
+			</h:outputLabel>
+		</p:panelGrid>
+
+	</h:panelGrid>
+
+</ui:fragment>

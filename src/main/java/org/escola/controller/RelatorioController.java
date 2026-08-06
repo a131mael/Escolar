@@ -45,12 +45,14 @@ import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
 import org.escolar.model.MensagemAluno;
 import org.escolar.model.PromessaPagamentoBoleto;
+import org.escolar.model.PixRecebido;
 import org.escolar.service.AlunoService;
 import org.escolar.service.ConfiguracaoService;
 import org.escolar.service.FinanceiroService;
 import org.escolar.service.MensagemAlunoService;
 import org.escolar.service.PromessaPagamentoService;
 import org.escolar.service.RelatorioService;
+import org.escolar.service.SicoobBoletoService;
 import org.escolar.service.TabelaPrecoService;
 import org.escolar.util.Util;
 import org.primefaces.event.SelectEvent;
@@ -86,6 +88,9 @@ public class RelatorioController implements Serializable {
 	
 	@Inject
 	private PromessaPagamentoService promessaPagamentoService;
+
+	@Inject
+	private SicoobBoletoService sicoobBoletoService;
 
 	private Aluno aluno;
 	
@@ -1630,6 +1635,24 @@ public class RelatorioController implements Serializable {
 	public void setMesSelecionadoRelatorio(Integer mesSelecionadoRelatorio) {
 		Util.addAtributoSessao("mesSelecionadoRelatorio", mesSelecionadoRelatorio);
 		this.mesSelecionadoRelatorio = mesSelecionadoRelatorio;
+	}
+
+	public String getNomeMesSelecionadoRelatorio() {
+		if (mesSelecionadoRelatorio == null) return "";
+		String[] meses = {"Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+				"Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"};
+		int idx = mesSelecionadoRelatorio - 1;
+		return (idx >= 0 && idx < meses.length) ? meses[idx] : String.valueOf(mesSelecionadoRelatorio);
+	}
+
+	public List<PixRecebido> getPixRecebidos() {
+		try {
+			int mes = mesSelecionadoRelatorio != null ? mesSelecionadoRelatorio : Calendar.getInstance().get(Calendar.MONTH) + 1;
+			int ano = anoSelecionado != null ? anoSelecionado : Calendar.getInstance().get(Calendar.YEAR);
+			return sicoobBoletoService.consultarPixRecebidos(configuracao, mes, ano);
+		} catch (Exception e) {
+			return new ArrayList<PixRecebido>();
+		}
 	}
 
 	public StatusContratoEnum getStatusContrato() {

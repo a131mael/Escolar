@@ -90,10 +90,198 @@
 				<p:commandButton icon="ui-icon-contact" ajax="false" value="Gerar Notas Fiscais Mes Atual "
 					action="#{configuracaoController.gerarNFSEDoMesAtual()}">
 				</p:commandButton>
-				
-				
+
+
 			</p:panelGrid>
-			
+
+			<p:fieldset legend="Dados Fiscais - CT-e OS (Fretamento)" style="margin-top:10px;">
+				<p:panelGrid columns="3">
+
+					<h:outputText value="CNPJ:" />
+					<p:inputText value="#{configuracao.cnpj}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Inscrição Estadual:" />
+					<p:inputText value="#{configuracao.ie}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Razão Social:" />
+					<p:inputText value="#{configuracao.razaoSocial}" style="width: 300px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Nome Fantasia:" />
+					<p:inputText value="#{configuracao.nomeFantasia}" style="width: 300px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Regime Tributário (CRT):" />
+					<p:selectOneMenu value="#{configuracao.crt}">
+						<f:selectItem itemLabel="Selecione" itemValue="" />
+						<f:selectItem itemLabel="1 - Simples Nacional" itemValue="1" />
+						<f:selectItem itemLabel="2 - Simples Nacional - excesso de sublimite" itemValue="2" />
+						<f:selectItem itemLabel="3 - Regime Normal" itemValue="3" />
+						<p:ajax event="change" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:selectOneMenu>
+					<h:outputText value="" />
+
+					<h:outputText value="Logradouro:" />
+					<p:inputText value="#{configuracao.logradouro}" style="width: 300px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Número:" />
+					<p:inputText value="#{configuracao.numeroEndereco}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Complemento:" />
+					<p:inputText value="#{configuracao.complementoEndereco}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Bairro:" />
+					<p:inputText value="#{configuracao.bairro}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Município:" />
+					<p:selectOneMenu value="#{configuracao.municipio}" style="width: 250px" filter="true" filterMatchMode="contains">
+						<f:selectItems value="#{CombosEspeciaisMB.getMunicipiosSCSelectItem()}" />
+						<p:ajax event="change" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:selectOneMenu>
+					<h:outputText value="" />
+
+					<h:outputText value="UF:" />
+					<p:inputText value="#{configuracao.uf}" style="width: 60px" maxlength="2">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="CEP:" />
+					<p:inputText value="#{configuracao.cep}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Telefone:" />
+					<p:inputText value="#{configuracao.telefone}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="TAF:" />
+					<p:inputText value="#{configuracao.taf}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(preencher TAF ou Nº Reg. Estadual)" />
+
+					<h:outputText value="Nº Registro Estadual:" />
+					<p:inputText value="#{configuracao.nroRegEstadual}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Série CT-e:" />
+					<p:inputText value="#{configuracao.serieCte}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Próximo Número CT-e:" />
+					<p:inputText value="#{configuracao.proximoNumeroCte}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Ambiente:" />
+					<p:selectOneMenu value="#{configuracao.tpAmb}">
+						<f:selectItem itemLabel="Homologação (testes)" itemValue="2" />
+						<f:selectItem itemLabel="Produção" itemValue="1" />
+						<p:ajax event="change" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:selectOneMenu>
+					<h:outputText value="" />
+
+					<h:outputText value="Certificado Digital (.pfx):" />
+					<p:inputText value="#{configuracao.certificadoPath}" style="width: 400px" placeholder="Caminho completo do arquivo .pfx no servidor">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Senha do Certificado:" />
+					<p:inputText value="#{configuracao.certificadoSenha}" style="width: 200px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="CFOP:" />
+					<p:inputText value="#{configuracao.cfop}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Natureza da Operação:" />
+					<p:inputText value="#{configuracao.naturezaOperacao}" style="width: 300px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="" />
+
+					<h:outputText value="Alíquota ICMS (%):" />
+					<p:inputText value="#{configuracao.aliquotaIcms}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(deixar em branco se optante do Simples Nacional)" />
+
+				</p:panelGrid>
+			</p:fieldset>
+
+			<p:fieldset legend="Integração Sicoob (API - Cobrança Bancária)" style="margin-top:10px;">
+				<p:panelGrid columns="3">
+
+					<h:outputText value="Client ID:" />
+					<p:inputText value="#{configuracao.sicoobClientId}" style="width: 400px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(gerado no Portal Developers do Sicoob)" />
+
+					<h:outputText value="Número de Cliente (Sicoob):" />
+					<p:inputText value="#{configuracao.sicoobNumeroContrato}">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(número de cooperado/cliente Sicoob, não o nº do contrato)" />
+
+					<h:outputText value="Código da Modalidade:" />
+					<p:inputText value="#{configuracao.sicoobCodigoModalidade}" style="width: 60px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(ex: 1 = Simples com registro)" />
+
+					<h:outputText value="Código da Cooperativa/Agência:" />
+					<p:inputText value="#{configuracao.sicoobCodigoAgencia}" style="width: 80px">
+						<p:ajax event="blur" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:inputText>
+					<h:outputText value="(ex: 3069 — usado para calcular o dígito verificador do Nosso Número)" />
+
+					<h:outputText value="Ambiente:" />
+					<p:selectOneMenu value="#{configuracao.sicoobAmbiente}">
+						<f:selectItem itemLabel="Sandbox (testes)" itemValue="sandbox" />
+						<f:selectItem itemLabel="Produção" itemValue="producao" />
+						<p:ajax event="change" process="@this" listener="#{configuracaoController.salvar()}" />
+					</p:selectOneMenu>
+					<h:outputText value="(produção usa o certificado A1 informado acima)" />
+
+				</p:panelGrid>
+			</p:fieldset>
 
 		</h:form>
 	</ui:define>

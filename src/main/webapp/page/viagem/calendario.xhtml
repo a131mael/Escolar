@@ -1,0 +1,64 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<script type="text/javascript">
+    PrimeFaces.locales['pt'] = {
+        closeText: 'Fechar',
+        prevText: 'geri',
+        nextText: 'ileri',
+        currentText: 'Hoje',
+        monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+            'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+        monthNamesShort: ['Jan','Fev','Mar','Abr','Maio','Jun',
+            'Jul','Ago','Set','Out','Nov','Dez'],
+        dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sabado'],
+        dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
+        dayNamesMin: ['D','S','T','Q','Q','S','S'],
+        weekHeader: 'Hf',
+        firstDay: 1,
+        isRTL: false,
+        showMonthAfterYear: false,
+        yearSuffix: '',
+        month: 'Mes',
+        week: 'Semana',
+        day: 'Dia',
+        allDayText : 'Horas'
+    };
+</script>
+		<h:form id="formViagem" style="width:100%; border:none; height:100%" >
+
+			<p:growl id="messages" showDetail="true" />
+
+			<h:panelGroup id="totais" layout="block">
+				<ui:include src="totais.xhtml" />
+			</h:panelGroup>
+
+			<br/>
+
+			<h:panelGrid id="panelSche" columnClasses="value" width="98%" style="height:100%">
+				<p:schedule id="schedule" value="#{calendarioController.eventModel}"
+					locale="pt" widgetVar="myschedule" timeZone="GMT-3"
+					style="width:100%;height:100%">
+
+					<p:ajax event="dateSelect" listener="#{calendarioController.onDateSelect}" />
+
+					<p:ajax event="eventSelect" listener="#{calendarioController.onEventSelect}" />
+
+					<p:ajax event="eventMove" listener="#{calendarioController.onEventMove}"
+						update=":formViagem:messages" />
+
+					<p:ajax event="eventResize"
+						listener="#{calendarioController.onEventResize}" update=":formViagem:messages" />
+
+				</p:schedule>
+
+			</h:panelGrid>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Cadastro de Passageiro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+        .card { background: white; border-radius: 8px; padding: 30px; max-width: 500px;
+                margin: 30px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo img { height: 60px; }
+        h2 { color: #333; text-align: center; margin-bottom: 5px; }
+        .info-viagem { background: #f0f7ff; border-radius: 6px; padding: 14px;
+                       margin-bottom: 20px; font-size: 14px; color: #444; }
+        .info-viagem strong { display: inline-block; width: 105px; color: #222; }
+        .field { margin-bottom: 16px; }
+        .field label { display: block; font-size: 13px; font-weight: bold;
+                       color: #555; margin-bottom: 5px; }
+        .field input { width: 100%; box-sizing: border-box; padding: 10px;
+                       border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
+        .btn-salvar { width: 100%; padding: 12px; background: #1a73e8; color: white;
+                      border: none; border-radius: 5px; font-size: 16px;
+                      cursor: pointer; margin-top: 10px; }
+        .btn-salvar:hover { background: #1558b0; }
+        .sucesso { text-align: center; color: #2e7d32; font-size: 18px; padding: 20px 0; }
+        .sucesso .icon { font-size: 48px; }
+        .erro { color: #c62828; font-size: 13px; background: #ffebee;
+                border-radius: 4px; padding: 8px 12px; margin-bottom: 12px; }
+        .nao-encontrada { text-align: center; color: #c62828; padding: 30px 0; }
+    </style>
+</h:head>
+
+<h:body>
+    <f:metadata>
+        <f:viewParam name="token" value="#{viagemPublicController.tokenParam}"/>
+    </f:metadata>
+
+    <div class="card">
+        <div class="logo">
+            <img src="#{request.contextPath}/resources/gfx/logo tefamel.png" alt="Tefamel"/>
+        </div>
+
+        <h:panelGroup rendered="#{viagemPublicController.viagem == null}">
+            <div class="nao-encontrada">
+                <p>&#9888; Viagem não encontrada ou link inválido.</p>
+            </div>
+        </h:panelGroup>
+
+        <h:form id="formPassageiro" rendered="#{viagemPublicController.viagem != null}">
+            <h:panelGroup id="conteudo" layout="block">
+
+                <h:panelGroup rendered="#{!viagemPublicController.cadastrado}">
+                    <h2>Cadastro de Passageiro</h2>
+
+                    <div class="info-viagem">
+                        <div><strong>Origem:</strong> #{viagemPublicController.viagem.localOrigem}</div>
+                        <div><strong>Destino:</strong> #{viagemPublicController.viagem.localDestino}</div>
+                        <div><strong>Embarque:</strong>
+                            <h:outputText value="#{viagemPublicController.viagem.horarioLocalOrigem}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT-3"/>
+                            </h:outputText>
+                        </div>
+                        <div><strong>Desembarque:</strong>
+                            <h:outputText value="#{viagemPublicController.viagem.horarioParaRetorno}">
+                                <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT-3"/>
+                            </h:outputText>
+                        </div>
+                    </div>
+
+                    <p:messages id="msgs" showDetail="true" styleClass="erro" closable="true"/>
+
+                    <div class="field">
+                        <label>Nome completo *</label>
+                        <p:inputText id="nome" value="#{viagemPublicController.novoPassageiro.nome}"
+                                     required="true" requiredMessage="Informe o nome completo."
+                                     style="width:100%" placeholder="Seu nome completo"/>
+                    </div>
+
+                    <div class="field">
+                        <label>CPF *</label>
+                        <p:inputMask id="cpf" value="#{viagemPublicController.novoPassageiro.cpf}"
+                                     mask="999.999.999-99" required="true"
+                                     requiredMessage="Informe o CPF."
+                                     style="width:100%" placeholder="000.000.000-00"/>
+                    </div>
+
+                    <p:commandButton value="Confirmar cadastro" styleClass="btn-salvar"
+                                     action="#{viagemPublicController.cadastrar()}"
+                                     update=":formPassageiro:conteudo" process="@form"/>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{viagemPublicController.cadastrado}">
+                    <div class="sucesso">
+                        <div class="icon">&#10003;</div>
+                        <p><strong>Cadastro realizado com sucesso!</strong></p>
+                        <p>Você está na lista de passageiros da viagem.</p>
+                    </div>
+                    <p:commandButton value="Cadastrar outro passageiro" styleClass="btn-salvar"
+                                     action="#{viagemPublicController.cadastrarOutro()}"
+                                     update=":formPassageiro:conteudo" process="@this"/>
+                </h:panelGroup>
+
+            </h:panelGroup>
+        </h:form>
+    </div>
+</h:body>
+</html>

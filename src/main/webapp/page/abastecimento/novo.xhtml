@@ -1,0 +1,67 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form style="width:100%; border:none">
+
+			<p:growl id="messages" showDetail="true" life="10000"/>
+
+			<h:panelGrid columns="2" border="0" cellpadding="6" style="margin-top:-30px">
+
+				<h:outputLabel value="Data:" style="font-size:13px; width:160px"/>
+				<p:calendar value="#{abastecimentoController.dataAbastecimento}"
+					pattern="dd/MM/yyyy" showButtonPanel="true"
+					style="font-size:15px; width:200px"/>
+
+				<h:outputLabel value="Litros:" style="font-size:13px; width:160px"/>
+				<p:inputNumber value="#{abastecimentoController.litros}"
+					decimalSeparator="," thousandSeparator="."
+					minValue="0" maxValue="999999"
+					emptyValue="empty"
+					style="font-size:15px; width:200px" inputStyle="width:190px">
+					<p:ajax event="blur" update="totalCalc"/>
+				</p:inputNumber>
+
+				<h:outputLabel value="Preço por litro (R$):" style="font-size:13px; width:160px"/>
+				<p:inputNumber value="#{abastecimentoController.valorPorLitro}"
+					decimalSeparator="," thousandSeparator="."
+					minValue="0" maxValue="99.999"
+					decimalPlaces="3"
+					emptyValue="empty"
+					style="font-size:15px; width:200px" inputStyle="width:190px">
+					<p:ajax event="blur" update="totalCalc"/>
+				</p:inputNumber>
+
+				<h:outputLabel value="Total:" style="font-size:13px; width:160px; font-weight:bold"/>
+				<h:outputText id="totalCalc" value="#{abastecimentoController.valorTotal}"
+					style="font-size:18px; font-weight:bold; color:#333">
+					<f:convertNumber type="currency" currencySymbol="R$ "
+						minFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+				</h:outputText>
+
+				<h:outputLabel value="Senha de autorização PIX:" style="font-size:13px; width:160px; font-weight:bold; color:#c0392b"/>
+				<h:inputSecret value="#{abastecimentoController.senhaConfirmacao}"
+					redisplay="false"
+					style="font-size:15px; width:200px; padding:4px 8px; border:2px solid #c0392b; border-radius:3px"/>
+
+			</h:panelGrid>
+
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; width:92%">
+				<h:commandButton value="Voltar"
+					action="#{abastecimentoController.voltar()}"
+					immediate="true"
+					style="background-color:#6c757d; color:white; border:1px solid #565e64; padding:8px 20px; font-size:14px; cursor:pointer; border-radius:3px"/>
+				<p:commandButton value="Confirmar e Pagar via PIX"
+					action="#{abastecimentoController.realizarAbastecimento()}"
+					update="messages"
+					onclick="return confirm('Confirmar abastecimento e envio de PIX para Rudipel Rudnick Petróleo?')"
+					style="background-color:#00843D; color:white; border:1px solid #006830; padding:8px 20px; font-size:14px; cursor:pointer; border-radius:3px"/>
+			</div>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

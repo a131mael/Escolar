@@ -24,7 +24,7 @@
 				<f:selectItems value="#{CombosEspeciaisMB.getMesesValorInteiroCorreto()}"
 					var="country" itemLabel="#{country}" itemValue="#{country}" 
 					/>
-			<p:ajax event="change" process="@this" listener="#{graficosController.remontarGraficosComMes()}" update="paneisGastros" />
+			<p:ajax event="change" process="@this" listener="#{graficosController.remontarGraficosComMes()}" update="paneisGastros painelPix" />
 			</p:selectOneMenu>	
 		</h:panelGrid>
 		</h:panelGrid>
@@ -281,10 +281,36 @@
 			</p:panelGrid>
 			</p:panel>
 
-	</h:panelGrid>	
-	
+	</h:panelGrid>
+
 	<br/>
-	<br/>
+
+	<p:panel id="painelPix" header="Pix recebidos — #{relatorioController.nomeMesSelecionadoRelatorio}/#{relatorioController.anoSelecionado}"
+		style="width:100%; margin-bottom:10px">
+		<p:dataTable value="#{relatorioController.pixRecebidos}" var="pix"
+			emptyMessage="Nenhum Pix recebido no período (ou API Sicoob indisponível)."
+			style="width:100%">
+			<p:column headerText="Data/Hora" style="width:14%">
+				<h:outputText value="#{pix.horario}" />
+			</p:column>
+			<p:column headerText="Quem pagou" style="width:22%">
+				<h:outputText value="#{pix.nomePagador}" />
+			</p:column>
+			<p:column headerText="CPF/CNPJ" style="width:14%">
+				<h:outputText value="#{pix.cpfPagador}" />
+			</p:column>
+			<p:column headerText="Valor" style="width:10%">
+				<h:outputText value="R$ #{pix.valor}" />
+			</p:column>
+			<p:column headerText="Descrição">
+				<h:outputText value="#{pix.infoPagador}" />
+			</p:column>
+			<p:column headerText="EndToEnd" style="width:22%; font-size:0.8em">
+				<h:outputText value="#{pix.endToEndId}" style="font-size:0.8em; color:#888" />
+			</p:column>
+		</p:dataTable>
+	</p:panel>
+
 	<br/>
 
 		<h:panelGrid id="paneisGastros">

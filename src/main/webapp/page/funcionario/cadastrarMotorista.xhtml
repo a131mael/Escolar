@@ -44,14 +44,45 @@
 							
 							<h:outputLabel value="Salário: "
 								style="font-size: 13px; width:180px" />
-							<p:inputText value="#{professor.salario}"
+							<p:inputNumber value="#{professor.salarioBd}"
 								rendered="#{authController.hasPermission(authController.administrador,authController.dono)}"
-								style="font-size: 15px; width:275px">
-							</p:inputText>
+								decimalSeparator="," thousandSeparator="."
+								symbol="R$ " symbolPosition="p"
+								minValue="0" decimalPlaces="2"
+								style="font-size: 15px; width:280px" inputStyle="width:220px"/>
 							
 
 						</h:panelGrid>
 
+					</p:tab>
+					<p:tab title="CNH (Motorista)">
+						<h:panelGrid columns="2" border="0">
+
+							<h:outputLabel value="Número da CNH: "
+								style="font-size: 13px; width:180px" />
+							<p:inputText value="#{professor.cnhNumero}"
+								style="font-size: 15px; width:280px" />
+
+							<h:outputLabel value="Categoria: "
+								style="font-size: 13px; width:180px" />
+							<p:selectOneMenu value="#{professor.cnhCategoria}"
+								style="font-size: 15px; width:285px">
+								<f:selectItem itemLabel="Selecione" itemValue="" />
+								<f:selectItem itemLabel="A" itemValue="A" />
+								<f:selectItem itemLabel="B" itemValue="B" />
+								<f:selectItem itemLabel="AB" itemValue="AB" />
+								<f:selectItem itemLabel="AD" itemValue="AD" />
+								<f:selectItem itemLabel="C" itemValue="C" />
+								<f:selectItem itemLabel="D" itemValue="D" />
+								<f:selectItem itemLabel="E" itemValue="E" />
+							</p:selectOneMenu>
+
+							<h:outputLabel value="Validade da CNH: "
+								style="font-size: 13px; width:180px" />
+							<p:calendar value="#{professor.cnhValidade}" pattern="dd/MM/yyyy"
+								mask="true" style="font-size: 15px; width:280px" />
+
+						</h:panelGrid>
 					</p:tab>
 					<p:tab title="Contato">
 						<h:panelGrid columns="2" border="0">
@@ -87,6 +118,28 @@
 						</h:panelGrid>
 
 					</p:tab>
+					<p:tab title="Pix / Pagamento">
+						<h:panelGrid columns="2" border="0">
+
+							<h:outputLabel value="Tipo da Chave Pix: "
+								style="font-size: 13px; width:180px" />
+							<p:selectOneMenu value="#{professor.tipoChavePix}" style="font-size: 15px; width:285px">
+								<f:selectItem itemLabel="Selecione" itemValue="" />
+								<f:selectItem itemLabel="CPF" itemValue="CPF" />
+								<f:selectItem itemLabel="E-mail" itemValue="EMAIL" />
+								<f:selectItem itemLabel="Telefone" itemValue="TELEFONE" />
+								<f:selectItem itemLabel="Chave Aleatória (EVP)" itemValue="EVP" />
+							</p:selectOneMenu>
+
+							<h:outputLabel value="Chave Pix: "
+								style="font-size: 13px; width:180px" />
+							<p:inputText value="#{professor.chavePix}"
+								style="font-size: 15px; width:280px"
+								placeholder="CPF, e-mail, telefone ou chave aleatória" />
+
+						</h:panelGrid>
+					</p:tab>
+
 					<p:tab title="Sistema">
 						<h:panelGrid columns="2" border="0">
 
@@ -108,13 +161,14 @@
 
 			</h:panelGrid>
 
-			<h:commandButton id="voltarButtom" immediate="true"
-				action="#{professorController.voltar()}" value="Voltar" />
-
-
-			<h:commandButton id="salvarButtom"
-				style="margin-left:690px !important"
-				action="#{professorController.salvar()}" value="Salvar" />
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; width:92%">
+				<h:commandButton id="voltarButtom" immediate="true"
+					action="#{professorController.voltar()}" value="Voltar"
+					style="background-color:#6c757d; color:white; border:1px solid #565e64; padding:8px 20px; font-size:14px; cursor:pointer; border-radius:3px"/>
+				<h:commandButton id="salvarButtom"
+					action="#{professorController.salvar()}" value="Salvar"
+					style="background-color:#00843D; color:white; border:1px solid #006830; padding:8px 20px; font-size:14px; cursor:pointer; border-radius:3px"/>
+			</div>
 
 		</h:form>
 	</ui:define>

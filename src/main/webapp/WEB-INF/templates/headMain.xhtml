@@ -55,6 +55,9 @@
 		<p:menuitem value="Funcionários" url="../funcionario/index.jsf"
 			icon="ui-icon-search" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 
+		<p:menuitem value="Abastecimento" url="../abastecimento/index.jsf"
+			icon="ui-icon-battery-2" rendered="#{authController.hasPermission(authController.administrador,authController.dono)}"/>
+
 	
 		<p:menuitem value="Carros" url="../turma/index.jsf"	icon="ui-icon-gear"
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}" />
@@ -67,7 +70,13 @@
 		<p:menuitem value="Relatórios" url="../relatorio/index.jsf" icon="ui-icon-close" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 
-		<p:menuitem value="Frete" url="../frete/index.jsf" icon="ui-icon-close" />
+		<p:submenu label="Viagens" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}">
+
+				<p:menuitem value="Lista de Viagens" url="../viagem/index.jsf" icon="ui-icon-close" />
+
+				<p:menuitem value="Calendário" url="../viagem/calendario.jsf" icon="ui-icon-calendar" />
+
+		</p:submenu>
 
 		<p:submenu label="Financeiro" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}" >
 				

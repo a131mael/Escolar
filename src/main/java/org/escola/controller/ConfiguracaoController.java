@@ -51,6 +51,7 @@ import org.escolar.service.RelatorioService;
 import org.escolar.util.CompactadorZip;
 import org.escolar.util.FileUtils;
 import org.escolar.util.ImpressoesUtils;
+import org.escolar.util.MunicipioIBGEUtil;
 import org.escolar.util.Util;
 import org.escolar.util.Verificador;
 import org.primefaces.model.StreamedContent;
@@ -637,6 +638,8 @@ public class ConfiguracaoController implements Serializable {
 	}
 
 	public String salvar() {
+		String uf = configuracao.getUf() == null || configuracao.getUf().trim().isEmpty() ? "SC" : configuracao.getUf();
+		configuracao.setCodMunicipio(MunicipioIBGEUtil.buscarCodigoMunicipio(configuracao.getMunicipio(), uf));
 		configuracaoService.save(configuracao);
 		return "index";
 	}

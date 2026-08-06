@@ -6,128 +6,172 @@
 	template="/WEB-INF/templates/templateADM.xhtml">
 
 	<ui:define name="content">
-		<h:form style="width:100%; border:none">
+		<h:form id="formFuncionarios" style="width:100%; border:none">
+
+			<p:growl id="messages" showDetail="true" life="8000" />
 
 			<h:panelGrid columns="8" style="margin-top: -30px;">
 				<h:commandButton action="#{professorController.adicionarNovo()}" value="Adicionar" />
-<!-- 				<h:commandLink>
-					<p:graphicImage name="/gfx/excel.png" />
-					<p:dataExporter type="xls" target="tbl" fileName="professores"
-						pageOnly="true" />
-				</h:commandLink>
-
-				<h:commandLink rendered="false">
-					<p:graphicImage name="/gfx/pdf.png" />
-					<p:dataExporter type="pdf" target="tbl" fileName="professores"
-						pageOnly="true" />
-				</h:commandLink>
-
-				<h:commandLink>
-					<p:graphicImage name="/gfx/csv.png" />
-					<p:dataExporter type="csv" target="tbl" fileName="professores"
-						pageOnly="true" />
-				</h:commandLink>
-
-				<h:commandLink>
-					<p:graphicImage name="/gfx/xml.png" />
-					<p:dataExporter type="xml" target="tbl" fileName="professores"
-						pageOnly="true" />
-				</h:commandLink> -->
 			</h:panelGrid>
 
-
-			<h:panelGrid width="90%">
+			<h:panelGrid width="100%">
 				<p:dataTable id="tbl" var="professorTab"
 					value="#{professorController.professores}"
-					paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
-					paginator="true" style="margin-bottom:20px; width:100%"
+					paginator="true" rows="20"
+					paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					style="margin-bottom:20px; width:100%"
 					paginatorPosition="bottom">
 
-					<f:facet name="{Exporters}">
-						<h:commandLink>
-							<p:graphicImage name="/gfx/excel.png" width="24" />
-							<p:dataExporter type="xls" target="tbl" fileName="cars" />
-						</h:commandLink>
-
-						<h:commandLink>
-							<p:graphicImage name="/gfx/pdf.png" width="24" />
-							<p:dataExporter type="pdf" target="tbl" fileName="cars" />
-						</h:commandLink>
-
-						<h:commandLink>
-							<p:graphicImage name="/gfx/csv.png" width="24" />
-							<p:dataExporter type="csv" target="tbl" fileName="cars" />
-						</h:commandLink>
-
-						<h:commandLink>
-							<p:graphicImage name="/gfx/xml.png" width="24" />
-							<p:dataExporter type="xml" target="tbl" fileName="cars" />
-						</h:commandLink>
-					</f:facet>
-					
-					<p:column style="width:10%">
-						<f:facet name="header">
-							<h:outputText value="Ações" />
-						</f:facet>
-						<table style="border:none">
-							<tr style="border:none">
-								<td style="border:none">
-									<p:commandButton icon="ui-icon-pencil" action="#{professorController.editar(professorTab.id)}" />
-								</td >
-								
-							</tr>
-						</table>
+					<p:column style="width:8%">
+						<f:facet name="header"><h:outputText value="Ações" /></f:facet>
+						<p:commandButton icon="ui-icon-pencil"
+							action="#{professorController.editar(professorTab.id)}" />
+						<p:commandButton icon="ui-icon-trash"
+							update=":formFuncionarios:tbl :formFuncionarios:messages"
+							action="#{professorController.remover(professorTab.id)}"
+							style="margin-left:3px" />
 					</p:column>
-					
 
-					<p:column style="width:10%">
-						<f:facet name="header">
-							<h:outputText value="Código" />
-						</f:facet>
+					<p:column style="width:5%">
+						<f:facet name="header"><h:outputText value="Cód." /></f:facet>
 						<h:outputText value="#{professorTab.id}" />
 					</p:column>
 
 					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Nome" />
-						</f:facet>
+						<f:facet name="header"><h:outputText value="Nome" /></f:facet>
 						<h:outputText value="#{professorTab.nome}" />
 					</p:column>
 
-					<!-- <p:column>
-						<f:facet name="header">
-							<h:outputText value="Turmas" />
-						</f:facet>
-						<h:outputText value="#{alunoTab.serie.name}" />
-					</p:column>
- -->
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Telefone 1" />
-						</f:facet>
-						<h:outputText value="#{professorTab.telefone1}" />
-					</p:column>
-					
-					<p:column>
-						<f:facet name="header">
-							<h:outputText value="Telefone 2" />
-						</f:facet>
+					<p:column style="width:12%">
+						<f:facet name="header"><h:outputText value="Telefone" /></f:facet>
 						<h:outputText value="#{professorTab.telefone2}" />
 					</p:column>
-					
-					<p:column style="width:10%">
-						<f:facet name="header">
-							<h:outputText value="Remover" />
-						</f:facet>
-						
-							<p:commandButton update="tbl" icon="ui-icon-trash" action="#{professorController.remover(professorTab.id)}" >
-								
-							</p:commandButton>
+
+					<p:column style="width:10%"
+						rendered="#{authController.hasPermission(authController.administrador, authController.dono)}">
+						<f:facet name="header"><h:outputText value="Salário" /></f:facet>
+						<h:outputText value="#{professorTab.salarioBd}" rendered="#{professorTab.salarioBd != null}">
+							<f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+						</h:outputText>
+						<h:outputText value="—" rendered="#{professorTab.salarioBd == null}" style="color:#ccc"/>
+					</p:column>
+
+					<p:column style="width:12%">
+						<f:facet name="header"><h:outputText value="Chave Pix" /></f:facet>
+						<h:outputText value="#{professorTab.tipoChavePix}"
+							rendered="#{not empty professorTab.tipoChavePix}"
+							style="font-size:0.8em; color:#888; display:block" />
+						<h:outputText value="#{professorTab.chavePix}"
+							rendered="#{not empty professorTab.chavePix}" />
+						<h:outputText value="— não cadastrada —"
+							rendered="#{empty professorTab.chavePix}"
+							style="color:#aaa; font-style:italic" />
+					</p:column>
+
+					<p:column style="width:12%">
+						<f:facet name="header"><h:outputText value="Último Pagamento" /></f:facet>
+						<h:outputText value="#{professorTab.ultimoPagamento}"
+							rendered="#{professorTab.ultimoPagamento != null}">
+							<f:convertDateTime pattern="dd/MM/yyyy" timeZone="GMT-3" />
+						</h:outputText>
+						<h:outputText value="—" rendered="#{professorTab.ultimoPagamento == null}"
+							style="color:#aaa" />
+					</p:column>
+
+					<p:column style="width:10%"
+						rendered="#{authController.hasPermission(authController.administrador, authController.dono)}">
+						<f:facet name="header"><h:outputText value="Pagar" /></f:facet>
+						<p:commandButton value="Pagar" icon="ui-icon-transferthick-e-w"
+							styleClass="ui-button-success"
+							update=":formFuncionarios:messages :formFuncionarios:dlgPagamento"
+							actionListener="#{professorController.iniciarPagamento(professorTab)}" />
 					</p:column>
 
 				</p:dataTable>
-
 			</h:panelGrid>
+
+			<!-- Dialog de confirmação de pagamento -->
+			<p:dialog id="dlgPagamento" header="Autorizar Pagamento Pix"
+				widgetVar="dlgPagamento" modal="true" width="520" closable="true">
+
+				<h:panelGrid columns="2" style="width:100%; margin-bottom:10px">
+
+					<h:outputText value="Funcionário:" style="font-weight:bold" />
+					<h:outputText value="#{professorController.funcionarioParaPagar.nome}"
+						style="font-size:1.1em; font-weight:bold" />
+
+					<h:outputText value="Chave Pix:" style="font-weight:bold" />
+					<h:outputText value="#{professorController.funcionarioParaPagar.tipoChavePix}: #{professorController.funcionarioParaPagar.chavePix}" />
+
+					<h:outputText value="Salário cadastrado:" style="font-weight:bold" />
+					<h:outputText value="#{professorController.funcionarioParaPagar.salarioBd}">
+						<f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+					</h:outputText>
+
+					<h:outputText value="Último pagamento:" style="font-weight:bold" />
+					<h:outputText value="#{professorController.funcionarioParaPagar.ultimoPagamento}"
+						rendered="#{professorController.funcionarioParaPagar.ultimoPagamento != null}">
+						<f:convertDateTime pattern="dd/MM/yyyy" timeZone="GMT-3" />
+					</h:outputText>
+					<h:outputText value="Nenhum pagamento registrado"
+						rendered="#{professorController.funcionarioParaPagar.ultimoPagamento == null}"
+						style="color:#888" />
+
+				</h:panelGrid>
+
+				<hr style="margin: 10px 0" />
+
+				<h:panelGrid columns="2" style="width:100%">
+
+					<h:outputText value="Valor a pagar (R$):" style="font-weight:bold" />
+					<p:inputText id="valorPgto" value="#{professorController.valorPagamento}"
+						style="width:180px" placeholder="Ex: 1500.00" />
+
+					<h:outputText value="Senha de autorização:" style="font-weight:bold" />
+					<p:password id="senhaPgto" value="#{professorController.senhaConfirmacao}"
+						style="width:180px" feedback="false" />
+
+				</h:panelGrid>
+
+				<p style="color:#c47a00; font-size:0.85em; margin-top:10px">
+					⚠ O pagamento será enviado imediatamente via Pix ao confirmar.
+					Verifique o nome e chave do destinatário antes de prosseguir.
+				</p>
+
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; width:100%">
+					<p:commandButton value="Cancelar" icon="ui-icon-close"
+						onclick="PF('dlgPagamento').hide(); return false;"
+						style="background-color:#6c757d; color:white; border:1px solid #565e64; padding:7px 18px; cursor:pointer; border-radius:3px"/>
+					<p:commandButton value="Confirmar Pagamento" icon="ui-icon-check"
+						update=":formFuncionarios:messages :formFuncionarios:tbl :formFuncionarios:dlgPagamento"
+						oncomplete="PF('dlgPagamento').hide();"
+						actionListener="#{professorController.confirmarPagamento()}"
+						style="background-color:#00843D; color:white; border:1px solid #006830; padding:7px 18px; cursor:pointer; border-radius:3px"/>
+				</div>
+
+				<!-- Histórico de pagamentos do funcionário -->
+				<p:fieldset legend="Histórico de pagamentos" style="margin-top:15px"
+					rendered="#{not empty professorController.historicoPagamentos}">
+					<p:dataTable value="#{professorController.historicoPagamentos}" var="pgto"
+						style="width:100%">
+						<p:column headerText="Data">
+							<h:outputText value="#{pgto.dataPagamento}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="GMT-3" />
+							</h:outputText>
+						</p:column>
+						<p:column headerText="Valor">
+							<h:outputText value="R$ #{pgto.valor}" />
+						</p:column>
+						<p:column headerText="Status">
+							<h:outputText value="#{pgto.status}" />
+						</p:column>
+						<p:column headerText="Destinatário Sicoob">
+							<h:outputText value="#{pgto.nomeProprietarioSicoob}" />
+						</p:column>
+					</p:dataTable>
+				</p:fieldset>
+
+			</p:dialog>
 
 		</h:form>
 	</ui:define>

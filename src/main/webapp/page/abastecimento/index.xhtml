@@ -1,0 +1,136 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form id="formAbastecimento" style="width:100%; border:none">
+
+			<p:growl id="messages" showDetail="true" life="8000"/>
+
+			<h:panelGrid columns="6" style="margin-top:-30px; margin-bottom:8px" cellpadding="4">
+				<h:commandButton value="Realizar Abastecimento"
+					action="#{abastecimentoController.novoAbastecimento()}"
+					style="background-color:#00843D; color:white; border:1px solid #006830; padding:6px 14px; cursor:pointer"/>
+
+				<h:outputLabel value="Mês:" style="font-size:13px; font-weight:bold"/>
+				<p:selectOneMenu value="#{abastecimentoController.mesFiltro}" style="width:130px">
+					<f:selectItem itemValue="0" itemLabel="Todos"/>
+					<f:selectItem itemValue="1"  itemLabel="Janeiro"/>
+					<f:selectItem itemValue="2"  itemLabel="Fevereiro"/>
+					<f:selectItem itemValue="3"  itemLabel="Março"/>
+					<f:selectItem itemValue="4"  itemLabel="Abril"/>
+					<f:selectItem itemValue="5"  itemLabel="Maio"/>
+					<f:selectItem itemValue="6"  itemLabel="Junho"/>
+					<f:selectItem itemValue="7"  itemLabel="Julho"/>
+					<f:selectItem itemValue="8"  itemLabel="Agosto"/>
+					<f:selectItem itemValue="9"  itemLabel="Setembro"/>
+					<f:selectItem itemValue="10" itemLabel="Outubro"/>
+					<f:selectItem itemValue="11" itemLabel="Novembro"/>
+					<f:selectItem itemValue="12" itemLabel="Dezembro"/>
+					<p:ajax event="change" update="formAbastecimento" process="@form"/>
+				</p:selectOneMenu>
+
+				<h:outputLabel value="Ano:" style="font-size:13px; font-weight:bold"/>
+				<p:selectOneMenu value="#{abastecimentoController.anoFiltro}" style="width:90px">
+					<f:selectItems value="#{abastecimentoController.anosDisponiveis}"
+						var="ano" itemLabel="#{ano}" itemValue="#{ano}"/>
+					<p:ajax event="change" update="formAbastecimento" process="@form"/>
+				</p:selectOneMenu>
+
+				<h:panelGroup/>
+			</h:panelGrid>
+
+			<h:panelGrid width="100%">
+				<p:dataTable id="tbl" var="a"
+					value="#{abastecimentoController.abastecimentosFiltrados}"
+					paginator="true" rows="20"
+					paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					style="width:100%"
+					emptyMessage="Nenhum abastecimento encontrado.">
+
+					<p:column style="width:14%">
+						<f:facet name="header"><h:outputText value="Data"/></f:facet>
+						<h:outputText value="#{a.data}">
+							<f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
+						</h:outputText>
+					</p:column>
+
+					<p:column style="width:10%; text-align:right">
+						<f:facet name="header"><h:outputText value="Litros"/></f:facet>
+						<h:outputText value="#{a.litros}">
+							<f:convertNumber minFractionDigits="0" maxFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+						</h:outputText>
+						<h:outputText value=" L"/>
+					</p:column>
+
+					<p:column style="width:10%; text-align:right">
+						<f:facet name="header"><h:outputText value="R$/Litro"/></f:facet>
+						<h:outputText value="#{a.valorPorLitro}">
+							<f:convertNumber minFractionDigits="2" maxFractionDigits="3" locale="pt_BR" groupingUsed="true"/>
+						</h:outputText>
+					</p:column>
+
+					<p:column style="width:12%; text-align:right">
+						<f:facet name="header"><h:outputText value="Valor Total"/></f:facet>
+						<h:outputText value="#{a.valorTotal}" style="font-weight:bold">
+							<f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+						</h:outputText>
+					</p:column>
+
+					<p:column style="width:9%; text-align:center">
+						<f:facet name="header"><h:outputText value="PIX"/></f:facet>
+						<h:outputText value="● PAGO"   style="color:#00843D; font-weight:bold; font-size:12px" rendered="#{a.statusPix == 'PAGO'}"/>
+						<h:outputText value="● ERRO"   style="color:#d32f2f; font-weight:bold; font-size:12px" rendered="#{a.statusPix == 'ERRO'}"/>
+						<h:outputText value="● PENDENTE" style="color:#f57c00; font-weight:bold; font-size:12px" rendered="#{a.statusPix == 'PENDENTE'}"/>
+					</p:column>
+
+					<p:column style="width:20%">
+						<f:facet name="header"><h:outputText value="Destinatário"/></f:facet>
+						<h:outputText value="#{a.nomeDestinatario != null and not empty a.nomeDestinatario ? a.nomeDestinatario : 'Rudipel Rudnick Petróleo'}"
+							style="font-size:12px"/>
+					</p:column>
+
+					<p:column style="width:7%; text-align:center">
+						<f:facet name="header"><h:outputText value="Zap"/></f:facet>
+						<h:outputText value="✓" style="color:green; font-weight:bold" rendered="#{a.whatsappEnviado}"/>
+						<h:outputText value="—" style="color:#ccc"                    rendered="#{!a.whatsappEnviado}"/>
+					</p:column>
+
+					<p:column style="width:18%">
+						<f:facet name="header"><h:outputText value="EndToEndId"/></f:facet>
+						<h:outputText value="#{a.endToEndId}"
+							style="font-family:monospace; font-size:10px; color:#888"/>
+					</p:column>
+
+					<p:column style="width:8%; text-align:center">
+						<f:facet name="header"><h:outputText value="Comprovante"/></f:facet>
+						<p:commandButton icon="ui-icon-arrowthick-1-s"
+							title="Baixar PDF"
+							action="#{abastecimentoController.baixarComprovante(a)}"
+							rendered="#{a.statusPix == 'PAGO'}"
+							ajax="false"
+							style="#{a.comprovantePdf == null ? 'opacity:0.6' : ''}"/>
+						<h:outputText value="—" style="color:#ccc" rendered="#{a.statusPix != 'PAGO'}"/>
+					</p:column>
+
+				</p:dataTable>
+			</h:panelGrid>
+
+			<h:panelGrid columns="4" style="margin-top:10px; font-size:14px" cellpadding="6"
+				rendered="#{not empty abastecimentoController.abastecimentosFiltrados}">
+				<h:outputText value="Total do período:" style="font-weight:bold"/>
+				<h:outputText value="#{abastecimentoController.totalLitrosFiltrado} litros"
+					style="font-weight:bold; color:#333"/>
+				<h:outputText value="Valor total:"/>
+				<h:outputText value="#{abastecimentoController.totalValorFiltrado}"
+					style="font-weight:bold; color:#00843D">
+					<f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2" locale="pt_BR" groupingUsed="true"/>
+				</h:outputText>
+			</h:panelGrid>
+
+		</h:form>
+	</ui:define>
+</ui:composition>

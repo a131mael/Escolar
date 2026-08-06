@@ -2435,6 +2435,24 @@ public class AlunoController implements Serializable {
 		return Verificador.getStatus(boleto);
 	}
 
+	public String getSicoobStatusHtml(org.escolar.model.Boleto boleto) {
+		if (boleto == null) return "";
+		String status = boleto.getStatusSicoob();
+		if (status == null || status.trim().isEmpty()) return "<span style='color:#aaa;font-size:11px;'>-</span>";
+		String lower = status.toLowerCase();
+		String color, bg;
+		if (lower.contains("liquid") || lower.contains("pago")) {
+			bg = "#d4edda"; color = "#155724";
+		} else if (lower.contains("baixado") || lower.contains("cancelado")) {
+			bg = "#e2e3e5"; color = "#383d41";
+		} else if (lower.contains("aberto") || lower.contains("vencido")) {
+			bg = "#fff3cd"; color = "#856404";
+		} else {
+			bg = "#cce5ff"; color = "#004085";
+		}
+		return "<span style='background:" + bg + ";color:" + color + ";padding:1px 6px;border-radius:4px;font-size:11px;font-weight:bold;'>" + status + "</span>";
+	}
+
 	/*
 	 * public String marcarLinha(Long idAluno) { String cor = ""; if (idAluno ==
 	 * null) { return ""; } Aluno a = alunoService.findById(idAluno); if
@@ -2628,8 +2646,9 @@ public class AlunoController implements Serializable {
 
 			CNAB240_SICOOB cnab = new CNAB240_SICOOB(1);
 
-			String nomeArquivo = contrato.getAluno().getCodigo()
-					+ contrato.getAluno().getContratoVigente().getNomeResponsavel().replace(" ", "") + ".pdf";
+			String nomeArquivo = (contrato.getAluno().getCodigo()
+					+ contrato.getAluno().getContratoVigente().getNomeResponsavel().replace(" ", ""))
+					.replaceAll("[^a-zA-Z0-9._-]", "_") + ".pdf";
 
 			Pagador pagador = new Pagador();
 			pagador.setBairro(contrato.getBairro());

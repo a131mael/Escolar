@@ -21,6 +21,12 @@
 										,authController.secretaria
 										,authController.dono)}" />
 
+						<h:outputLabel for="placa" value="Placa do veículo: " />
+						<h:inputText id="placa" value="#{turma.placa}"
+							style="font-size: 15px; width:280px"
+							disabled="#{!authController.hasPermission(authController.administrador
+										,authController.secretaria
+										,authController.dono)}" />
 
 						<h:outputLabel for="pickList" value="Funcionários:"
 							rendered="#{authController.hasPermission(authController.administrador
