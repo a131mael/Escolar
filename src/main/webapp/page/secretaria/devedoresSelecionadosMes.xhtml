@@ -107,34 +107,10 @@
 					</f:facet>
 					
 					<p:column headerText="Enviado ?" width="25%">
-					<table >
-						<tr>
-							<td  style="width: 25px; border: 0px">
-							<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}">
-								<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
-							</p:panelGrid>
-							<h:outputText value="#{alunoController.getSicoobStatusHtml(professorTab)}" escape="false"/>
-							</td>
-							<td style="border: 0px">
-								<p:dataTable value="#{alunoController.getPromessasContratoAberta(professorTab.pagador)}" 
-										var="promessa" rendered="#{alunoController.possuiPromessaAberta(professorTab.pagador)}">
-								<p:column width="30%">
-									<h:outputLabel value="#{promessa.dataPromessaPagamento}" >
-										<f:convertDateTime pattern="dd/MM/yyyy" />
-										<br/>
-									</h:outputLabel>
-								</p:column>
-								<p:column>
-									<h:outputLabel value="#{promessa.descricao}" >
-										<f:convertDateTime pattern="dd/MM/yyyy" />
-										<br/>
-									</h:outputLabel>
-								</p:column>
-							</p:dataTable></td>
-						</tr>
-						
-					</table>
-						
+						<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}">
+							<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
+						</p:panelGrid>
+						<h:outputText value="#{alunoController.getSicoobStatusHtml(professorTab)}" escape="false"/>
 					</p:column>
 
 					<p:column filterBy="#{professorTab.pagador.nomeAluno}"
