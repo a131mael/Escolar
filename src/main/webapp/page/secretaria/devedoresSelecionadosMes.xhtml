@@ -33,14 +33,18 @@
 				<p:tooltip  for="restaurar" value="Restaurar" position="top"/>
 				
 				 <p:tooltip  for="enviarAviso" value="Enviar Whatsapp para TODOS" position="top"/>
-			
+				 <p:tooltip  for="sincronizarSicoob" value="Sincronizar com Sicoob (todos os boletos filtrados nessa lista)" position="top"/>
+
 				<p:commandButton id="editar" icon="ui-icon-pencil" update="@form" action="#{relatorioController.editarBol()}"	alt="Editar" />
 				
 				<p:commandLink id="enviarAviso"  alt="Enviar Whatsapp para TODOS"
 							action="#{relatorioController.enviarMensagemBoletoAtrasado()}"	 >
 					<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
 				</p:commandLink>
-				
+
+				<p:commandButton id="sincronizarSicoob" value="Sincronizar com Sicoob" icon="ui-icon-refresh"
+							update="tbl" action="#{relatorioController.sincronizarBoletosComSicoobMes()}" />
+
 				<p:commandButton id="restaurar" icon="ui-icon-pencil" rendered="false" action="#{alunoController.restaurar(aluno.id)}" disabled="#{!alunoController.alunoSelecionado}"/>
 				
 				<p:separator style=" height:25px;" />
@@ -109,7 +113,7 @@
 							<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}">
 								<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
 							</p:panelGrid>
-							
+							<h:outputText value="#{alunoController.getSicoobStatusHtml(professorTab)}" escape="false"/>
 							</td>
 							<td style="border: 0px">
 								<p:dataTable value="#{alunoController.getPromessasContratoAberta(professorTab.pagador)}" 

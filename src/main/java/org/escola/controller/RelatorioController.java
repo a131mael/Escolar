@@ -899,6 +899,37 @@ public class RelatorioController implements Serializable {
 		Util.addAtributoSessao("anoSelecionado", anoSelecionado);
 	}
 
+	public void sincronizarBoletosComSicoobMes() {
+		Map<String, Object> filtros = new HashMap<String, Object>();
+		filtros.put("mesAtrasado", mesAtrasado);
+		filtros.put("anoSelecionado", anoSelecionado);
+
+		// sem paginacao (first=0, size=0) - sincroniza TODOS os boletos que batem com o filtro
+		// do mes/ano selecionado nessa tela, nao so a pagina atual nem todos os boletos de cada
+		// crianca (mesmo padrao ja usado em enviarMensagemBoletoAtrasado()).
+		List<Boleto> boletos = financeiroService.findAlunoMes2(0, 0, "", "", filtros);
+		int sucesso = 0;
+		int erro = 0;
+		for (Boleto boleto : boletos) {
+			java.util.Date agora = new java.util.Date();
+			String status;
+			try {
+				status = sicoobBoletoService.consultarSituacaoBoleto(configuracao, boleto.getNossoNumero());
+				sucesso++;
+			} catch (Exception e) {
+				e.printStackTrace();
+				status = "Erro:" + e.getMessage();
+				erro++;
+			}
+			boleto.setStatusSicoob(status);
+			boleto.setDataConsultaSicoob(agora);
+			financeiroService.atualizarStatusSicoob(boleto.getId(), status, agora);
+		}
+		FacesContext.getCurrentInstance().addMessage(null,
+			new FacesMessage(FacesMessage.SEVERITY_INFO, "Sicoob",
+				sucesso + " boleto(s) consultado(s) com sucesso, " + erro + " com erro"));
+	}
+
 	public void enviarMensagemBoletoAtrasado() {
 		Map<String, Object> filtros = new HashMap<String, Object>();
 		filtros.put("mesAtrasado", mesAtrasado);
