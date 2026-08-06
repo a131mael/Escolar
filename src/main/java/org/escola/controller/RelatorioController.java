@@ -972,7 +972,24 @@ public class RelatorioController implements Serializable {
 		List<MensagemAluno> mensagens = mensagemAlunoService.findByParam(idAluno, String.valueOf(mes), String.valueOf(ano), CanalMensagem.WHATSAPP);
 		return !mensagens.isEmpty();
 	}
-	
+
+	public boolean possuiMensagemEnviada(long idAluno, TipoMensagem tipo){
+		List<MensagemAluno> mensagens = mensagemAlunoService.findByParam(idAluno, String.valueOf(mesAtrasado), String.valueOf(anoSelecionado), CanalMensagem.WHATSAPP, tipo);
+		return !mensagens.isEmpty();
+	}
+
+	public boolean possuiMensagemSuave1(long idAluno){
+		return possuiMensagemEnviada(idAluno, TipoMensagem.AVISO_BOLETO_ATRASAO_MES);
+	}
+
+	public boolean possuiMensagemSuave2(long idAluno){
+		return possuiMensagemEnviada(idAluno, TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_PRE_SUSPENSAO);
+	}
+
+	public boolean possuiMensagemSuave3(long idAluno){
+		return possuiMensagemEnviada(idAluno, TipoMensagem.AVISO_BOLETO_ATRASAO_MES_ALERTA_SUSPENSAO);
+	}
+
 	public void saveStatusContrato(Aluno aluno) {
 		alunoService.saveStatusCntrato(aluno);
 	}
