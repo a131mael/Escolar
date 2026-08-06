@@ -211,20 +211,42 @@
 					</p:column>
 
 
-					<p:column style="text-align: center; width:6%" 
+					<p:column style="text-align: center; width:6%"
 					styleClass="#{alunoController.marcarLinha(professorTab.pagador)}">
 						<f:facet name="header">
 							<h:outputText value="Enviar whats" />
 						</f:facet>
-						
-							<p:commandLink label="Enviar whats aviso de debito" update="tbl"  
+
+							<p:commandLink label="Enviar whats aviso de debito" update="tbl"
 											action="#{relatorioController.enviarMensagemBoletoAtrasado(professorTab.pagador.id)}" >
 								<h:graphicImage name="/gfx/whatsapp.png" width="28px" height="28px"/>
 							</p:commandLink>
 					</p:column>
-					
+
+					<p:column style="text-align: center; width:6%"
+					styleClass="#{alunoController.marcarLinha(professorTab.pagador)}">
+						<f:facet name="header">
+							<h:outputText value="Baixar boleto" />
+						</f:facet>
+
+							<!-- Baixa SOMENTE o boleto pontual dessa linha (professorTab) - nunca em lote.
+								 Reaproveita financeiroController.baixarBoleto(Boleto), a mesma acao usada
+								 na tela de baixa manual (page/financeiro/baixaManual.jsf). -->
+							<p:commandButton title="Baixar boleto" icon="ui-icon-check" update="tbl"
+											 actionListener="#{financeiroController.baixarBoleto(professorTab)}"
+											 disabled="#{financeiroController.isBoletoPago(professorTab) or professorTab.cancelado}">
+								<p:confirm header="Confirmação"
+										   message="Tem certeza que deseja baixar o boleto de #{professorTab.pagador.nomeAluno} com vencimento #{financeiroController.formatarData(professorTab.vencimento)} ?"
+										   icon="ui-icon-alert" />
+							</p:commandButton>
+					</p:column>
 
 				</p:dataTable>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
 
 			<h:commandButton id="voltarButtomDash" immediate="true"
 				action="#{alunoController.voltarDash()}" value="Voltar Dashboard" />
