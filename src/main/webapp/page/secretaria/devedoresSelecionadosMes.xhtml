@@ -107,10 +107,11 @@
 					</f:facet>
 					
 					<p:column headerText="Enviado ?" width="25%">
-						<p:panelGrid style="border: 0px ! important" rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}">
-							<img src="../../admin/resources/ico/ok.png" 	style="width: 20px; height: 20px;" 	/>
-						</p:panelGrid>
-						<h:outputText value="#{alunoController.getSicoobStatusHtml(professorTab)}" escape="false"/>
+						<div style="display:flex; align-items:center; gap:8px;">
+							<h:graphicImage url="../../admin/resources/ico/ok.png" style="width: 20px; height: 20px;"
+											rendered="#{relatorioController.possuiMensagemEnviada(professorTab.pagador.id)}" />
+							<h:outputText value="#{alunoController.getSicoobStatusHtml(professorTab)}" escape="false"/>
+						</div>
 					</p:column>
 
 					<p:column filterBy="#{professorTab.pagador.nomeAluno}"
