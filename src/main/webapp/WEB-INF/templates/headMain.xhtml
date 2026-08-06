@@ -21,9 +21,6 @@
 		<p:menuitem value="Home" url="../secretaria/index.jsf"
 			icon="ui-icon-search" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 
-		<p:menuitem value="Arquivos" url="../arquivos/index.jsf"
-			icon="ui-icon-folder-open" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
-
 		<p:submenu label="Alunos" rendered="#{authController.hasPermission(authController.administrador
 															,authController.secretaria,authController.dono
 															)}">
@@ -151,6 +148,9 @@
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>	
 				
 		</p:submenu>
+
+		<p:menuitem value="Arquivos" url="../arquivos/index.jsf"
+			icon="ui-icon-folder-open" rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 
 		<f:facet name="options">
 			<p:inputText style="margin-right:10px" placeholder="Search" />
