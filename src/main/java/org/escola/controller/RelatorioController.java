@@ -44,6 +44,7 @@ import org.escolar.model.Carro;
 import org.escolar.model.Configuracao;
 import org.escolar.model.ContratoAluno;
 import org.escolar.model.MensagemAluno;
+import org.escolar.model.PedidoCancelamento;
 import org.escolar.model.PromessaPagamentoBoleto;
 import org.escolar.model.PixRecebido;
 import org.escolar.service.AlunoService;
@@ -1704,6 +1705,10 @@ public class RelatorioController implements Serializable {
 		} catch (Exception e) {
 			return new ArrayList<PixRecebido>();
 		}
+	}
+
+	public List<PedidoCancelamento> getPedidosCancelamento() {
+		return relatorioService.getPedidosCancelamentoPendentes();
 	}
 
 	public StatusContratoEnum getStatusContrato() {
