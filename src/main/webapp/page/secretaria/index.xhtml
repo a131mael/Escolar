@@ -331,8 +331,11 @@
 			<p:column headerText="Vai usar até" style="width:10%">
 				<h:outputText value="#{pedido.dataUltimoUso}" />
 			</p:column>
-			<p:column headerText="Multa" style="width:8%">
-				<h:outputText value="R$ #{pedido.valorMulta}" />
+			<p:column headerText="Deve pagar (mensalidade + aviso, se houver)" style="width:20%">
+				<h:outputText value="#{pedido.detalheMensalidades}" />
+			</p:column>
+			<p:column headerText="Multa" style="width:12%">
+				<h:outputText value="#{pedido.valorMulta}" />
 			</p:column>
 			<p:column headerText="Motivo">
 				<h:outputText value="#{pedido.motivo}" />
