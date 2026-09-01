@@ -111,7 +111,10 @@
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 				
 				
-				<p:menuitem value="Custos" url="../secretaria/despesas.jsf" icon="ui-icon-close" 
+				<p:menuitem value="Custos" url="../secretaria/despesas.jsf" icon="ui-icon-close"
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
+
+				<p:menuitem value="Histórico de Cancelamentos" url="../secretaria/historicoCancelamentos.jsf" icon="ui-icon-close"
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 				
 			

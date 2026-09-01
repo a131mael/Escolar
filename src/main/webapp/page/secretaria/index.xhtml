@@ -315,12 +315,12 @@
 
 	<p:panel id="painelPedidosCancelamento" header="Pedidos de cancelamento de contrato"
 		style="width:100%; margin-bottom:10px" rendered="#{not empty relatorioController.pedidosCancelamento}">
-		<p:dataTable value="#{relatorioController.pedidosCancelamento}" var="pedido" style="width:100%">
+		<p:dataTable id="tabelaPedidosCancelamento" value="#{relatorioController.pedidosCancelamento}" var="pedido" style="width:100%">
 			<p:column headerText="Pedido em" style="width:12%">
 				<h:outputText value="#{pedido.dataPedido}" />
 			</p:column>
 			<p:column headerText="Aluno" style="width:18%">
-				<h:outputText value="#{pedido.nomeAluno}" />
+				<h:commandLink action="#{alunoController.editar(pedido.alunoId)}" value="#{pedido.nomeAluno}" />
 			</p:column>
 			<p:column headerText="Contrato" style="width:10%">
 				<h:outputText value="#{pedido.numeroContrato}/#{pedido.ano}" />
@@ -331,7 +331,7 @@
 			<p:column headerText="Vai usar até" style="width:10%">
 				<h:outputText value="#{pedido.dataUltimoUso}" />
 			</p:column>
-			<p:column headerText="Deve pagar (mensalidade + aviso, se houver)" style="width:20%">
+			<p:column headerText="Deve pagar" style="width:20%">
 				<h:outputText value="#{pedido.detalheMensalidades}" />
 			</p:column>
 			<p:column headerText="Multa" style="width:12%">
@@ -339,6 +339,11 @@
 			</p:column>
 			<p:column headerText="Motivo">
 				<h:outputText value="#{pedido.motivo}" />
+			</p:column>
+			<p:column headerText="Ação" style="width:10%">
+				<p:commandButton value="Descancelar" update="@form"
+					onclick="if (!confirm('Cliente se arrependeu e não vai mais cancelar o contrato?')) return false;"
+					action="#{relatorioController.descancelar(pedido)}" />
 			</p:column>
 		</p:dataTable>
 	</p:panel>

@@ -1711,6 +1711,16 @@ public class RelatorioController implements Serializable {
 		return relatorioService.getPedidosCancelamentoPendentes();
 	}
 
+	/** Histórico completo (confirmados + em aberto) pra tela de histórico de cancelamentos. */
+	public List<PedidoCancelamento> getHistoricoCancelamentos() {
+		return relatorioService.getHistoricoCancelamentos();
+	}
+
+	/** Cliente se arrependeu do cancelamento — remove o pedido pendente da fila. */
+	public void descancelar(PedidoCancelamento pedido) {
+		relatorioService.descancelarPedido(pedido.getId());
+	}
+
 	public StatusContratoEnum getStatusContrato() {
 		return statusContrato;
 	}
