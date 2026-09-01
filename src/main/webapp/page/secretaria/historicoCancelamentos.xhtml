@@ -1,0 +1,55 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/WEB-INF/templates/templateADM.xhtml">
+
+	<ui:define name="content">
+		<h:form prependId="false" style="width:100%; border:none"
+			rendered="#{authController.hasPermission(authController.administrador
+			,authController.secretaria,authController.dono)}">
+
+			<h:outputLabel value="Histórico de Pedidos de Cancelamento de Contrato"
+				style="font-size: 18px; font-weight:bold; display:block; margin-bottom:10px" />
+
+			<p:dataTable id="tabelaHistoricoCancelamentos"
+				value="#{relatorioController.historicoCancelamentos}" var="pedido"
+				style="width:100%"
+				emptyMessage="Nenhum pedido de cancelamento encontrado">
+
+				<p:column headerText="Status" style="width:9%">
+					<h:outputText value="#{pedido.status}"
+						style="#{pedido.status eq 'Confirmado' ? 'color:#a94442;font-weight:bold' : 'color:#8a6d3b;font-weight:bold'}" />
+				</p:column>
+				<p:column headerText="Pedido em" style="width:10%">
+					<h:outputText value="#{pedido.dataPedido}" />
+				</p:column>
+				<p:column headerText="Confirmado em" style="width:10%">
+					<h:outputText value="#{pedido.dataConfirmacao}" />
+				</p:column>
+				<p:column headerText="Aluno" style="width:15%">
+					<h:commandLink action="#{alunoController.editar(pedido.alunoId)}" value="#{pedido.nomeAluno}" />
+				</p:column>
+				<p:column headerText="Contrato" style="width:8%">
+					<h:outputText value="#{pedido.numeroContrato}/#{pedido.ano}" />
+				</p:column>
+				<p:column headerText="Responsável" style="width:13%">
+					<h:outputText value="#{pedido.nomeResponsavel}" />
+				</p:column>
+				<p:column headerText="Vai usar até" style="width:8%">
+					<h:outputText value="#{pedido.dataUltimoUso}" />
+				</p:column>
+				<p:column headerText="Deve pagar" style="width:15%">
+					<h:outputText value="#{pedido.detalheMensalidades}" />
+				</p:column>
+				<p:column headerText="Multa" style="width:10%">
+					<h:outputText value="#{pedido.valorMulta}" />
+				</p:column>
+				<p:column headerText="Motivo">
+					<h:outputText value="#{pedido.motivo}" />
+				</p:column>
+			</p:dataTable>
+		</h:form>
+	</ui:define>
+</ui:composition>
