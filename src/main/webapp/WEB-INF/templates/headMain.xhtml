@@ -44,8 +44,11 @@
 			<p:menuitem value="Atrasadas" url="../financeiro/atrasados.jsf"	icon="ui-icon-pencil" 
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
 		
-			<p:menuitem value="Rotas" url="../public/rotas.jsf"	icon="ui-icon-pencil" 
+			<p:menuitem value="Rotas" url="../public/rotas.jsf"	icon="ui-icon-pencil"
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria)}"/>
+
+			<p:menuitem value="Histórico de Cancelamentos" url="../secretaria/historicoCancelamentos.jsf" icon="ui-icon-pencil"
+					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 		</p:submenu>
 		
 		<p:menuitem value="Crianças" url="../colaborador/index.jsf"	icon="ui-icon-pencil" 
@@ -112,9 +115,6 @@
 				
 				
 				<p:menuitem value="Custos" url="../secretaria/despesas.jsf" icon="ui-icon-close"
-					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
-
-				<p:menuitem value="Histórico de Cancelamentos" url="../secretaria/historicoCancelamentos.jsf" icon="ui-icon-close"
 					rendered="#{authController.hasPermission(authController.administrador,authController.secretaria,authController.dono)}"/>
 				
 			
