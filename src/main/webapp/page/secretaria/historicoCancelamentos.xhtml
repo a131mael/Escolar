@@ -10,46 +10,46 @@
 			rendered="#{authController.hasPermission(authController.administrador
 			,authController.secretaria,authController.dono)}">
 
-			<h:outputLabel value="Histórico de Pedidos de Cancelamento de Contrato"
-				style="font-size: 18px; font-weight:bold; display:block; margin-bottom:10px" />
-
+			<p:panel id="painelHistoricoCancelamentos" header="Histórico de Pedidos de Cancelamento de Contrato"
+				style="width:100%; margin-bottom:10px">
 			<p:dataTable id="tabelaHistoricoCancelamentos"
 				value="#{relatorioController.historicoCancelamentos}" var="pedido"
 				style="width:100%"
 				emptyMessage="Nenhum pedido de cancelamento encontrado">
 
-				<p:column headerText="Status" style="width:9%">
+				<p:column headerText="Status" style="width:7%">
 					<h:outputText value="#{pedido.status}"
 						style="#{pedido.status eq 'Confirmado' ? 'color:#a94442;font-weight:bold' : 'color:#8a6d3b;font-weight:bold'}" />
 				</p:column>
-				<p:column headerText="Pedido em" style="width:10%">
+				<p:column headerText="Pedido em" style="width:8%">
 					<h:outputText value="#{pedido.dataPedido}" />
 				</p:column>
-				<p:column headerText="Confirmado em" style="width:10%">
+				<p:column headerText="Confirmado em" style="width:8%">
 					<h:outputText value="#{pedido.dataConfirmacao}" />
 				</p:column>
-				<p:column headerText="Aluno" style="width:15%">
+				<p:column headerText="Aluno" style="width:12%">
 					<h:commandLink action="#{alunoController.editar(pedido.alunoId)}" value="#{pedido.nomeAluno}" />
 				</p:column>
-				<p:column headerText="Contrato" style="width:8%">
+				<p:column headerText="Contrato" style="width:6%">
 					<h:outputText value="#{pedido.numeroContrato}/#{pedido.ano}" />
 				</p:column>
-				<p:column headerText="Responsável" style="width:13%">
+				<p:column headerText="Responsável" style="width:10%">
 					<h:outputText value="#{pedido.nomeResponsavel}" />
 				</p:column>
-				<p:column headerText="Vai usar até" style="width:8%">
+				<p:column headerText="Vai usar até" style="width:6%">
 					<h:outputText value="#{pedido.dataUltimoUso}" />
 				</p:column>
-				<p:column headerText="Deve pagar" style="width:15%">
+				<p:column headerText="Deve pagar" style="width:12%">
 					<h:outputText value="#{pedido.detalheMensalidades}" />
 				</p:column>
-				<p:column headerText="Multa" style="width:10%">
+				<p:column headerText="Multa" style="width:9%">
 					<h:outputText value="#{pedido.valorMulta}" />
 				</p:column>
-				<p:column headerText="Motivo">
+				<p:column headerText="Motivo" style="width:22%">
 					<h:outputText value="#{pedido.motivo}" />
 				</p:column>
 			</p:dataTable>
+			</p:panel>
 		</h:form>
 	</ui:define>
 </ui:composition>
