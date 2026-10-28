@@ -171,6 +171,8 @@ public class AlunoController implements Serializable {
 	@Named
 	private List<Aluno> alunos;
 
+	private String ultimoErroEnvioNFS;
+
 	@Inject
 	private AlunoService alunoService;
 
@@ -1975,7 +1977,8 @@ public class AlunoController implements Serializable {
 
 			} else {
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info",
-						"NÃO GEROU A NOTA " + aluno.getNomeAluno()));
+						"NÃO GEROU A NOTA " + aluno.getNomeAluno()
+								+ (ultimoErroEnvioNFS != null ? " — " + ultimoErroEnvioNFS : "")));
 			}
 
 		} catch (Exception e) {
@@ -2131,8 +2134,17 @@ public class AlunoController implements Serializable {
 			System.out.println("executing request " + httppost.getRequestLine());
 			System.out.println("Now uploading your file into uploadbox.com");
 			HttpResponse response = httpclient.execute(httppost);
+			String corpoResposta = EntityUtils.toString(response.getEntity(), "UTF-8");
 			System.out.println(response.getStatusLine().getStatusCode());
-			System.out.println(EntityUtils.toString(response.getEntity(), "UTF-8"));
+			System.out.println(corpoResposta);
+
+			// A prefeitura responde HTTP 200 mesmo quando REJEITA a nota -- o erro
+			// real vem dentro do corpo, em <retorno><mensagem><codigo>...</codigo>.
+			// Sem checar isso, o sistema marcava a nota como enviada mesmo rejeitada.
+			if (corpoResposta != null && corpoResposta.contains("<mensagem>")) {
+				ultimoErroEnvioNFS = corpoResposta.replaceAll("<[^>]+>", " ").trim().replaceAll("\\s+", " ");
+				return false;
+			}
 
 			if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300) {
 				return true;
