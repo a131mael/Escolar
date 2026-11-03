@@ -2377,10 +2377,8 @@ public class AlunoController implements Serializable {
 
 	public StreamedContent gerarRematricula_TodosAlunos() {
 		try {
-			Map<String, Object> parametros = new HashMap<>();
-			parametros.put("removido", false);
-			parametros.put("anoLetivo", configuracaoService.getConfiguracao().getAnoLetivo());
-			List<Aluno> todosAlunos = alunoService.findAll(parametros);
+			List<Aluno> todosAlunos = alunoService
+					.findAlunosParaRematricula(configuracaoService.getConfiguracao().getAnoLetivo());
 
 			String caminhoFinalPasta = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
 					+ File.separator + configuracaoService.getConfiguracao().getAnoLetivo();
