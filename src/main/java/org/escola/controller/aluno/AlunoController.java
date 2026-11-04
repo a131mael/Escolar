@@ -1255,6 +1255,28 @@ public class AlunoController implements Serializable {
 		return trocas;
 	}
 
+	// Regras especiais de aviso por escola na ficha de rematricula. Centraliza
+	// aqui pra ficar facil de achar/mexer quando surgir regra nova (adicionar
+	// mais um "else if" com a condicao da escola).
+	private String montarAvisoEscola(Aluno aluno, int ano) {
+		if (aluno.getEscola() == null) {
+			return "";
+		}
+
+		if (aluno.getEscola().equals(EscolaEnum.CEMA) || aluno.getEscola().equals(EscolaEnum.MULTIPLA_ESCOLHA)) {
+			return "Informamos que a partir de " + ano + ", não realizaremos o transporte para o Colégio "
+					+ aluno.getEscola().getName()
+					+ ". Entre em contato para consultar a disponibilidade de transporte para outras escolas.";
+		}
+
+		if (aluno.getEscola().equals(EscolaEnum.RODA_PIAO)) {
+			return "Conseguimos realizar o transporte para o Colégio " + aluno.getEscola().getName()
+					+ " somente no período da manhã. Favor ligar para combinar sobre a volta.";
+		}
+
+		return "";
+	}
+
 	public HashMap<String, String> montarContratoRematricula(Aluno aluno, ContratoAluno contrato) {
 
 		DateFormat formatador = DateFormat.getDateInstance(DateFormat.FULL, new Locale("pt", "BR"));
@@ -1299,7 +1321,11 @@ public class AlunoController implements Serializable {
 					"Informamos que a rematrícula do seu filho(a) está condicionada quitação total das parcelas em aberto até 31/12/"
 							+ ano
 							+ ". Para acertar os valores em aberto favor entrar em contato com o financeiro através do telefones 3093-0042(whatsapp)");
-		} else {
+		}
+
+		trocas.put("avisoescola", montarAvisoEscola(aluno, ano));
+
+		if (!devedor) {
 			trocas.put("atencaodevedor", "");
 			trocas.put("devedormensagem", "");
 			trocas.put("finalmensagem", "");
