@@ -1668,8 +1668,11 @@ public class AlunoController implements Serializable {
 		if (aluno != null && aluno.getId() != null) {
 			String nomeResponsavelSeguro = contrato.getNomeResponsavel() == null ? ""
 					: contrato.getNomeResponsavel().replaceAll("[\\\\/:*?\"<>|]", " ").trim();
+			// aluno.getCodigo() nao e unico por crianca (irmaos podem compartilhar o
+			// mesmo codigo), entao incluimos o id do aluno pra garantir que o arquivo
+			// de um irmao nao sobrescreva o do outro.
 			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + File.separator + aluno.getCodigo()
-					+ nomeResponsavelSeguro + "R";
+					+ "-" + aluno.getId() + nomeResponsavelSeguro + "R";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloRematricula.docx",
 					montarContratoRematricula(aluno, contrato), nomeArquivo);
 			nomeArquivo += ".doc";
