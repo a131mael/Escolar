@@ -1261,10 +1261,11 @@ public class AlunoController implements Serializable {
 		String dataExtenso = formatador.format(new Date());
 		Calendar dataLim = Calendar.getInstance();
 		dataLim.add(Calendar.MONTH, 1);
-		int ano = configuracao.getAnoLetivo();
-		if (aluno.getRematricular() != null && aluno.getRematricular()) {
-			ano = configuracao.getAnoRematricula();
-		}
+		// Usa o ano do contrato que foi efetivamente gerado/passado, em vez de
+		// re-adivinhar pela flag aluno.getRematricular() (que não reflete o
+		// contexto da chamada e fazia mostrar 2026 -- e junto, buscar preco
+		// pra 2026, que nao existe mais na tabela, gerando valor zerado).
+		int ano = contrato.getAno();
 		Calendar calendar = Calendar.getInstance();
 		DateFormat fomatadorData = DateFormat.getDateInstance(DateFormat.DEFAULT, new Locale("pt", "BR"));
 		int anoNascimento = 0;
