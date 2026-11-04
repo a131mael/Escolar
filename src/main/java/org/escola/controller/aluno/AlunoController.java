@@ -1263,6 +1263,12 @@ public class AlunoController implements Serializable {
 			return "";
 		}
 
+		// Caso especifico: Davi Pedro dos Santos (id 92111), Elcana -- so
+		// conseguimos fazer a ida pra esse aluno em particular.
+		if (aluno.getId() != null && aluno.getId() == 92111L) {
+			return "Davi, conseguimos fazer somente a IDA para o Colégio Elcana. Caso precise de ida e volta, será necessário mudar de escola.";
+		}
+
 		if (aluno.getEscola().equals(EscolaEnum.CEMA) || aluno.getEscola().equals(EscolaEnum.MULTIPLA_ESCOLHA)) {
 			return "Informamos que a partir de " + ano + ", não realizaremos o transporte para o Colégio "
 					+ aluno.getEscola().getName()
@@ -1337,6 +1343,18 @@ public class AlunoController implements Serializable {
 		trocas.put("valorjaneiro", getValor(1, aluno, ano) + "");
 		trocas.put("valorfevereiro", getValor(2, aluno, ano) + "");
 		trocas.put("valormarco", getValor(3, aluno, ano) + "");
+
+		// Caso especifico: Manuela Marafigo (id 66251) -- nao vamos mais
+		// atende-la, nao havera renovacao. Zera os valores (pra nao parecer
+		// que ainda estamos cobrando) e troca o aviso pela mensagem de que
+		// nao conseguiremos atende-la.
+		if (aluno.getId() != null && aluno.getId() == 66251L) {
+			trocas.put("valorjaneiro", "---");
+			trocas.put("valorfevereiro", "---");
+			trocas.put("valormarco", "---");
+			trocas.put("avisoescola",
+					"Infelizmente não conseguiremos mais atendê-la, portanto não haverá renovação do contrato.");
+		}
 
 		String nomeAluno = aluno.getNomeAluno();
 		if (aluno.getIrmao1() != null) {
