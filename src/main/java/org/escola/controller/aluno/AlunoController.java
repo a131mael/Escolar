@@ -56,6 +56,7 @@ import javax.net.ssl.X509TrustManager;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import org.aaf.escolar.enums.BairroEnum;
 import org.aaf.escolar.enums.EscolaEnum;
 import org.aaf.escolar.nfs.ItemNFS;
 import org.aaf.escolar.nfs.ListaItensNFS;
@@ -1278,6 +1279,19 @@ public class AlunoController implements Serializable {
 		if (aluno.getEscola().equals(EscolaEnum.RODA_PIAO)) {
 			return "Conseguimos realizar o transporte para o Colégio " + aluno.getEscola().getName()
 					+ " somente no período da manhã. Favor ligar para combinar sobre a volta.";
+		}
+
+		boolean bairroRestrito = aluno.getBairroAluno() != null
+				&& (aluno.getBairroAluno().equals(BairroEnum.VALE_VERDE)
+						|| aluno.getBairroAluno().equals(BairroEnum.TERRA_NOVA)
+						|| aluno.getBairroAluno().equals(BairroEnum.MORADAS)
+						|| aluno.getBairroAluno().equals(BairroEnum.JARDINS));
+		boolean escolaRestrita = aluno.getEscola().equals(EscolaEnum.ELCANA)
+				|| aluno.getEscola().equals(EscolaEnum.N_S_FATIMA)
+				|| aluno.getEscola().equals(EscolaEnum.NICOLINA);
+		if (bairroRestrito && escolaRestrita) {
+			return "Conseguimos fazer somente a IDA para o Colégio " + aluno.getEscola().getName()
+					+ ". Caso precise de ida e volta, será necessário mudar de escola.";
 		}
 
 		return "";
