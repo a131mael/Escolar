@@ -1607,8 +1607,10 @@ public class AlunoController implements Serializable {
 		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
 				+ File.separator + configuracaoService.getConfiguracao().getAnoLetivo());
 		if (aluno != null && aluno.getId() != null) {
+			String nomeResponsavelSeguro = contrato.getNomeResponsavel() == null ? ""
+					: contrato.getNomeResponsavel().replaceAll("[\\\\/:*?\"<>|]", " ").trim();
 			nomeArquivo = configuracaoService.getConfiguracao().getAnoLetivo() + File.separator + aluno.getCodigo()
-					+ contrato.getNomeResponsavel() + "R";
+					+ nomeResponsavelSeguro + "R";
 			ImpressoesUtils.imprimirInformacoesAluno(aluno, "modeloRematricula.docx",
 					montarContratoRematricula(aluno, contrato), nomeArquivo);
 			nomeArquivo += ".doc";
@@ -2389,13 +2391,17 @@ public class AlunoController implements Serializable {
 			for (Aluno al : todosAlunos) {
 				// Aluno al = todosAlunos.get(i);
 				if (al.getBairroAluno() != null) {
-					String nome = gerarFichaRematricula(al, gerarContrato(al, true)); // todosAlunos.get(i)
-					String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
-							+ File.separator + nome;
-					InputStream stream = new FileInputStream(caminho);
-
-					// System.out.println(caminho);
-					// FileUtils.inputStreamToFile(stream, nome);
+					// um aluno com dado ruim (ex: nome com caractere invalido pra arquivo)
+					// nao pode travar a geracao de todos os outros
+					try {
+						String nome = gerarFichaRematricula(al, gerarContrato(al, true));
+						String caminho = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
+								+ File.separator + nome;
+						InputStream stream = new FileInputStream(caminho);
+					} catch (Exception e) {
+						System.out.println("Falha ao gerar ficha de rematricula do aluno " + al.getNomeAluno() + " (id="
+								+ al.getId() + "): " + e.getMessage());
+					}
 				}
 			}
 
