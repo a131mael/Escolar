@@ -85,6 +85,9 @@ public class ConfiguracaoController implements Serializable {
 	@Inject
 	private RelatorioService relatorioService;
 
+	@Inject
+	private org.escolar.service.NotaFiscalService notaFiscalService;
+
 	@PostConstruct
 	private void init() {
 		List<Configuracao> confs = configuracaoService.findAll();
@@ -266,7 +269,7 @@ public class ConfiguracaoController implements Serializable {
 	public void gerarNFSEDoMesAtual() {
 		Calendar c = Calendar.getInstance();
 		double limitNota = configuracao.getValorNotas();
-		double totalGerado = relatorioService.getTotalNotasEmitidas(c.get(Calendar.MONTH)+1,configuracao.getAnoLetivo());
+		double totalGerado = notaFiscalService.somarValorAutorizadoMesAno(c.get(Calendar.MONTH)+1,configuracao.getAnoLetivo());
 		List<Aluno> todosAlunos = alunoService.findAlunoDoAnoLetivoComLzyContrato();
 		for (Aluno al : todosAlunos) {
 			if (totalGerado < limitNota) {

@@ -354,8 +354,15 @@
 			<h:commandButton id="voltarButtomDash" immediate="true"
 				action="#{alunoController.voltarDash()}" value="Voltar Dashboard" />
 
-			<p:commandButton id="salvarButtom" 	style="margin-left:690px !important" 
+			<p:commandButton id="salvarButtom" 	style="margin-left:690px !important"
 				action="#{alunoController.salvar()}" value="Salvar" />
+
+			<p:confirmDialog global="true">
+				<p:commandButton value="Sim" type="button"
+					styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+				<p:commandButton value="Nao" type="button"
+					styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+			</p:confirmDialog>
 
 		</h:form>
 	</ui:define>

@@ -74,6 +74,12 @@ public class RelatorioController implements Serializable {
 	private RelatorioService relatorioService;
 
 	@Inject
+	private org.escolar.service.NotaFiscalService notaFiscalService;
+
+	@Inject
+	private org.escolar.service.NFSeHistoricoService nfseHistoricoService;
+
+	@Inject
 	private AlunoService alunoService;
 
 	@Inject
@@ -159,16 +165,110 @@ public class RelatorioController implements Serializable {
 	@Inject
 	private TabelaPrecoService tabelaPrecoService;
 
-	public double getNotasEnviadas(int mes) {
-		return relatorioService.getTotalNotasEmitidas(mes,anoSelecionado);
+	public static class ResumoMesNFSe {
+		private final int mes;
+		private final String nomeMes;
+		private final long qtdNotas;
+		private final double valorTotal;
+
+		public ResumoMesNFSe(int mes, String nomeMes, long qtdNotas, double valorTotal) {
+			this.mes = mes;
+			this.nomeMes = nomeMes;
+			this.qtdNotas = qtdNotas;
+			this.valorTotal = valorTotal;
+		}
+
+		public int getMes() {
+			return mes;
+		}
+
+		public String getNomeMes() {
+			return nomeMes;
+		}
+
+		public long getQtdNotas() {
+			return qtdNotas;
+		}
+
+		public double getValorTotal() {
+			return valorTotal;
+		}
 	}
 
-	public List<String> getResponsaveisNotasEnviadas(int mes) {
-		return relatorioService.getResponsaveisNotasEnviadas(mes,anoSelecionado);
+	private static final String[] NOMES_MESES = { "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
+			"Agosto", "Setembro", "Outubro", "Novembro", "Dezembro" };
+
+	private Integer mesDetalheNFSe;
+
+	/** Total de NFS-e autorizadas por mes do ano selecionado -- fonte unica de verdade
+	 * e a tabela NotaFiscal (nao mais o antigo boleto.nfsEnviada, obsoleto desde a
+	 * migracao pro Sistema Nacional de NFS-e). */
+	public List<ResumoMesNFSe> getResumoNFSePorMes() {
+		List<ResumoMesNFSe> resumo = new ArrayList<>();
+		for (int mes = 1; mes <= 12; mes++) {
+			long qtd = notaFiscalService.contarAutorizadasMesAno(mes, anoSelecionado);
+			double valor = notaFiscalService.somarValorAutorizadoMesAno(mes, anoSelecionado);
+			resumo.add(new ResumoMesNFSe(mes, NOMES_MESES[mes - 1], qtd, valor));
+		}
+		return resumo;
 	}
 
-	public List<String> getResponsaveisNotasEnviadas() {
-		return relatorioService.getResponsaveisNotasEnviadas(mesSelecionado,anoSelecionado);
+	public double getTotalNFSeAnoSelecionado() {
+		double total = 0;
+		for (ResumoMesNFSe r : getResumoNFSePorMes()) {
+			total += r.getValorTotal();
+		}
+		return total;
+	}
+
+	public void selecionarMesDetalheNFSe(int mes) {
+		this.mesDetalheNFSe = mes;
+	}
+
+	public Integer getMesDetalheNFSe() {
+		return mesDetalheNFSe;
+	}
+
+	public String getNomeMesDetalheNFSe() {
+		return mesDetalheNFSe == null ? "" : NOMES_MESES[mesDetalheNFSe - 1];
+	}
+
+	public List<org.escolar.model.NotaFiscal> getNotasDetalheMes() {
+		if (mesDetalheNFSe == null) {
+			return new ArrayList<>();
+		}
+		return notaFiscalService.findAutorizadasMesAno(mesDetalheNFSe, anoSelecionado);
+	}
+
+	public String getNomeAlunoNota(org.escolar.model.NotaFiscal nota) {
+		if (nota.getBoleto() != null && nota.getBoleto().getContrato() != null
+				&& nota.getBoleto().getContrato().getAluno() != null) {
+			return nota.getBoleto().getContrato().getAluno().getNomeAluno();
+		}
+		return nota.getNomeTomador() != null ? nota.getNomeTomador() : "";
+	}
+
+	public List<Integer> getAnosDisponiveis() {
+		List<Integer> anos = new ArrayList<>();
+		for (int ano = 2032; ano >= 2018; ano--) {
+			anos.add(ano);
+		}
+		return anos;
+	}
+
+	public void importarHistoricoNFSe() {
+		org.escolar.service.NFSeHistoricoService.ResultadoImportacao resultado = nfseHistoricoService
+				.importarHistorico(configuracaoService.getConfiguracao());
+		if (resultado.erro != null) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					"Erro ao importar historico: " + resultado.erro, null));
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_INFO,
+							resultado.novasImportadas + " nota(s) nova(s) importada(s), "
+									+ resultado.jaExistiam + " ja existia(m)",
+							null));
+		}
 	}
 
 	public int quantidadeIrmaos(Aluno aluno) {

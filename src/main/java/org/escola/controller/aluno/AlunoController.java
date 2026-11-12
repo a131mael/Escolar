@@ -196,6 +196,12 @@ public class AlunoController implements Serializable {
 	private org.escolar.service.SicoobBoletoService sicoobBoletoService;
 
 	@Inject
+	private org.escolar.service.NFSeNacionalService nfseNacionalService;
+
+	@Inject
+	private org.escolar.service.NotaFiscalService notaFiscalService;
+
+	@Inject
 	private ConfiguracaoService configuracaoService;
 
 	@Inject
@@ -1666,8 +1672,12 @@ public class AlunoController implements Serializable {
 		CompactadorZip.createDir(FacesContext.getCurrentInstance().getExternalContext().getRealPath("/")
 				+ File.separator + configuracaoService.getConfiguracao().getAnoLetivo());
 		if (aluno != null && aluno.getId() != null) {
+			// remove acentos do nome usado no arquivo (nao do conteudo do documento) --
+			// nomes acentuados no entry name do zip ficam com encoding ambiguo e o
+			// extrator nativo do Windows descarta esses arquivos silenciosamente.
 			String nomeResponsavelSeguro = contrato.getNomeResponsavel() == null ? ""
-					: contrato.getNomeResponsavel().replaceAll("[\\\\/:*?\"<>|]", " ").trim();
+					: java.text.Normalizer.normalize(contrato.getNomeResponsavel(), java.text.Normalizer.Form.NFD)
+							.replaceAll("\\p{M}", "").replaceAll("[\\\\/:*?\"<>|]", " ").trim();
 			// aluno.getCodigo() nao e unico por crianca (irmaos podem compartilhar o
 			// mesmo codigo), entao incluimos o id do aluno pra garantir que o arquivo
 			// de um irmao nao sobrescreva o do outro.
@@ -2017,39 +2027,62 @@ public class AlunoController implements Serializable {
 		gerarNFSe(aluno);
 	}
 
+	/** Substitui o antigo fluxo via upload de XML pra prefeitura: emite pelo Sistema
+	 * Nacional de NFS-e (sefin.nfse.gov.br) o(s) boleto(s) pago(s) no mes atual do
+	 * aluno, em TODOS os contratos nao-cancelados (nao so o "vigente" -- um aluno
+	 * pode ter mais de um contrato ativo no mesmo ano). */
 	public void gerarNFSe(Aluno aluno) {
-		try {
-			JAXBContext contextObj;
-			contextObj = JAXBContext.newInstance(NFSeDTO.class);
-
-			Marshaller marshallerObj = contextObj.createMarshaller();
-			marshallerObj.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-
-			String nomeArquivo = System.currentTimeMillis() + "__"
-					+ aluno.getContratoVigente().getNomeResponsavel().replace(" ", "") + ".xml";
-			String caminho = File.separator + "home" + File.separator + "servidor" + File.separator + "nfs"
-					+ File.separator + "tefamel" + File.separator + nomeArquivo;
-
-			marshallerObj.marshal(getNFSeDTO(aluno), new FileOutputStream(caminho));
-
-			if (enviarNFS(caminho, Contants.login, Contants.senha)) {
-				ContratoAluno contrato = aluno.getContratoVigente(configuracao.getAnoLetivo());
-				org.escolar.model.Boleto boletoMesAtual = getBoletoMesAtual(contrato);
-				alunoService.setNfsEnviada(boletoMesAtual.getId());
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info",
-						"NOTA GERADA do ALUNO " + aluno.getNomeAluno()));
-
-			} else {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info",
-						"NÃO GEROU A NOTA " + aluno.getNomeAluno()
-								+ (ultimoErroEnvioNFS != null ? " — " + ultimoErroEnvioNFS : "")));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info", "NÃO GEROU A NOTA " + aluno.getNomeAluno()));
+		aluno = alunoService.findById(aluno.getId());
+		List<org.escolar.model.Boleto> boletosPagosMesAtual = getBoletosPagosMesAtualTodosContratos(aluno);
+		if (boletosPagosMesAtual.isEmpty()) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Info",
+					"NÃO GEROU A NOTA " + aluno.getNomeAluno() + " — nenhum boleto pago no mes atual encontrado"));
+			return;
 		}
+		for (org.escolar.model.Boleto boleto : boletosPagosMesAtual) {
+			emitirNFSeNacional(boleto);
+		}
+	}
+
+	/** Procura em TODOS os contratos nao-cancelados do aluno TODOS os boletos pagos
+	 * no mes atual (pode ter mais de um, ex: pagou atrasado + o atual). */
+	private List<org.escolar.model.Boleto> getBoletosPagosMesAtualTodosContratos(Aluno aluno) {
+		List<org.escolar.model.Boleto> encontrados = new ArrayList<>();
+		Calendar inicioMes = Calendar.getInstance();
+		inicioMes.set(Calendar.DAY_OF_MONTH, 1);
+		inicioMes.set(Calendar.HOUR_OF_DAY, 0);
+		inicioMes.set(Calendar.MINUTE, 0);
+		inicioMes.set(Calendar.SECOND, 0);
+		inicioMes.set(Calendar.MILLISECOND, 0);
+
+		Calendar fimMes = Calendar.getInstance();
+		fimMes.set(Calendar.DAY_OF_MONTH, fimMes.getActualMaximum(Calendar.DAY_OF_MONTH));
+		fimMes.set(Calendar.HOUR_OF_DAY, 23);
+		fimMes.set(Calendar.MINUTE, 59);
+		fimMes.set(Calendar.SECOND, 59);
+		fimMes.set(Calendar.MILLISECOND, 999);
+
+		if (aluno.getContratos() != null) {
+			for (ContratoAluno contrato : aluno.getContratos()) {
+				if (contrato.getCancelado() != null && contrato.getCancelado()) {
+					continue;
+				}
+				if (contrato.getBoletos() == null) {
+					continue;
+				}
+				for (org.escolar.model.Boleto b : contrato.getBoletos()) {
+					if (b.getDataPagamento() == null) {
+						continue;
+					}
+					if (b.getDataPagamento().before(inicioMes.getTime())
+							|| b.getDataPagamento().after(fimMes.getTime())) {
+						continue;
+					}
+					encontrados.add(b);
+				}
+			}
+		}
+		return encontrados;
 	}
 
 	public void perdoarDivida(org.escolar.model.Boleto boleto) {
@@ -2546,6 +2579,92 @@ public class AlunoController implements Serializable {
 		}
 		FacesContext.getCurrentInstance().addMessage(null,
 			new FacesMessage(FacesMessage.SEVERITY_INFO, "Sicoob", sucesso + " boleto(s) consultado(s) com sucesso, " + erro + " com erro"));
+	}
+
+	public void emitirNFSeNacional(org.escolar.model.Boleto boleto) {
+		try {
+			System.out.println("[NFSE] emitirNFSeNacional chamado, boleto=" + boleto.getId());
+			org.escolar.model.NotaFiscal nota = notaFiscalService.findUltimaPorBoleto(boleto.getId());
+			if (nota != null && "AUTORIZADA".equals(nota.getStatus())) {
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage(FacesMessage.SEVERITY_WARN, "Este boleto ja tem NFS-e autorizada (numero "
+								+ nota.getNumero() + ")", null));
+				return;
+			}
+			if (nota == null) {
+				nota = new org.escolar.model.NotaFiscal();
+				nota.setBoleto(boleto);
+			}
+			double valor = boleto.getValorPago() != null ? boleto.getValorPago() : boleto.getValorNominal();
+			nota.setValor(valor);
+			nota.setAmbiente(configuracao.getNfseAmbiente());
+			nota.setOrigem("SISTEMA");
+			nota.setStatus("PENDENTE");
+			nota.setDataEnvio(new Date());
+			Long notaId = notaFiscalService.save(nota).getId();
+
+			org.escolar.model.ContratoAluno contrato = boleto.getContrato();
+			String nomeResponsavel = contrato != null ? contrato.getNomeResponsavel() : "";
+			String cpfResponsavel = contrato != null ? contrato.getCpfResponsavel() : "";
+			String descricao = "Servico de transporte escolar" + (contrato != null && contrato.getAluno() != null
+					? " - " + contrato.getAluno().getNomeAluno() : "");
+
+			org.escolar.service.NFSeNacionalService.ResultadoEmissao resultado;
+			try {
+				resultado = nfseNacionalService.emitir(configuracao, notaId, nomeResponsavel, cpfResponsavel, valor,
+						descricao);
+			} catch (Exception eEmissao) {
+				System.out.println("[NFSE] ERRO ao chamar sefin, boleto=" + boleto.getId() + ": " + eEmissao);
+				eEmissao.printStackTrace();
+				org.escolar.model.NotaFiscal notaFresca = notaFiscalService.findById(notaId);
+				notaFiscalService.atualizarRejeitada(notaFresca, String.valueOf(eEmissao));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"Erro ao emitir NFS-e: " + eEmissao.getMessage(), null));
+				return;
+			}
+
+			org.escolar.model.NotaFiscal notaFresca = notaFiscalService.findById(notaId);
+			if (resultado.sucesso) {
+				notaFiscalService.atualizarAutorizada(notaFresca, resultado.numero, resultado.chaveAcesso,
+						resultado.xmlRetorno);
+				System.out.println(
+						"[NFSE] boleto " + boleto.getId() + " -> AUTORIZADA, chave=" + resultado.chaveAcesso);
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage(FacesMessage.SEVERITY_INFO, "NFS-e emitida com sucesso", null));
+			} else {
+				notaFiscalService.atualizarRejeitada(notaFresca, resultado.motivoRejeicao, resultado.xmlRetorno);
+				System.out.println("[NFSE] boleto " + boleto.getId() + " -> REJEITADA: " + resultado.motivoRejeicao
+						+ " | corpo=" + resultado.xmlRetorno);
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+						"NFS-e rejeitada: " + resultado.motivoRejeicao, null));
+			}
+		} catch (Exception e) {
+			System.out.println("[NFSE] ERRO INESPERADO boleto " + boleto.getId() + ": " + e);
+			e.printStackTrace();
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+					"Erro inesperado ao emitir NFS-e: " + e.getMessage(), null));
+		}
+	}
+
+	public String getNFSeStatusHtml(org.escolar.model.Boleto boleto) {
+		org.escolar.model.NotaFiscal nota = notaFiscalService.findUltimaPorBoleto(boleto.getId());
+		if (nota == null) {
+			return "<span style=\"color:#999;\">— não emitida —</span>";
+		}
+		String cor;
+		if ("AUTORIZADA".equals(nota.getStatus())) {
+			cor = "#2e7d32";
+		} else if ("REJEITADA".equals(nota.getStatus())) {
+			cor = "#c62828";
+		} else {
+			cor = "#f9a825";
+		}
+		String label = "AUTORIZADA".equals(nota.getStatus()) && nota.getNumero() != null ? "Nº " + nota.getNumero()
+				: nota.getStatus();
+		return "<span style=\"background:" + cor
+				+ ";color:white;border-radius:3px;padding:1px 6px;font-size:11px;\" title=\""
+				+ (nota.getMotivoRejeicao() != null ? nota.getMotivoRejeicao().replace("\"", "'") : "") + "\">"
+				+ label + "</span>";
 	}
 
 	public String getSicoobStatusHtml(org.escolar.model.Boleto boleto) {
