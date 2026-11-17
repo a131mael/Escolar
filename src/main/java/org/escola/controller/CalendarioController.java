@@ -92,6 +92,9 @@ public class CalendarioController implements Serializable {
 	@Inject
 	private ScmobiService scmobiService;
 
+	@Inject
+	private org.escolar.service.PassageiroViagemService passageiroViagemService;
+
 	@Produces
 	@Named
 	private Evento evento;
@@ -631,6 +634,13 @@ public class CalendarioController implements Serializable {
 		frete = freteService.findById(id);
 		garantirTokenPublico();
 		carrosSelecionados = montarCarrosSelecionados(frete.getCarroFrete());
+	}
+
+	public void removerPassageiro(PassageiroViagem passageiro) {
+		passageiroViagemService.remover(passageiro.getId());
+		frete.getPassageiros().remove(passageiro);
+		FacesContext.getCurrentInstance().addMessage(null,
+				new FacesMessage(FacesMessage.SEVERITY_INFO, "Passageiro removido", null));
 	}
 
 	public void carregarViagem() {

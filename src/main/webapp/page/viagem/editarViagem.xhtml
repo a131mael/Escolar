@@ -352,13 +352,20 @@
 						</div>
 					</div>
 
-					<p:dataTable value="#{calendarioController.frete.passageiros}" var="passageiro"
+					<p:dataTable id="tblPassageiros" value="#{calendarioController.frete.passageiros}" var="passageiro"
 						emptyMessage="Nenhum passageiro confirmado ainda.">
 						<p:column headerText="Nome">
 							<h:outputText value="#{passageiro.nome}"/>
 						</p:column>
 						<p:column headerText="CPF">
 							<h:outputText value="#{passageiro.cpf}"/>
+						</p:column>
+						<p:column headerText="Ações" style="width:100px">
+							<p:commandButton value="Remover" icon="ui-icon-trash" style="font-size:11px;"
+								actionListener="#{calendarioController.removerPassageiro(passageiro)}"
+								process="@this" update="@form">
+								<p:confirm header="Confirmação" message="Remover esse passageiro da viagem?" icon="ui-icon-alert" />
+							</p:commandButton>
 						</p:column>
 					</p:dataTable>
 
