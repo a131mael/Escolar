@@ -1001,7 +1001,7 @@ public class AlunoController implements Serializable {
 
 		trocas.put("#CONTRATANTENOME", contrato.getNomeResponsavel());
 		trocas.put("#CONTRATANTERG", contrato.getRgResponsavel());
-		trocas.put("#CONTRATANTECPF", contrato.getCpfResponsavel());
+		trocas.put("#CONTRATANTECPF", org.escolar.util.Formatador.formataCpf(contrato.getCpfResponsavel()));
 
 		if (aluno.getEnderecoAluno() != null && !aluno.getEnderecoAluno().equalsIgnoreCase("")) {
 			trocas.put("transalru", aluno.getEnderecoAluno());
@@ -1052,17 +1052,11 @@ public class AlunoController implements Serializable {
 		trocas.put("#DADOSGERAISMES1", getMesInicioPagamento(aluno, contrato));
 		trocas.put("#DADOSGERAISMES2", "Dezembro");
 		trocas.put("#DADOSGERAISPARCELAS", contrato.getNumeroParcelas() + "");
-		// BigDecimal valorTotal = (new
-		// BigDecimal(contrato.getValorTotal())).multiply(((new
-		// BigDecimal(contrato.getParcelas()))));
-		// trocas.put("#DADOSGERAISTOTAL", valorTotal.toString());
-		trocas.put("#DADOSGERAISTOTAL", String.valueOf(valorTotal(aluno))); // TODO
-																			// ver
-		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
+		trocas.put("#DADOSGERAISTOTAL", org.escolar.util.Formatador.formataValorBR(valorTotal(aluno)));
 		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(aluno))));
 		trocas.put("#DADOSGERAISQTADEPARCELAS", contrato.getNumeroParcelas() + "");
 		trocas.put("parexten", cw.write(new BigDecimal(contrato.getValorMensal())));
-		trocas.put("#DADOSGERAISPARCELA", contrato.getValorMensal() + "");/// valor
+		trocas.put("#DADOSGERAISPARCELA", org.escolar.util.Formatador.formataValorBR(contrato.getValorMensal()));/// valor
 																			/// da
 																			/// parcela
 
@@ -1166,7 +1160,7 @@ public class AlunoController implements Serializable {
 
 		trocas.put("#CONTRATANTENOME", contrato.getNomeResponsavel());
 		trocas.put("#CONTRATANTERG", contrato.getRgResponsavel());
-		trocas.put("#CONTRATANTECPF", contrato.getCpfResponsavel());
+		trocas.put("#CONTRATANTECPF", org.escolar.util.Formatador.formataCpf(contrato.getCpfResponsavel()));
 
 		if (contrato.getAluno().getEnderecoAluno() != null
 				&& !contrato.getAluno().getEnderecoAluno().equalsIgnoreCase("")) {
@@ -1220,17 +1214,11 @@ public class AlunoController implements Serializable {
 		trocas.put("#DADOSGERAISMES1", getMesInicioPagamento(contrato.getAluno(), contrato));
 		trocas.put("#DADOSGERAISMES2", "Dezembro");
 		trocas.put("#DADOSGERAISPARCELAS", contrato.getNumeroParcelas() + "");
-		// BigDecimal valorTotal = (new
-		// BigDecimal(contrato.getValorTotal())).multiply(((new
-		// BigDecimal(contrato.getParcelas()))));
-		// trocas.put("#DADOSGERAISTOTAL", valorTotal.toString());
-		trocas.put("#DADOSGERAISTOTAL", String.valueOf(valorTotal(contrato.getAluno()))); // TODO
-		// ver
-		// contrato.setValorTotal(contrato.getValorTotal().replace(",", "."));
+		trocas.put("#DADOSGERAISTOTAL", org.escolar.util.Formatador.formataValorBR(valorTotal(contrato.getAluno())));
 		trocas.put("#DADOSGERAISTOTALEXTENSO", cw.write(new BigDecimal(valorTotal(contrato.getAluno()))));
 		trocas.put("#DADOSGERAISQTADEPARCELAS", contrato.getNumeroParcelas() + "");
 		trocas.put("parexten", cw.write(new BigDecimal(contrato.getValorMensal())));
-		trocas.put("#DADOSGERAISPARCELA", contrato.getValorMensal() + "");/// valor
+		trocas.put("#DADOSGERAISPARCELA", org.escolar.util.Formatador.formataValorBR(contrato.getValorMensal()));/// valor
 																			/// da
 																			/// parcela
 
