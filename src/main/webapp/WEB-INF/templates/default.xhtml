@@ -145,8 +145,8 @@ body {
 				<div class="login-container">
 					
 					<h:form>
-						<p:inputText id="name" value="#{authUser.login}" alt="usuario" placeholder="USUARIO"/>
-						<p:password id="email" value="#{authUser.senha}" alt="senha" placeholder="SENHA"/>
+						<p:inputText id="name" value="#{authUser.login}" alt="usuario" placeholder="USUARIO" autocomplete="username"/>
+						<p:password id="email" value="#{authUser.senha}" alt="senha" placeholder="SENHA" autocomplete="current-password"/>
 						<h:commandButton id="login" action="#{authController.login()}"
 								value="Entrar" styleClass="register" />
 					</h:form>
