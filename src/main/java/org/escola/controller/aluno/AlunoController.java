@@ -178,6 +178,9 @@ public class AlunoController implements Serializable {
 	private AlunoService alunoService;
 
 	@Inject
+	private org.escolar.service.MemberRegistration memberRegistration;
+
+	@Inject
 	private SuspensaoContratoService suspensaoContratoService;
 
 	@Inject
@@ -3161,9 +3164,10 @@ public class AlunoController implements Serializable {
 		try {
 
 			Member user = null;
-			if (SecurityUtils.getSubject().getPrincipal() != null) {
+			Object principal = SecurityUtils.getSubject().getPrincipal();
+			if (principal != null) {
 				System.out.println("CONSTRUIU O USUARIO LOGADO !!");
-				user = (Member) SecurityUtils.getSubject().getPrincipal();
+				user = memberRegistration.findById((Long) principal);
 			}
 
 			return user;

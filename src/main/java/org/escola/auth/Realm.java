@@ -59,7 +59,12 @@ public class Realm extends AuthorizingRealm {
 			m.setSenha(sb.toString());
 			Member member = mr.login(m);
 			if(member != null){
-				return new SimpleAuthenticationInfo(member, m.getSenha(), getName());
+				// Guarda so o id como principal -- o Member inteiro carrega junto
+				// (eager) o Aluno/Funcionario vinculado, e esse objeto serializado
+				// no cookie de "manter logado" passava do limite de ~4KB que o
+				// navegador aceita por cookie, entao o cookie nunca era gravado
+				// (sem erro nenhum, nem no servidor nem no browser -- so sumia).
+				return new SimpleAuthenticationInfo(member.getId(), m.getSenha(), getName());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

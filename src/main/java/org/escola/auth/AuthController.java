@@ -33,6 +33,7 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.escolar.enums.TipoMembro;
 import org.escolar.model.Carro;
 import org.escolar.model.Member;
+import org.escolar.service.MemberRegistration;
 import org.escolar.service.TurmaService;
 import org.escolar.util.Constant;
 
@@ -54,6 +55,9 @@ public class AuthController implements Serializable {
 	
 	@Inject
 	private TurmaService carroService;
+
+	@Inject
+	private MemberRegistration memberRegistration;
 
 	@PostConstruct
 	public void initNewMember() {
@@ -263,10 +267,13 @@ public class AuthController implements Serializable {
 	public Member getLoggedUser() {
 		try {
 			if (loggedUser == null) {
-				if (SecurityUtils.getSubject().getPrincipal() != null) {
+				Object principal = SecurityUtils.getSubject().getPrincipal();
+				if (principal != null) {
 					System.out.println("CONSTRUIU O USUARIO LOGADO !!");
-					Member user = (Member) SecurityUtils.getSubject().getPrincipal();
-					loggedUser = user;
+					// O principal agora e so o id (ver Realm) -- recarrega o Member
+					// completo do banco, ja que no cookie de "manter logado" nao
+					// existe sessao JPA nenhuma por tras.
+					loggedUser = memberRegistration.findById((Long) principal);
 				}
 			}
 
