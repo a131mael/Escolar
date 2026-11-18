@@ -940,6 +940,8 @@ public class RelatorioController implements Serializable {
 						filtros.put("statusContrato", statusContrato);
 					}
 
+					filtros.put("anoSelecionado", anoSelecionado);
+
 					if (filtros.containsKey("escola")) {
 						String escolaSelecionada = filtros.get("escola").toString();
 						
@@ -1092,7 +1094,7 @@ public class RelatorioController implements Serializable {
 	}
 
 	public void saveStatusContrato(Aluno aluno) {
-		alunoService.saveStatusCntrato(aluno);
+		alunoService.saveStatusCntrato(aluno, anoSelecionado);
 	}
 	
 	
@@ -1524,7 +1526,7 @@ public class RelatorioController implements Serializable {
 			for (String telefone : telefones) {
 			boolean enviado =	EnviadorWhats.enviarWhats("rematricula", telefone, parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 		} else {
@@ -1532,35 +1534,35 @@ public class RelatorioController implements Serializable {
 			if (telefones.get(0) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(0), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(1), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(2), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(3), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula", telefones.get(4), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 		
@@ -1582,7 +1584,7 @@ public class RelatorioController implements Serializable {
 			for (String telefone : telefones) {
 			boolean enviado =	EnviadorWhats.enviarWhats("rematricula_terceira", telefone, parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 		} else {
@@ -1590,35 +1592,35 @@ public class RelatorioController implements Serializable {
 			if (telefones.get(0) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(0), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 1 && telefones.get(1) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(1), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 2 && telefones.get(2) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(2), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 3 && telefones.get(3) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(3), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 
 			if (telefones.size() > 4 && telefones.get(4) != null) {
 				boolean enviado = EnviadorWhats.enviarWhats("rematricula_terceira", telefones.get(4), parametros);
 				if (enviado) {
-					alunoService.setStatusCONVITE_ENVIADO(aluno);
+					alunoService.setStatusCONVITE_ENVIADO(aluno, anoSelecionado);
 				}
 			}
 		

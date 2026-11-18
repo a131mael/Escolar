@@ -25,7 +25,7 @@
 				rendered="#{authController.hasPermission(authController.administrador
 							,authController.secretaria,authController.secretaria,authController.dono)}">
 
-			<h:outputText value="Ano letivo atual: #{relatorioController.configuracao.anoLetivo}"
+			<h:outputText value="Mostrando contratos do ano: #{relatorioController.anoSelecionado} (troque no seletor de ano da tela inicial)"
 				style="display:block; font-weight:bold; font-size:14px; margin-bottom:10px;" />
 
 			<h:panelGrid id="panelFerramentas" columns="17" style="margin-left:-20px">
