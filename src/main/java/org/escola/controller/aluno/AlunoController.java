@@ -2714,12 +2714,12 @@ public class AlunoController implements Serializable {
 	public String marcarLinhaContrato(Aluno a) {
 		String cor = "";
 		if (a != null) {
-			if ( (a.getStatusContrato() != null 
-					&& a.getStatusContrato().equals(StatusContratoEnum.ACEITO_CONTRATO_ENVIADO))
-					|| (a.getStatusContrato() != null && a.getStatusContrato().equals(StatusContratoEnum.ACEITO)) 
+			StatusContratoEnum status = a.getStatusContratoAtual(configuracaoService.getConfiguracao().getAnoLetivo());
+			if ( (status != null && status.equals(StatusContratoEnum.ACEITO_CONTRATO_ENVIADO))
+					|| (status != null && status.equals(StatusContratoEnum.ACEITO))
 					) {
 				cor = "marcarLinhaAmarelo";
-			} 
+			}
 		}
 
 		return cor;
