@@ -11,11 +11,13 @@
 	<h:outputScript library="js" name="qrcode.min.js" target="head" />
 	<h:outputScript library="js" name="JsBarcode.all.min.js" target="head" />
 	<style type="text/css">
-		@page { size: A4; margin: 2mm; }
+		@page { size: A4; margin: 8mm; }
 		* { box-sizing: border-box; }
-		body { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color:#000; margin: 10px; }
+		html, body { width:100%; margin:0; padding:0; }
+		body { font-family: Arial, Helvetica, sans-serif; font-size: 9px; color:#000; }
+		.pagina { width:100%; max-width:194mm; margin:10px auto; }
 		.banner { background:#c62828; color:#fff; text-align:center; font-weight:bold; font-size:16px; padding:8px; margin-bottom:10px; letter-spacing:1px; }
-		.btn-imprimir { margin-bottom:12px; }
+		.btn-imprimir { margin-bottom:12px; text-align:center; }
 
 		table.dacte { width:100%; border-collapse:collapse; table-layout:fixed; }
 		table.dacte td { border:1px solid #000; padding:2px 3px; vertical-align:top; overflow:hidden; }
@@ -48,6 +50,8 @@
 	<div class="no-print btn-imprimir">
 		<input type="button" value="Imprimir" onclick="window.print();" />
 	</div>
+
+	<div class="pagina">
 
 	<ui:fragment rendered="#{calendarioController.frete.statusCte != 'AUTORIZADO' and calendarioController.frete.statusCte != 'CANCELADO'}">
 		<div class="banner">SEM VALOR FISCAL - DOCUMENTO PROVISÓRIO (RASCUNHO)</div>
@@ -382,6 +386,8 @@
 		</tr>
 
 	</table>
+
+	</div>
 
 	<script type="text/javascript">
 		window.addEventListener('load', function () {
